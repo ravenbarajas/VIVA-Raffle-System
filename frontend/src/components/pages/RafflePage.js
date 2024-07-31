@@ -6,7 +6,7 @@ function RafflePage() {
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
             <button>
-                Click me for game
+                Draw Raffle
             </button>
         </div>
     </div>
