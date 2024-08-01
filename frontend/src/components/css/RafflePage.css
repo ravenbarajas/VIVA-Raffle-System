@@ -1,0 +1,10 @@
+.rafflePage-container {
+    padding: 20px;
+  }
+  
+  .rafflePage-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  

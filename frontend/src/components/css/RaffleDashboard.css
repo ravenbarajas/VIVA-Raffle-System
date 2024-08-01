@@ -15,4 +15,30 @@
     justify-content: center;
     text-align: center;
   }
+  .navigation-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .raffleDashboard-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+  }
+  .ctrl-container-body {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .ctrl-body-start, .ctrl-body-mid, .ctrl-body-end {
+    padding: .5rem;
+  }
+  .ctrl-body-start button, .ctrl-body-mid button, .ctrl-body-end button {
+    padding: .5rem;
+  }
+
+  
+  
+  
   
