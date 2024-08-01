@@ -4,23 +4,24 @@ import '../css/RafflePage.css';
 function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
   const [selectedPrize, setSelectedPrize] = useState(null);
+  const [prizes, setPrizes] = useState([]);
 
   useEffect(() => {
-    const storedName = localStorage.getItem('generatedName');
-    if (storedName) {
-      setGeneratedName(storedName);
-    }
-
     const handleMessage = (event) => {
       if (event.data.type === 'NAME_GENERATED') {
         setGeneratedName(event.data.name);
         localStorage.setItem('generatedName', event.data.name);
       } else if (event.data.type === 'PRIZE_SELECTED') {
         setSelectedPrize(event.data.prize);
+      } else if (event.data.type === 'UPDATE_PRIZES') {
+        setPrizes(event.data.prizes);
+        localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } else if (event.data.type === 'RESTART_DRAW') {
         setGeneratedName('');
         setSelectedPrize(null);
+        setPrizes([]);
         localStorage.removeItem('generatedName');
+        localStorage.removeItem('prizes');
       }
     };
     window.addEventListener('message', handleMessage);

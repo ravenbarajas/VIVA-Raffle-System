@@ -41,27 +41,28 @@ function RaffleDashboard() {
     const [selectedPrize, setSelectedPrize] = useState(null);
     const [prizes, setPrizes] = useState(INITIAL_PRIZES);
 
+    const [winners, setWinners] = useState([]);
+
     useEffect(() => {
-        const storedName = localStorage.getItem('generatedName');
-            if (storedName) {
-            setGeneratedName(storedName);
-        }
         const handleMessage = (event) => {
           if (event.data.type === 'NAME_GENERATED') {
             setGeneratedName(event.data.name);
             localStorage.setItem('generatedName', event.data.name);
-          }
-          else if (event.data.type === 'RESTART_DRAW') {
+          } else if (event.data.type === 'RESTART_DRAW') {
             setGeneratedName('');
             setSelectedPrize(null);
             setPrizes(INITIAL_PRIZES);
+            setWinners([]);
             localStorage.removeItem('generatedName');
+            localStorage.removeItem('prizes');
+            localStorage.removeItem('winners');
           }
         };
+    
         window.addEventListener('message', handleMessage);
     
         return () => window.removeEventListener('message', handleMessage);
-      }, []);    
+      }, []);  
 
     const openRafflePage  = () => {
         const raffleTab = window.open('/rafflePage', '_blank');
@@ -69,32 +70,49 @@ function RaffleDashboard() {
     };
 
     const generateName = () => {
+        if (!selectedPrize || selectedPrize.quantity <= 0) return; // Ensure a prize is selected and quantity > 0 before generating a name
+
         const randomName = NAMES[Math.floor(Math.random() * NAMES.length)];
         setGeneratedName(randomName);
         localStorage.setItem('generatedName', randomName);
+
         if (raffleTabRef.current) {
           raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: randomName }, '*');
         }
-        if (selectedPrize) {
-            const updatedPrizes = prizes.map(prize => 
-              prize.name === selectedPrize.name ? { ...prize, quantity: prize.quantity - 1 } : prize
-            );
-            setPrizes(updatedPrizes);
-            if (raffleTabRef.current) {
-              raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize: selectedPrize }, '*');
-            }
-          }
+
+        const updatedPrizes = prizes.map(prize => 
+            prize.name === selectedPrize.name ? { ...prize, quantity: prize.quantity - 1 } : prize
+        );
+        setPrizes(updatedPrizes);
+        setSelectedPrize(prevSelectedPrize =>
+            updatedPrizes.find(prize => prize.name === prevSelectedPrize.name)
+          );
+        localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
+
+        const newWinner = { name: randomName, prize: selectedPrize.name };
+        const updatedWinners = [...winners, newWinner];
+        setWinners(updatedWinners);
+        localStorage.setItem('winners', JSON.stringify(updatedWinners));
+
+        if (raffleTabRef.current) {
+            raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize: selectedPrize }, '*');
+            raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+            raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+        }
       };
 
-    const restartDraw = () => {
+      const restartDraw = () => {
         setGeneratedName('');
         setSelectedPrize(null);
         setPrizes(INITIAL_PRIZES);
+        setWinners([]);
         localStorage.removeItem('generatedName');
+        localStorage.removeItem('prizes');
+        localStorage.removeItem('winners');
         if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
+          raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
         }
-    };
+      };
     const selectPrize = (prize) => {
         setSelectedPrize(prize);
         if (raffleTabRef.current) {
@@ -115,25 +133,29 @@ function RaffleDashboard() {
   return (
     <div className="raffleDashboard-container">
         <div className="grid-item">
-            <div className='ctrl-container'>
-                <div className='ctrl-container-header'>
-
+            <div className='summary-container'>
+                <div className='summary-container-header'>
+                    <h3>Winners</h3>
                 </div>
-                <div className='ctrl-container-body'>
-                    <div className='ctrl-body-start'>
-                        <button onClick={openRafflePage}>Open Raffle</button>
-                        <button>Start Draw</button>
-                    </div>
-                    <div className='ctrl-body-mid'>
-                        <button onClick={generateName}>Draw Winner</button>
-                        <button>Waive Prize</button>
-                    </div>
-                    <div className='ctrl-body-end'>
-                        <button onClick={restartDraw}>Restart Draw</button>
-                        <button>End Draw</button>
-                    </div>
+                <div className='summary-container-body'>
+                    <table>
+                    <thead>
+                        <tr>
+                        <th>Name</th>
+                        <th>Prize</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {winners.map((winner, index) => (
+                        <tr key={index}>
+                            <td>{winner.name}</td>
+                            <td>{winner.prize}</td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
                 </div>
-                <div className='ctrl-container-footer'>
+                <div className='summary-container-footer'>
                     
                 </div>
             </div>
@@ -174,36 +196,64 @@ function RaffleDashboard() {
             </div>
         </div>
         <div className="grid-item">
-            <div className='prize-container'>
-                <div className='prize-container-header'>
+            <div className='raffle-ctrl-container'>
+                <div className='ctrl-container'>
+                    <div className='ctrl-container-header'>
 
+                    </div>
+                    <div className='ctrl-container-body'>
+                        <div className='ctrl-body-start'>
+                            <button onClick={openRafflePage}>Open Raffle</button>
+                            <button>Start Draw</button>
+                        </div>
+                        <div className='ctrl-body-mid'>
+                            <button 
+                                onClick={generateName} 
+                                disabled={!selectedPrize || selectedPrize.quantity <= 0}>
+                                    Draw Winner
+                            </button>
+                            <button>Waive Prize</button>
+                        </div>
+                        <div className='ctrl-body-end'>
+                            <button onClick={restartDraw}>Restart Draw</button>
+                            <button>End Draw</button>
+                        </div>
+                    </div>
+                    <div className='ctrl-container-footer'>
+                        
+                    </div>
                 </div>
-                <div className='prize-container-body'>
-                    <table>
-                        <thead>
-                            <tr>
-                            <th>Prize</th>
-                            <th>Quantity</th>
-                            <th>Select</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {prizes.map((prize, index) => (
-                            <tr key={index}>
-                                <td>{prize.name}</td>
-                                <td>{prize.quantity}</td>
-                                <td>
-                                <button onClick={() => selectPrize(prize)} disabled={prize.quantity === 0}>
-                                    Select
-                                </button>
-                                </td>
-                            </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className='prize-container-footer'>
-                    
+                    <div className='prize-container'>
+                    <div className='prize-container-header'>
+
+                    </div>
+                    <div className='prize-container-body'>
+                        <table>
+                            <thead>
+                                <tr>
+                                <th>Prize</th>
+                                <th>Quantity</th>
+                                <th>Select</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {prizes.map((prize, index) => (
+                                <tr key={index}>
+                                    <td>{prize.name}</td>
+                                    <td>{prize.quantity}</td>
+                                    <td>
+                                    <button onClick={() => selectPrize(prize)} disabled={prize.quantity === 0}>
+                                        Select
+                                    </button>
+                                    </td>
+                                </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className='prize-container-footer'>
+                        
+                    </div>
                 </div>
             </div>
         </div>

@@ -37,6 +37,10 @@
   .ctrl-body-start button, .ctrl-body-mid button, .ctrl-body-end button {
     padding: .5rem;
   }
+  .raffle-ctrl-container {
+    display: flex;
+    flex-direction: row;
+  }
 
   
   
