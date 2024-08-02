@@ -43,6 +43,9 @@ function RaffleDashboard() {
 
     const [winners, setWinners] = useState([]);
 
+    const [isDrawDisabled, setIsDrawDisabled] = useState(true);
+    const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
+
     useEffect(() => {
         const handleMessage = (event) => {
           if (event.data.type === 'NAME_GENERATED') {
@@ -53,6 +56,8 @@ function RaffleDashboard() {
             setSelectedPrize(null);
             setPrizes(INITIAL_PRIZES);
             setWinners([]);
+            setIsDrawDisabled(true);
+            setIsPrizeRevealed(false);
             localStorage.removeItem('generatedName');
             localStorage.removeItem('prizes');
             localStorage.removeItem('winners');
@@ -78,6 +83,7 @@ function RaffleDashboard() {
 
         if (raffleTabRef.current) {
           raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: randomName }, '*');
+          raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
         }
 
         const updatedPrizes = prizes.map(prize => 
@@ -94,6 +100,9 @@ function RaffleDashboard() {
         setWinners(updatedWinners);
         localStorage.setItem('winners', JSON.stringify(updatedWinners));
 
+        setIsDrawDisabled(true); // Disable the "Draw Winner" button after drawing
+        setIsPrizeRevealed(true); // Reveal the prize after drawing
+
         if (raffleTabRef.current) {
             raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize: selectedPrize }, '*');
             raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
@@ -106,6 +115,8 @@ function RaffleDashboard() {
         setSelectedPrize(null);
         setPrizes(INITIAL_PRIZES);
         setWinners([]);
+        setIsDrawDisabled(true); // Disable the "Draw Winner" button after restarting
+        setIsPrizeRevealed(false);
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
         localStorage.removeItem('winners');
@@ -113,12 +124,13 @@ function RaffleDashboard() {
           raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
         }
       };
+
     const selectPrize = (prize) => {
         setSelectedPrize(prize);
-        if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize }, '*');
-        }
+        setIsDrawDisabled(false); // Enable the "Draw Winner" button when a new prize is selected
+        setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
       };
+
     const renderContent = () => {
         switch (currentPage) {
           case 'page1':
@@ -167,7 +179,7 @@ function RaffleDashboard() {
                 </div>
                 <div className='winner-container-body'>
                     <p>Winner: {generatedName}</p>
-                    {selectedPrize && <p>Selected Prize: {selectedPrize.name}</p>}
+                    {isPrizeRevealed && selectedPrize && <p>Selected Prize: {selectedPrize.name}</p>}
                 </div>
                 <div className='winner-container-footer'>
                     
@@ -203,13 +215,15 @@ function RaffleDashboard() {
                     </div>
                     <div className='ctrl-container-body'>
                         <div className='ctrl-body-start'>
-                            <button onClick={openRafflePage}>Open Raffle</button>
+                            <button onClick={openRafflePage}>
+                                Open Raffle
+                            </button>
                             <button>Start Draw</button>
                         </div>
                         <div className='ctrl-body-mid'>
                             <button 
                                 onClick={generateName} 
-                                disabled={!selectedPrize || selectedPrize.quantity <= 0}>
+                                disabled={isDrawDisabled}>
                                     Draw Winner
                             </button>
                             <button>Waive Prize</button>

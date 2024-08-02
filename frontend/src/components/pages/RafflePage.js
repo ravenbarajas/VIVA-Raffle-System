@@ -11,7 +11,7 @@ function RafflePage() {
       if (event.data.type === 'NAME_GENERATED') {
         setGeneratedName(event.data.name);
         localStorage.setItem('generatedName', event.data.name);
-      } else if (event.data.type === 'PRIZE_SELECTED') {
+      } else if (event.data.type === 'PRIZE_REVEALED') {
         setSelectedPrize(event.data.prize);
       } else if (event.data.type === 'UPDATE_PRIZES') {
         setPrizes(event.data.prizes);
@@ -32,8 +32,8 @@ function RafflePage() {
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
-            <p>Congratulations: {generatedName}</p>
-            {selectedPrize && <p>Selected Prize: {selectedPrize.name}</p>}
+            {generatedName && <p>Congratulations,{generatedName}</p>}
+            {selectedPrize && <p>You won a {selectedPrize.name}</p>}
         </div>
     </div>
   );
