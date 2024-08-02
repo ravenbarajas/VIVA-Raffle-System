@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Participants extends Model
+class Winner extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'EMPID';
+    protected $primaryKey = 'DRWID';
 
     protected $fillable = [
-        'EMPNAME',
-        'EMPCOMP',
-        'EMPCOMPID',
+        'DRWNUM',
+        'DRWNAME',
+        'DRWPRICE',
     ];
 }

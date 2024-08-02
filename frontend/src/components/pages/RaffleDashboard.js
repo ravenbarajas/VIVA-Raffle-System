@@ -14,29 +14,166 @@ const INITIAL_PRIZES = [
   ];
 
 function RaffleParticipants() {
-    return (
-    <div>
-        <h2>Raffle Participants</h2>
-        {/* Add more content for Page 1 here */}
-    </div>
-    );
-}
-function RaffleItems() {
-return (
-    <div>
-    <h2>Raffle Items</h2>
-    {/* Add more content for Page 2 here */}
-    </div>
-);
-}
-function RaffleWinners() {
+    const [participants, setParticipants] = useState([]);
+
+    const fetchParticipants = async () => {
+        const response = await fetch('/api/participants');
+        const data = await response.json();
+        setParticipants(data);
+    };
+
+    useEffect(() => {
+        fetchParticipants();
+    }, []);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        await fetch('/api/participants/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        fetchParticipants(); // Refresh the list after upload
+    };
+
     return (
         <div>
-        <h2>Raffle Winners</h2>
-        {/* Add more content for Page 2 here */}
+            <h2>Raffle Participants</h2>
+            <input type="file" onChange={handleFileUpload} />
+            <table>
+                <thead>
+                    <tr>
+                        <th>EMPID</th>
+                        <th>EMPNAME</th>
+                        <th>EMPCOMP</th>
+                        <th>EMPCOMPID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {participants.map((participant) => (
+                        <tr key={participant.EMPID}>
+                            <td>{participant.EMPID}</td>
+                            <td>{participant.EMPNAME}</td>
+                            <td>{participant.EMPCOMP}</td>
+                            <td>{participant.EMPCOMPID}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
-    }
+}
+
+function RaffleItems() {
+    const [prizes, setPrizes] = useState([]);
+
+    const fetchPrizes = async () => {
+        const response = await fetch('/api/prizes');
+        const data = await response.json();
+        setPrizes(data);
+    };
+
+    useEffect(() => {
+        fetchPrizes();
+    }, []);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        await fetch('/api/prizes/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        fetchPrizes(); // Refresh the list after upload
+    };
+
+    return (
+        <div>
+            <h2>Raffle Items</h2>
+            <input type="file" onChange={handleFileUpload} />
+            <table>
+                <thead>
+                    <tr>
+                        <th>RFLID</th>
+                        <th>RFLNUM</th>
+                        <th>RFLITEM</th>
+                        <th>RFLITEMQTY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {prizes.map((prize) => (
+                        <tr key={prize.RFLID}>
+                            <td>{prize.RFLID}</td>
+                            <td>{prize.RFLNUM}</td>
+                            <td>{prize.RFLITEM}</td>
+                            <td>{prize.RFLITEMQTY}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+function RaffleWinners() {
+    const [winners, setWinners] = useState([]);
+
+    const fetchWinners = async () => {
+        const response = await fetch('/api/winners');
+        const data = await response.json();
+        setWinners(data);
+    };
+
+    useEffect(() => {
+        fetchWinners();
+    }, []);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        await fetch('/api/winners/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        fetchWinners(); // Refresh the list after upload
+    };
+
+    return (
+        <div>
+            <h2>Raffle Winners</h2>
+            <input type="file" onChange={handleFileUpload} />
+            <table>
+                <thead>
+                    <tr>
+                        <th>DRWID</th>
+                        <th>DRWNUM</th>
+                        <th>DRWNAME</th>
+                        <th>DRWPRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {winners.map((winner) => (
+                        <tr key={winner.DRWID}>
+                            <td>{winner.DRWID}</td>
+                            <td>{winner.DRWNUM}</td>
+                            <td>{winner.DRWNAME}</td>
+                            <td>{winner.DRWPRICE}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
   
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('page1');
