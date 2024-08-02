@@ -5,6 +5,8 @@ function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
   const [selectedPrize, setSelectedPrize] = useState(null);
   const [prizes, setPrizes] = useState([]);
+  const [winners, setWinners] = useState([]);
+  const [showWinners, setShowWinners] = useState(false);
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -16,12 +18,20 @@ function RafflePage() {
       } else if (event.data.type === 'UPDATE_PRIZES') {
         setPrizes(event.data.prizes);
         localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
+      } else if (event.data.type === 'WINNER_ADDED') {
+        setWinners(prevWinners => [...prevWinners, event.data.winner]);
       } else if (event.data.type === 'RESTART_DRAW') {
         setGeneratedName('');
         setSelectedPrize(null);
         setPrizes([]);
+        setWinners([]);
+        setShowWinners(false);
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
+        localStorage.removeItem('winners');
+      } else if (event.data.type === 'END_DRAW') {
+        setWinners(event.data.winners);
+        setShowWinners(true); // Show winners only when end draw is clicked
       }
     };
     window.addEventListener('message', handleMessage);
@@ -34,6 +44,28 @@ function RafflePage() {
         <div className='rafflePage-body'>
             {generatedName && <p>Congratulations,{generatedName}</p>}
             {selectedPrize && <p>You won a {selectedPrize.name}</p>}
+
+            {showWinners && winners.length > 0 && (
+              <div className="winners-summary">
+                <h3>All Winners</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Prize</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {winners.map((winner, index) => (
+                      <tr key={index}>
+                        <td>{winner.name}</td>
+                        <td>{winner.prize}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </div>
     </div>
   );

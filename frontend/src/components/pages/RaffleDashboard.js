@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
 import '../css/RaffleDashboard.css';
 
 const NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Edward'];
@@ -12,25 +13,30 @@ const INITIAL_PRIZES = [
     { name: '3000 GC', quantity: 2 },
   ];
 
-function Page1() {
+function RaffleParticipants() {
     return (
     <div>
-        <h2>Page 1</h2>
-        <p>This is the content of Page 1.</p>
+        <h2>Raffle Participants</h2>
         {/* Add more content for Page 1 here */}
     </div>
     );
 }
-  
-function Page2() {
+function RaffleItems() {
 return (
     <div>
-    <h2>Page 2</h2>
-    <p>This is the content of Page 2.</p>
+    <h2>Raffle Items</h2>
     {/* Add more content for Page 2 here */}
     </div>
 );
 }
+function RaffleWinners() {
+    return (
+        <div>
+        <h2>Raffle Winners</h2>
+        {/* Add more content for Page 2 here */}
+        </div>
+    );
+    }
   
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('page1');
@@ -41,10 +47,32 @@ function RaffleDashboard() {
     const [selectedPrize, setSelectedPrize] = useState(null);
     const [prizes, setPrizes] = useState(INITIAL_PRIZES);
 
-    const [winners, setWinners] = useState([]);
+    const [winners, setWinners] = useState(() => {
+        const savedWinners = localStorage.getItem('winners');
+        return savedWinners ? JSON.parse(savedWinners) : [];
+    });
 
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
+
+    const [isEndDrawModalOpen, setIsEndDrawModalOpen] = useState(false);
+
+    const openEndDrawModal = () => {
+        console.log("Opening End Draw Modal");
+        setIsEndDrawModalOpen(true);
+      };
+      
+      const handleConfirmEndDraw = () => {
+        console.log("Confirm End Draw clicked");
+        endDraw(); // Proceed with ending the draw
+        setIsEndDrawModalOpen(false); // Close the modal
+      };
+      
+      const handleCancelEndDraw = () => {
+        console.log("Cancel End Draw clicked");
+        setIsEndDrawModalOpen(false); // Close the modal without ending the draw
+      };
+      
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -55,12 +83,13 @@ function RaffleDashboard() {
             setGeneratedName('');
             setSelectedPrize(null);
             setPrizes(INITIAL_PRIZES);
-            setWinners([]);
             setIsDrawDisabled(true);
             setIsPrizeRevealed(false);
             localStorage.removeItem('generatedName');
             localStorage.removeItem('prizes');
-            localStorage.removeItem('winners');
+          } else if (event.data.type === 'END_DRAW') {
+            setWinners(event.data.winners);
+            setIsEndDrawModalOpen(true); // Open the modal
           }
         };
     
@@ -114,12 +143,10 @@ function RaffleDashboard() {
         setGeneratedName('');
         setSelectedPrize(null);
         setPrizes(INITIAL_PRIZES);
-        setWinners([]);
         setIsDrawDisabled(true); // Disable the "Draw Winner" button after restarting
         setIsPrizeRevealed(false);
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
-        localStorage.removeItem('winners');
         if (raffleTabRef.current) {
           raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
         }
@@ -131,12 +158,25 @@ function RaffleDashboard() {
         setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
       };
 
+      const endDraw = () => {
+        // Clear local storage and current state
+        localStorage.removeItem('winners');
+        setWinners([]);
+        
+        // Send the complete winners list to the new tab
+        if (raffleTabRef.current) {
+            raffleTabRef.current.postMessage({ type: 'END_DRAW', winners: winners }, '*');
+        }
+    };    
+    
     const renderContent = () => {
         switch (currentPage) {
-          case 'page1':
-            return <Page1/>
-          case 'page2':
-            return <Page2/>
+          case 'participants':
+            return <RaffleParticipants/>
+          case 'items':
+            return <RaffleItems/>
+            case 'winners':
+            return <RaffleWinners/>
           default:
             return <p>Welcome</p>;
         }
@@ -193,11 +233,14 @@ function RaffleDashboard() {
                 </div>
                 <div className='tbl-container-body'>
                     <div className="navigation-buttons">
-                        <button onClick={() => setCurrentPage('page1')}>
-                            Go to Page 1
+                        <button onClick={() => setCurrentPage('participants')}>
+                            Raffle Participants
                         </button>
-                        <button onClick={() => setCurrentPage('page2')}>
-                            Go to Page 2
+                        <button onClick={() => setCurrentPage('items')}>
+                            Raffle Items
+                        </button>
+                        <button onClick={() => setCurrentPage('winners')}>
+                            Raffle Winners
                         </button>
                     </div>
                     {renderContent()}
@@ -226,11 +269,12 @@ function RaffleDashboard() {
                                 disabled={isDrawDisabled}>
                                     Draw Winner
                             </button>
-                            <button>Waive Prize</button>
+                            <button onClick={restartDraw}>Waive Draw</button>
                         </div>
                         <div className='ctrl-body-end'>
-                            <button onClick={restartDraw}>Restart Draw</button>
-                            <button>End Draw</button>
+                            <button onClick={openEndDrawModal}>
+                                End Draw
+                            </button>
                         </div>
                     </div>
                     <div className='ctrl-container-footer'>
@@ -271,6 +315,13 @@ function RaffleDashboard() {
                 </div>
             </div>
         </div>
+        {isEndDrawModalOpen && (
+                <EndDrawModal
+                    winners={winners}
+                    onConfirm={handleConfirmEndDraw}
+                    onCancel={handleCancelEndDraw}
+                />
+            )}
     </div>
     );
 }
