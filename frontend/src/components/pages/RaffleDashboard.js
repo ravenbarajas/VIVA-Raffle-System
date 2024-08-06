@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
+import WaivePrizeModal from '../modals/WaivePrizeModal.js';
 import '../css/RaffleDashboard.css';
 
-const NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Edward'];
-
+// Table Pages //
 function RaffleParticipants() {
     const [participants, setParticipants] = useState([]);
     const [uploadStatus, setUploadStatus] = useState('');
@@ -214,21 +214,7 @@ function RaffleDashboard() {
     const raffleTabRef = useRef(null);
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
-    const [isEndDrawModalOpen, setIsEndDrawModalOpen] = useState(false);
-
-    const openEndDrawModal = () => {
-        console.log("Opening End Draw Modal");
-        setIsEndDrawModalOpen(true);
-    };
-    const handleConfirmEndDraw = () => {
-        console.log("Confirm End Draw clicked");
-        endDraw(); // Proceed with ending the draw
-        setIsEndDrawModalOpen(false); // Close the modal
-    };
-    const handleCancelEndDraw = () => {
-        console.log("Cancel End Draw clicked");
-        setIsEndDrawModalOpen(false); // Close the modal without ending the draw
-    };
+    
     const fetchPrizes = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/prizes');
@@ -272,6 +258,7 @@ function RaffleDashboard() {
         return () => window.removeEventListener('message', handleMessage);
     }, []); 
 
+    // Raffle Button Controls //
     const openRafflePage  = () => {
         const raffleTab = window.open('/rafflePage', '_blank');
         raffleTabRef.current = raffleTab;
@@ -300,7 +287,7 @@ function RaffleDashboard() {
             raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
             raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
         }
-    
+        
         // Update prize quantity
         const updatedPrizes = prizes.map(prize =>
             prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
@@ -352,7 +339,7 @@ function RaffleDashboard() {
         setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
     };
     
-      const endDraw = () => {
+    const endDraw = () => {
         // Clear local storage and current state
         localStorage.removeItem('winners');
         setWinners([]);
@@ -361,7 +348,77 @@ function RaffleDashboard() {
         if (raffleTabRef.current) {
             raffleTabRef.current.postMessage({ type: 'END_DRAW', winners: winners }, '*');
         }
-    };    
+    }; 
+
+    // Modal Functions //
+    
+    // Waive Prize Modal
+    const [isWaivePrizeModalOpen, setIsWaivePrizeModalOpen] = useState(false);
+    const [waivedWinner, setWaivedWinner] = useState(null);
+
+    const handleWaive = (option) => {
+        // Check if selectedPrize is valid
+        if (!selectedPrize) {
+            console.error('No prize selected');
+            return;
+        }
+    
+        // Restore the prize quantity
+        const restoredPrizes = prizes.map((prize) =>
+            prize.RFLID === selectedPrize.RFLID
+                ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
+                : prize
+        );
+    
+        setPrizes(restoredPrizes);
+        localStorage.setItem('prizes', JSON.stringify(restoredPrizes));
+    
+        // Remove waived winner
+        const updatedWinners = winners.filter(
+            (winner) => winner.name !== waivedWinner.name || winner.prize !== selectedPrize.RFLITEM
+        );
+    
+        setWinners(updatedWinners);
+        localStorage.setItem('winners', JSON.stringify(updatedWinners));
+    
+        if (option === 'redraw_same') {
+            // Exclude waived winner from participants
+            const filteredParticipants = participants.filter(
+                (participant) => !updatedWinners.some((winner) => winner.name === participant.EMPNAME)
+            );
+    
+            setParticipants(filteredParticipants);
+            setGeneratedName('');
+            setIsDrawDisabled(false);
+            generateName(); // Redraw a new winner
+        } else if (option === 'choose_new') {
+            setSelectedPrize(null);
+            setGeneratedName('');
+            setIsDrawDisabled(true);
+        }
+    };
+
+    const waivePrize = (winner) => {
+        setWaivedWinner(winner);
+        setIsWaivePrizeModalOpen(true);
+    };
+
+    // End Draw Modal
+    const [isEndDrawModalOpen, setIsEndDrawModalOpen] = useState(false);
+
+    const openEndDrawModal = () => {
+        console.log("Opening End Draw Modal");
+        setIsEndDrawModalOpen(true);
+    };
+    const handleConfirmEndDraw = () => {
+        console.log("Confirm End Draw clicked");
+        endDraw(); // Proceed with ending the draw
+        setIsEndDrawModalOpen(false); // Close the modal
+    };
+    const handleCancelEndDraw = () => {
+        console.log("Cancel End Draw clicked");
+        setIsEndDrawModalOpen(false); // Close the modal without ending the draw
+    };   
     
     const renderContent = () => {
         switch (currentPage) {
@@ -374,7 +431,7 @@ function RaffleDashboard() {
           default:
             return <p>Welcome</p>;
         }
-      };
+    };
 
   return (
     <div className="raffleDashboard-container">
@@ -390,6 +447,7 @@ function RaffleDashboard() {
                         <th>Name</th>
                         <th>Company</th>
                         <th>Prize</th>
+                        <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -398,6 +456,9 @@ function RaffleDashboard() {
                             <td>{winner.name}</td>
                             <td>{winner.company}</td>
                             <td>{winner.prize}</td>
+                            <td>
+                                <button onClick={() => waivePrize(winner)}>Waive Prize</button>
+                            </td>
                         </tr>
                         ))}
                     </tbody>
@@ -521,8 +582,16 @@ function RaffleDashboard() {
                     onCancel={handleCancelEndDraw}
                 />
             )}
-    </div>
-    );
-}
+            
+            <WaivePrizeModal
+                isOpen={isWaivePrizeModalOpen}
+                onClose={() => setIsWaivePrizeModalOpen(false)}
+                onWaive={handleWaive}
+                selectedPrize={selectedPrize}
+                waivedWinner={waivedWinner}
+            />
+            </div>
+            );
+        }
 
 export default RaffleDashboard;
