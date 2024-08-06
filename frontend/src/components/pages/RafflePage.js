@@ -42,8 +42,8 @@ function RafflePage() {
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
-            {generatedName && <p>Congratulations,{generatedName}</p>}
-            {selectedPrize && <p>You won a {selectedPrize.name}</p>}
+            {generatedName && <p>Congratulations, {generatedName}</p>}
+            {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
 
             {showWinners && winners.length > 0 && (
               <div className="winners-summary">
@@ -52,6 +52,7 @@ function RafflePage() {
                   <thead>
                     <tr>
                       <th>Name</th>
+                      <th>Company</th>
                       <th>Prize</th>
                     </tr>
                   </thead>
@@ -59,6 +60,7 @@ function RafflePage() {
                     {winners.map((winner, index) => (
                       <tr key={index}>
                         <td>{winner.name}</td>
+                        <td>{winner.company}</td>
                         <td>{winner.prize}</td>
                       </tr>
                     ))}

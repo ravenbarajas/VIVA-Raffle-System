@@ -21,27 +21,6 @@ class PrizeController extends Controller
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
-    public function store(Request $request)
-    {
-        $prizes = Prizes::create($request->all());
-        return response()->json($prizes, 201);
-    }
-    public function show($id)
-    {
-        return Prizes::findOrFail($id);
-    }
-    public function update(Request $request, $id)
-    {
-        $prizes = Prizes::findOrFail($id);
-        $prizes->update($request->all());
-        return response()->json($prizes, 200);
-    }
-    public function destroy($id)
-    {
-        Prizes::destroy($id);
-        return response()->json(null, 204);
-    }
-
     public function upload(Request $request)
     {
         try {
@@ -57,6 +36,16 @@ class PrizeController extends Controller
         } catch (\Exception $e) {
             Log::error('File upload error: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to upload file.'], 500);
+        }
+    }
+    public function getPrizesForDraw()
+    {
+        try {
+            $prizes = Prizes::where('quantity', '>', 0)->get(); // Fetch prizes with quantity greater than 0
+            return response()->json($prizes);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
 }

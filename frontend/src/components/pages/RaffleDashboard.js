@@ -5,15 +5,6 @@ import '../css/RaffleDashboard.css';
 
 const NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Edward'];
 
-const INITIAL_PRIZES = [
-    { name: 'Mug', quantity: 5 },
-    { name: 'Jacket', quantity: 3 },
-    { name: '1000php', quantity: 2 },
-    { name: '3000php', quantity: 2 },
-    { name: '1000 GC', quantity: 2 },
-    { name: '3000 GC', quantity: 2 },
-  ];
-
 function RaffleParticipants() {
     const [participants, setParticipants] = useState([]);
     const [uploadStatus, setUploadStatus] = useState('');
@@ -210,63 +201,76 @@ function RaffleWinners() {
   
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('participants');
-
     const [generatedName, setGeneratedName] = useState('');
-    const raffleTabRef = useRef(null);
 
     const [selectedPrize, setSelectedPrize] = useState(null);
-    const [prizes, setPrizes] = useState(INITIAL_PRIZES);
-
+    const [prizes, setPrizes] = useState([]);
+    const [participants, setParticipants] = useState([]);
     const [winners, setWinners] = useState(() => {
         const savedWinners = localStorage.getItem('winners');
         return savedWinners ? JSON.parse(savedWinners) : [];
     });
 
+    const raffleTabRef = useRef(null);
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
-
     const [isEndDrawModalOpen, setIsEndDrawModalOpen] = useState(false);
 
     const openEndDrawModal = () => {
         console.log("Opening End Draw Modal");
         setIsEndDrawModalOpen(true);
-      };
-      
-      const handleConfirmEndDraw = () => {
+    };
+    const handleConfirmEndDraw = () => {
         console.log("Confirm End Draw clicked");
         endDraw(); // Proceed with ending the draw
         setIsEndDrawModalOpen(false); // Close the modal
-      };
-      
-      const handleCancelEndDraw = () => {
+    };
+    const handleCancelEndDraw = () => {
         console.log("Cancel End Draw clicked");
         setIsEndDrawModalOpen(false); // Close the modal without ending the draw
-      };
-      
+    };
+    const fetchPrizes = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/prizes');
+            setPrizes(response.data); // Update state with fetched prizes
+        } catch (error) {
+            console.error('Failed to fetch prizes:', error);
+        }
+    };
+    const fetchParticipants = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/participants');
+            setParticipants(response.data); // Update state with fetched participants
+        } catch (error) {
+            console.error('Failed to fetch participants:', error);
+        }
+    };
 
     useEffect(() => {
+        fetchPrizes();
+        fetchParticipants();
+
         const handleMessage = (event) => {
-          if (event.data.type === 'NAME_GENERATED') {
-            setGeneratedName(event.data.name);
-            localStorage.setItem('generatedName', event.data.name);
-          } else if (event.data.type === 'RESTART_DRAW') {
-            setGeneratedName('');
-            setSelectedPrize(null);
-            setPrizes(INITIAL_PRIZES);
-            setIsDrawDisabled(true);
-            setIsPrizeRevealed(false);
-            localStorage.removeItem('generatedName');
-            localStorage.removeItem('prizes');
-          } else if (event.data.type === 'END_DRAW') {
-            setWinners(event.data.winners);
-            setIsEndDrawModalOpen(true); // Open the modal
-          }
+            if (event.data.type === 'NAME_GENERATED') {
+                setGeneratedName(event.data.name);
+                localStorage.setItem('generatedName', event.data.name);
+            } else if (event.data.type === 'RESTART_DRAW') {
+                setGeneratedName('');
+                setSelectedPrize(null);
+                setIsDrawDisabled(true);
+                setIsPrizeRevealed(false);
+                localStorage.removeItem('generatedName');
+                localStorage.removeItem('prizes');
+            } else if (event.data.type === 'END_DRAW') {
+                setWinners(event.data.winners);
+                setIsEndDrawModalOpen(true); // Open the modal
+            }
         };
-    
+
         window.addEventListener('message', handleMessage);
-    
+
         return () => window.removeEventListener('message', handleMessage);
-      }, []);  
+    }, []); 
 
     const openRafflePage  = () => {
         const raffleTab = window.open('/rafflePage', '_blank');
@@ -274,60 +278,80 @@ function RaffleDashboard() {
     };
 
     const generateName = () => {
-        if (!selectedPrize || selectedPrize.quantity <= 0) return; // Ensure a prize is selected and quantity > 0 before generating a name
-
-        const randomName = NAMES[Math.floor(Math.random() * NAMES.length)];
-        setGeneratedName(randomName);
-        localStorage.setItem('generatedName', randomName);
-
-        if (raffleTabRef.current) {
-          raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: randomName }, '*');
-          raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
+        if (!selectedPrize || selectedPrize.RFLITEMQTY <= 0) {
+            console.error('No valid prize selected or prize quantity is zero');
+            return; // Ensure a prize is selected and quantity > 0 before generating a name
         }
-
-        const updatedPrizes = prizes.map(prize => 
-            prize.name === selectedPrize.name ? { ...prize, quantity: prize.quantity - 1 } : prize
+    
+        // Select a random participant from the list
+        const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+        if (!randomParticipant) {
+            console.error('No participants available for drawing');
+            return; // Handle case where no participants are available
+        }
+    
+        const randomName = randomParticipant.EMPNAME;
+        const companyName = randomParticipant.EMPCOMP; // Get the company name
+        setGeneratedName(`${randomName} (${companyName})`);
+        localStorage.setItem('generatedName', `${randomName} (${companyName})`);
+    
+        // Post messages for communication
+        if (raffleTabRef.current) {
+            raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
+            raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
+        }
+    
+        // Update prize quantity
+        const updatedPrizes = prizes.map(prize =>
+            prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
         );
         setPrizes(updatedPrizes);
         setSelectedPrize(prevSelectedPrize =>
-            updatedPrizes.find(prize => prize.name === prevSelectedPrize.name)
-          );
+            updatedPrizes.find(prize => prize.RFLID === prevSelectedPrize.RFLID)
+        );
         localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
-
-        const newWinner = { name: randomName, prize: selectedPrize.name };
+    
+        // Create a new winner entry
+        const newWinner = { name: randomName, company: companyName, prize: selectedPrize.RFLITEM };
         const updatedWinners = [...winners, newWinner];
         setWinners(updatedWinners);
         localStorage.setItem('winners', JSON.stringify(updatedWinners));
-
-        setIsDrawDisabled(true); // Disable the "Draw Winner" button after drawing
-        setIsPrizeRevealed(true); // Reveal the prize after drawing
-
+    
+        // Disable draw button and reveal prize
+        setIsDrawDisabled(true);
+        setIsPrizeRevealed(true);
+    
+        // Post messages for communication
         if (raffleTabRef.current) {
             raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize: selectedPrize }, '*');
             raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
             raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
         }
-      };
-
-      const restartDraw = () => {
+    };
+    
+    const restartDraw = () => {
         setGeneratedName('');
         setSelectedPrize(null);
-        setPrizes(INITIAL_PRIZES);
         setIsDrawDisabled(true); // Disable the "Draw Winner" button after restarting
         setIsPrizeRevealed(false);
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
+
+        // Fetch updated prizes and participants from the database
+        fetchPrizes();
+        fetchParticipants();
+
         if (raffleTabRef.current) {
-          raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
+            raffleTabRef.current.postMessage({ type: 'RESTART_DRAW' }, '*');
         }
-      };
+    };
 
     const selectPrize = (prize) => {
         setSelectedPrize(prize);
-        setIsDrawDisabled(false); // Enable the "Draw Winner" button when a new prize is selected
+        setIsDrawDisabled(prize.RFLITEMQTY <= 0); // Enable or disable the "Draw Winner" button based on prize quantity
         setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
-      };
-
+    };
+    
       const endDraw = () => {
         // Clear local storage and current state
         localStorage.removeItem('winners');
@@ -364,6 +388,7 @@ function RaffleDashboard() {
                     <thead>
                         <tr>
                         <th>Name</th>
+                        <th>Company</th>
                         <th>Prize</th>
                         </tr>
                     </thead>
@@ -371,6 +396,7 @@ function RaffleDashboard() {
                         {winners.map((winner, index) => (
                         <tr key={index}>
                             <td>{winner.name}</td>
+                            <td>{winner.company}</td>
                             <td>{winner.prize}</td>
                         </tr>
                         ))}
@@ -388,8 +414,8 @@ function RaffleDashboard() {
 
                 </div>
                 <div className='winner-container-body'>
-                    <p>Winner: {generatedName}</p>
-                    {isPrizeRevealed && selectedPrize && <p>Selected Prize: {selectedPrize.name}</p>}
+                    <p>Winner: {generatedName} </p>
+                    {isPrizeRevealed && selectedPrize && <p>Selected Prize: {selectedPrize.RFLITEM}</p>}
                 </div>
                 <div className='winner-container-footer'>
                     
@@ -459,22 +485,25 @@ function RaffleDashboard() {
                         <table>
                             <thead>
                                 <tr>
-                                <th>Prize</th>
-                                <th>Quantity</th>
-                                <th>Select</th>
+                                    <th>Prize</th>
+                                    <th>Quantity</th>
+                                    <th>Select</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {prizes.map((prize, index) => (
-                                <tr key={index}>
-                                    <td>{prize.name}</td>
-                                    <td>{prize.quantity}</td>
-                                    <td>
-                                    <button onClick={() => selectPrize(prize)} disabled={prize.quantity === 0}>
-                                        Select
-                                    </button>
-                                    </td>
-                                </tr>
+                                {prizes.map((prize) => (
+                                    <tr key={prize.RFLID}> {/* Use a unique identifier */}
+                                        <td>{prize.RFLITEM}</td> {/* Adjust field names as needed */}
+                                        <td>{prize.RFLITEMQTY}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => selectPrize(prize)}
+                                                disabled={prize.RFLITEMQTY <= 0} // Disable if quantity is 0 or less
+                                            >
+                                                Select
+                                            </button>
+                                        </td>
+                                    </tr>
                                 ))}
                             </tbody>
                         </table>
