@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
 import '../css/RaffleDashboard.css';
 
@@ -15,34 +16,50 @@ const INITIAL_PRIZES = [
 
 function RaffleParticipants() {
     const [participants, setParticipants] = useState([]);
+    const [uploadStatus, setUploadStatus] = useState('');
 
+    // Fetch participants from the API
     const fetchParticipants = async () => {
-        const response = await fetch('/api/participants');
-        const data = await response.json();
-        setParticipants(data);
+        try {
+            const response = await axios.get('http://localhost:8000/api/participants');
+            setParticipants(response.data);
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    // Handle file upload
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await axios.post('http://localhost:8000/api/participants/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            setUploadStatus('File uploaded successfully!');
+            fetchParticipants(); // Refresh the list after upload
+        } catch (error) {
+            console.error('Upload error:', error);
+            setUploadStatus('Failed to upload file.');
+        }
     };
 
     useEffect(() => {
         fetchParticipants();
     }, []);
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        await fetch('/api/participants/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        fetchParticipants(); // Refresh the list after upload
-    };
-
     return (
         <div>
             <h2>Raffle Participants</h2>
             <input type="file" onChange={handleFileUpload} />
+            <p>{uploadStatus}</p>
             <table>
                 <thead>
                     <tr>
@@ -69,34 +86,50 @@ function RaffleParticipants() {
 
 function RaffleItems() {
     const [prizes, setPrizes] = useState([]);
+    const [uploadStatus, setUploadStatus] = useState('');
 
+    // Fetch prizes from the API
     const fetchPrizes = async () => {
-        const response = await fetch('/api/prizes');
-        const data = await response.json();
-        setPrizes(data);
+        try {
+            const response = await axios.get('http://localhost:8000/api/prizes');
+            setPrizes(response.data);
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    // Handle file upload
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await axios.post('http://localhost:8000/api/prizes/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            setUploadStatus('File uploaded successfully!');
+            fetchPrizes(); // Refresh the list after upload
+        } catch (error) {
+            console.error('Upload error:', error);
+            setUploadStatus('Failed to upload file.');
+        }
     };
 
     useEffect(() => {
         fetchPrizes();
     }, []);
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        await fetch('/api/prizes/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        fetchPrizes(); // Refresh the list after upload
-    };
-
     return (
         <div>
             <h2>Raffle Items</h2>
             <input type="file" onChange={handleFileUpload} />
+            <p>{uploadStatus}</p>
             <table>
                 <thead>
                     <tr>
@@ -176,7 +209,7 @@ function RaffleWinners() {
 }
   
 function RaffleDashboard() {
-    const [currentPage, setCurrentPage] = useState('page1');
+    const [currentPage, setCurrentPage] = useState('participants');
 
     const [generatedName, setGeneratedName] = useState('');
     const raffleTabRef = useRef(null);
@@ -321,7 +354,7 @@ function RaffleDashboard() {
 
   return (
     <div className="raffleDashboard-container">
-        <div className="grid-item">
+        <div className="summary-grid-item">
             <div className='summary-container'>
                 <div className='summary-container-header'>
                     <h3>Winners</h3>
@@ -349,7 +382,7 @@ function RaffleDashboard() {
                 </div>
             </div>
         </div>
-        <div className="grid-item">
+        <div className="winner-grid-item">
             <div className='winner-container'>
                 <div className='winner-container-header'>
 
@@ -363,7 +396,7 @@ function RaffleDashboard() {
                 </div>
             </div>
         </div>
-        <div className="grid-item">
+        <div className="tbl-grid-item">
             <div className='tbl-container'>
                 <div className='tbl-container-header'>
 
@@ -387,7 +420,7 @@ function RaffleDashboard() {
                 </div>
             </div>
         </div>
-        <div className="grid-item">
+        <div className="ctrl-grid-item">
             <div className='raffle-ctrl-container'>
                 <div className='ctrl-container'>
                     <div className='ctrl-container-header'>
@@ -418,7 +451,7 @@ function RaffleDashboard() {
                         
                     </div>
                 </div>
-                    <div className='prize-container'>
+                <div className='prize-container'>
                     <div className='prize-container-header'>
 
                     </div>

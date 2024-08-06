@@ -3,11 +3,13 @@
 namespace App\Imports;
 
 use App\Models\Prize;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class PrizesImport implements ToModel, WithHeadingRow
+class PrizesImport implements ToModel
 {
+    use Importable;
+    
     public function model(array $row)
     {
         return new Prize([

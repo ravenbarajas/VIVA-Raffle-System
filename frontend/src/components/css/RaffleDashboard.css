@@ -4,10 +4,10 @@
     width: 100vw;
     grid-template-columns: repeat(2, 1fr); /* 2 columns with equal width */
     grid-template-rows: repeat(2, 1fr); /* 2 rows with equal height */
-    gap: .25rem; /* Space between grid items */
+    gap: .25rem;
   }
-  
-  .grid-item {
+  .summary-grid-item,  .winner-grid-item,  .tbl-grid-item,  .ctrl-grid-item    {
+    padding: .5rem;
     background: #f0f0f0; /* Light background for items */
     border: 1px solid #ddd; /* Border around items */
     display: flex;
@@ -15,16 +15,13 @@
     justify-content: center;
     text-align: center;
   }
+  .summary-container,  .winner-container,  .tbl-container,  .raffle-ctrl-container {
+
+  }
   .navigation-buttons {
     display: flex;
     flex-direction: row;
     gap: 8px;
-  }
-  .raffleDashboard-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
   }
   .ctrl-container-body {
     display: flex;
@@ -41,6 +38,12 @@
     display: flex;
     flex-direction: row;
   }
+  .tbl-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
 
   
   

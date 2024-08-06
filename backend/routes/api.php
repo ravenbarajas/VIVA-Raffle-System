@@ -22,10 +22,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/participants/upload', [ParticipantController::class, 'upload']);
-Route::post('/prizes/upload', [PrizeController::class, 'upload']);
-Route::post('/winners/upload', [WinnerController::class, 'upload']);
-
+// Participants
 Route::get('/participants', [ParticipantController::class, 'index']);
+Route::post('/participants/upload', [ParticipantController::class, 'upload']);
+Route::post('/participants', [ParticipantController::class, 'store']); // Create new participant
+Route::get('/participants/{id}', [ParticipantController::class, 'show']); // Get single participant
+Route::put('/participants/{id}', [ParticipantController::class, 'update']); // Update participant
+Route::delete('/participants/{id}', [ParticipantController::class, 'destroy']); // Delete participant
+
+// Prizes
 Route::get('/prizes', [PrizeController::class, 'index']);
-Route::get('/winners', [WinnerController::class, 'index']);
+Route::post('/prizes', [PrizeController::class, 'store']); // Create new prize
+Route::get('/prizes/{id}', [PrizeController::class, 'show']); // Get single prize
+Route::put('/prizes/{id}', [PrizeController::class, 'update']); // Update prize
+Route::delete('/prizes/{id}', [PrizeController::class, 'destroy']); // Delete prize
