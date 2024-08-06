@@ -32,7 +32,8 @@ Route::delete('/participants/{id}', [ParticipantController::class, 'destroy']); 
 
 // Prizes
 Route::get('/prizes', [PrizeController::class, 'index']);
-Route::post('/prizes', [PrizeController::class, 'store']); // Create new prize
-Route::get('/prizes/{id}', [PrizeController::class, 'show']); // Get single prize
-Route::put('/prizes/{id}', [PrizeController::class, 'update']); // Update prize
-Route::delete('/prizes/{id}', [PrizeController::class, 'destroy']); // Delete prize
+Route::post('/prizes/upload', [PrizeController::class, 'upload']);
+Route::post('/prizes', [PrizeController::class, 'store']); // Create new participant
+Route::get('/prizes/{id}', [PrizeController::class, 'show']); // Get single participant
+Route::put('/prizes/{id}', [PrizeController::class, 'update']); // Update participant
+Route::delete('/prizes/{id}', [PrizeController::class, 'destroy']); // Delete participant

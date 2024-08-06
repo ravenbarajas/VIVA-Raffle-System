@@ -5,6 +5,8 @@
     grid-template-columns: repeat(2, 1fr); /* 2 columns with equal width */
     grid-template-rows: repeat(2, 1fr); /* 2 rows with equal height */
     gap: .25rem;
+    overflow-y: hidden;
+    overflow-x: hidden;
   }
   .summary-grid-item,  .winner-grid-item,  .tbl-grid-item,  .ctrl-grid-item    {
     padding: .5rem;
@@ -14,9 +16,16 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    overflow: auto; /* Enable scrollbars when content overflows */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
   }
-  .summary-container,  .winner-container,  .tbl-container,  .raffle-ctrl-container {
-
+  .summary-grid-item,  .winner-grid-item   {
+    width: 50vw; /* Example width */
+    height: 40vh; /* Example height */
+  }
+  .tbl-grid-item,  .ctrl-grid-item   {
+    width: 50vw; /* Example width */
+    height: 60vh; /* Example height */
   }
   .navigation-buttons {
     display: flex;

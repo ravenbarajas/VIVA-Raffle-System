@@ -3,50 +3,61 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Prize;
+use App\Models\Prizes;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PrizesImport;
+use Illuminate\Support\Facades\Log;
 
 class PrizeController extends Controller
 {
     public function index()
     {
-        return Prize::all();
+        try {
+            $prizes = Prizes::all();
+            return response()->json($prizes);
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
     }
-
     public function store(Request $request)
     {
-        $prize = Prize::create($request->all());
-        return response()->json($prize, 201);
+        $prizes = Prizes::create($request->all());
+        return response()->json($prizes, 201);
     }
-
     public function show($id)
     {
-        return Prize::findOrFail($id);
+        return Prizes::findOrFail($id);
     }
-
     public function update(Request $request, $id)
     {
-        $prize = Prize::findOrFail($id);
-        $prize->update($request->all());
-        return response()->json($prize, 200);
+        $prizes = Prizes::findOrFail($id);
+        $prizes->update($request->all());
+        return response()->json($prizes, 200);
     }
-
     public function destroy($id)
     {
-        Prize::destroy($id);
+        Prizes::destroy($id);
         return response()->json(null, 204);
     }
 
     public function upload(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
-        ]);
+        try {
+            // Validate the file
+            $request->validate([
+                'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+            ]);
 
-        Excel::import(new PrizesImport, $request->file('file'));
+            // Import the file
+            Excel::import(new PrizesImport, $request->file('file'));
 
-        return response()->json(['message' => 'Prizes imported successfully.'], 200);
+            return response()->json(['message' => 'File uploaded successfully!'], 200);
+        } catch (\Exception $e) {
+            Log::error('File upload error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to upload file.'], 500);
+        }
     }
 }
 
