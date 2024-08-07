@@ -293,9 +293,7 @@ function RaffleDashboard() {
             prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
         );
         setPrizes(updatedPrizes);
-        setSelectedPrize(prevSelectedPrize =>
-            updatedPrizes.find(prize => prize.RFLID === prevSelectedPrize.RFLID)
-        );
+        setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
         localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
     
         // Create a new winner entry
@@ -357,23 +355,20 @@ function RaffleDashboard() {
     const [waivedWinner, setWaivedWinner] = useState(null);
 
     const handleWaive = (option) => {
-        // Check if selectedPrize is valid
         if (!selectedPrize) {
             console.error('No prize selected');
             return;
         }
-    
         // Restore the prize quantity
         const restoredPrizes = prizes.map((prize) =>
             prize.RFLID === selectedPrize.RFLID
                 ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
                 : prize
         );
-    
         setPrizes(restoredPrizes);
         localStorage.setItem('prizes', JSON.stringify(restoredPrizes));
     
-        // Remove waived winner
+        // Remove waived winner without modifying prize quantity
         const updatedWinners = winners.filter(
             (winner) => winner.name !== waivedWinner.name || winner.prize !== selectedPrize.RFLITEM
         );
@@ -390,12 +385,16 @@ function RaffleDashboard() {
             setParticipants(filteredParticipants);
             setGeneratedName('');
             setIsDrawDisabled(false);
-            generateName(); // Redraw a new winner
+            // Call generateName with isRedraw set to true
+            generateName(true);
         } else if (option === 'choose_new') {
             setSelectedPrize(null);
             setGeneratedName('');
             setIsDrawDisabled(true);
         }
+    
+        // Close the modal
+        setIsWaivePrizeModalOpen(false);
     };
 
     const waivePrize = (winner) => {
@@ -586,7 +585,7 @@ function RaffleDashboard() {
             <WaivePrizeModal
                 isOpen={isWaivePrizeModalOpen}
                 onClose={() => setIsWaivePrizeModalOpen(false)}
-                onWaive={handleWaive}
+                onWaive={(option) => handleWaive(option)}
                 selectedPrize={selectedPrize}
                 waivedWinner={waivedWinner}
             />
