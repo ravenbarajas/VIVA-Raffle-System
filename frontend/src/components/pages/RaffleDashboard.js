@@ -356,37 +356,49 @@ function RaffleDashboard() {
     const [waivedPrizes, setWaivedPrizes] = useState([]);
 
     const handleWaive = (option) => {
-        // Restore the prize quantity
+        // Restore the prize quantity when waiving
         const restoredPrizes = prizes.map((prize) =>
             prize.RFLID === selectedPrize.RFLID
                 ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
                 : prize
         );
+    
         setPrizes(restoredPrizes);
     
-        // Remove waived winner without modifying prize quantity
         const updatedWinners = winners.filter(
             (winner) => winner.name !== generatedName || winner.prize !== selectedPrize.RFLITEM
         );
     
         setWinners(updatedWinners);
         localStorage.setItem('winners', JSON.stringify(updatedWinners));
-
-        // Add to waivedPrizes state
-        setWaivedPrizes([...waivedPrizes, { name: generatedName, prize: selectedPrize.RFLITEM }]);
-        localStorage.setItem('waivedPrizes', JSON.stringify([...waivedPrizes, { name: generatedName, prize: selectedPrize.RFLITEM }]));
-
-        setSelectedPrize(null);
-        setGeneratedName('');
-        setIsDrawDisabled(true);
     
+        const participant = participants.find(participant => `${participant.EMPNAME} (${participant.EMPCOMP})` === generatedName);
+        const waivedPrize = {
+            name: participant.EMPNAME,
+            company: participant.EMPCOMP,
+            prize: selectedPrize.RFLITEM,
+        };
+    
+        setWaivedPrizes([...waivedPrizes, waivedPrize]);
+        localStorage.setItem('waivedPrizes', JSON.stringify([...waivedPrizes, waivedPrize]));
+    
+        if (raffleTabRef.current) {
+            raffleTabRef.current.postMessage({ type: 'PRIZE_WAIVED', waivedPrize }, '*');
+        }
+    
+        if (option === 'choose_new') {
+            setSelectedPrize(null);
+            setGeneratedName('');
+            setIsDrawDisabled(true);
+        }
+    
+        setIsPrizeRevealed(false);
+        setGeneratedName('');
         // Close the modal
         setIsWaivePrizeModalOpen(false);
     };
 
     const waivePrize = (winner) => {
-        setGeneratedName(winner.name);
-        setSelectedPrize(prizes.find(prize => prize.RFLITEM === winner.prize));
         setWaivedWinner(winner);
         setIsWaivePrizeModalOpen(true);
     };
@@ -463,12 +475,14 @@ function RaffleDashboard() {
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Company</th>
                                 <th>Prize</th>
                             </tr>
                         </thead>
                         <tbody>
                             {waivedPrizes.map((waived, index) => (
                                 <tr key={index}>
+                                    <td>{waived.name}</td>
                                     <td>{waived.name}</td>
                                     <td>{waived.prize}</td>
                                 </tr>
