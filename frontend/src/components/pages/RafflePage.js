@@ -6,6 +6,7 @@ function RafflePage() {
   const [selectedPrize, setSelectedPrize] = useState(null);
   const [prizes, setPrizes] = useState([]);
   const [winners, setWinners] = useState([]);
+  const [waivedPrizes, setWaivedPrizes] = useState([]);
   const [showWinners, setShowWinners] = useState(false);
 
   useEffect(() => {
@@ -20,15 +21,20 @@ function RafflePage() {
         localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } else if (event.data.type === 'WINNER_ADDED') {
         setWinners(prevWinners => [...prevWinners, event.data.winner]);
+      } else if (event.data.type === 'WAIVED_PRIZE') {
+        setWaivedPrizes(prevWaived => [...prevWaived, event.data.waivedPrize]);
+        localStorage.setItem('waivedPrizes', JSON.stringify([...waivedPrizes, event.data.waivedPrize]));
       } else if (event.data.type === 'RESTART_DRAW') {
         setGeneratedName('');
         setSelectedPrize(null);
         setPrizes([]);
         setWinners([]);
+        setWaivedPrizes([]);
         setShowWinners(false);
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
         localStorage.removeItem('winners');
+        localStorage.removeItem('waivedPrizes');
       } else if (event.data.type === 'END_DRAW') {
         setWinners(event.data.winners);
         setShowWinners(true); // Show winners only when end draw is clicked
@@ -62,6 +68,27 @@ function RafflePage() {
                         <td>{winner.name}</td>
                         <td>{winner.company}</td>
                         <td>{winner.prize}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {waivedPrizes.length > 0 && (
+              <div className="waived-summary">
+                <h3>Waived Prizes</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Prize</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waivedPrizes.map((waived, index) => (
+                      <tr key={index}>
+                        <td>{waived.name}</td>
+                        <td>{waived.prize}</td>
                       </tr>
                     ))}
                   </tbody>
