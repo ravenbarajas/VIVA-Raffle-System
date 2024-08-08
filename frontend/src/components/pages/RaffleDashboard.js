@@ -248,19 +248,20 @@ function RaffleDashboard() {
     }, []); 
 
     // Raffle Button Controls //
-    const openRafflePage  = () => {
+    const openRafflePage = () => {
         const raffleTab = window.open('/rafflePage', '_blank');
         raffleTabRef.current = raffleTab;
 
-        // Send a message to the RafflePage to show the welcome message
+        // Send a message to show the welcome message
         if (raffleTab) {
-            raffleTab.postMessage({ type: 'SHOW_WELCOME' }, '*');
+            raffleTab.postMessage({ type: 'WELCOME_MESSAGE' }, '*');
         }
     };
 
     const startDraw = () => {
         if (raffleTabRef.current) {
-          raffleTabRef.current.postMessage({ type: 'START_DRAW' }, '*');
+            // Send a message to start the draw
+            raffleTabRef.current.postMessage({ type: 'START_DRAW' }, '*');
         }
     };
 
@@ -384,8 +385,8 @@ function RaffleDashboard() {
     const [waivedWinners, setWaivedWinners] = useState([]);
 
     const handleWaive = async (option) => {
-        if (!selectedPrize || selectedPrize.RFLITEMQTY <= 0) {
-            console.error('No valid prize selected or prize quantity is zero');
+        if (!selectedPrize) { // Remove the check for prize quantity
+            console.error('No valid prize selected');
             return;
         }
     
@@ -420,7 +421,15 @@ function RaffleDashboard() {
                 RFLITEMQTY: selectedPrize.RFLITEMQTY + 1
             });
     
-            raffleTabRef.current.postMessage({ type: 'WAIVE_NOTICE', name: winnerToUpdate.DRWNAME, prize: selectedPrize.RFLITEM }, '*');
+            // Send a message to the Raffle Page
+            raffleTabRef.current.postMessage({
+                type: 'PRIZE_WAIVED',
+                waivedPrize: {
+                    name: winnerToUpdate.DRWNAME,
+                    prize: selectedPrize.RFLITEM,
+                    company: 'Company Name' // Adjust as needed
+                }
+            }, '*');
         } catch (error) {
             console.error('Save waived prize error:', error);
         }
@@ -496,17 +505,20 @@ function RaffleDashboard() {
                         </tr>
                         </thead>
                         <tbody>
-                            {winners.map((winner, index) => (
-                                <tr key={index}>
-                                    <td>{winner.DRWNAME}</td>
-                                    <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                    <td>{winner.DRWPRICE}</td>
-                                    <td>
-                                        <button onClick={() => waivePrize(winner)}>Waive Prize</button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {winners
+                                .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
+                                .map((winner, index) => (
+                                    <tr key={index}>
+                                        <td>{winner.DRWNAME}</td>
+                                        <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                        <td>{winner.DRWPRICE}</td>
+                                        <td>
+                                            <button onClick={() => waivePrize(winner)}>Waive Prize</button>
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
+
                     </table>
                 </div>
 
