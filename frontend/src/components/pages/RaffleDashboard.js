@@ -201,6 +201,8 @@ function RaffleDashboard() {
     });
 
     const raffleTabRef = useRef(null);
+    const [isStartDrawDisabled, setIsStartDrawDisabled] = useState(true);
+    const [isEndDrawDisabled, setIsEndDrawDisabled] = useState(true);
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
     
@@ -222,6 +224,7 @@ function RaffleDashboard() {
     };
 
     useEffect(() => {
+        setIsStartDrawDisabled(true);
         fetchPrizes();
         fetchParticipants();
 
@@ -229,10 +232,10 @@ function RaffleDashboard() {
             if (event.data.type === 'NAME_GENERATED') {
                 setGeneratedName(event.data.name);
                 localStorage.setItem('generatedName', event.data.name);
+                setIsDrawDisabled(false);
             } else if (event.data.type === 'RESTART_DRAW') {
                 setGeneratedName('');
                 setSelectedPrize(null);
-                setIsDrawDisabled(true);
                 setIsPrizeRevealed(false);
                 localStorage.removeItem('generatedName');
                 localStorage.removeItem('prizes');
@@ -249,6 +252,9 @@ function RaffleDashboard() {
 
     // Raffle Button Controls //
     const openRafflePage = () => {
+        setIsStartDrawDisabled(false);
+        setIsEndDrawDisabled(false);
+
         const raffleTab = window.open('/rafflePage', '_blank');
         raffleTabRef.current = raffleTab;
 
@@ -259,6 +265,7 @@ function RaffleDashboard() {
     };
 
     const startDraw = () => {
+        setIsDrawDisabled(false); // Enable the select buttons
         if (raffleTabRef.current) {
             // Send a message to start the draw
             raffleTabRef.current.postMessage({ type: 'START_DRAW' }, '*');
@@ -292,7 +299,9 @@ function RaffleDashboard() {
     
         const randomName = randomParticipant.EMPNAME;
         const companyName = randomParticipant.EMPCOMP;
+
         setGeneratedName(`${randomName} (${companyName})`);
+        setIsPrizeRevealed(true);
         localStorage.setItem('generatedName', `${randomName} (${companyName})`);
     
         const newWinner = { 
@@ -327,19 +336,15 @@ function RaffleDashboard() {
                  // Fetch winners to update the summary table
                 fetchWinners();
     
-                setIsDrawDisabled(true);
-                setIsPrizeRevealed(true);
                 raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
                 raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
                 raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
                 raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+
             }
         } catch (error) {
             console.error('Error saving winner or updating prize:', error);
         }
-    
-        setIsDrawDisabled(true);
-        setIsPrizeRevealed(true);
     };
     
     const restartDraw = () => {
@@ -362,17 +367,25 @@ function RaffleDashboard() {
     const selectPrize = (prize) => {
         setSelectedPrize(prize);
         setIsDrawDisabled(prize.RFLITEMQTY <= 0); // Enable or disable the "Draw Winner" button based on prize quantity
+        setGeneratedName(null); // Clear the previous winner's name
         setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
     };
     
     const endDraw = () => {
+        // Filter out winners with DRWNUM = 0
+        const validWinners = winners.filter(winner => winner.DRWNUM === 1);
+
         // Clear local storage and current state
         localStorage.removeItem('winners');
-        setWinners([]);
+        localStorage.removeItem('waivedWinners');
+        setWinners(validWinners); // Set winners to only those with DRWNUM = 1
+        setWaivedWinners([]);
+        setGeneratedName('');
+        setSelectedPrize(null);
         
         // Send the complete winners list to the new tab
         if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'END_DRAW', winners: winners }, '*');
+            raffleTabRef.current.postMessage({ type: 'END_DRAW', winners: validWinners }, '*');
         }
     }; 
 
@@ -445,7 +458,6 @@ function RaffleDashboard() {
         } else if (option === 'choose_new') {
             setSelectedPrize(null);
             setGeneratedName('');
-            setIsDrawDisabled(true);
         }
     
         setIsWaivePrizeModalOpen(false); // Close the modal after waiving
@@ -456,6 +468,8 @@ function RaffleDashboard() {
         setGeneratedName(winner.DRWNAME);
         setWaivedWinner(winner);
         setIsWaivePrizeModalOpen(true);
+        // Enable the select buttons for new prizes
+        setIsDrawDisabled(false);
     };
 
     // End Draw Modal
@@ -560,8 +574,8 @@ function RaffleDashboard() {
 
                 </div>
                 <div className='winner-container-body'>
-                    <p>Winner: {generatedName} </p>
-                    {isPrizeRevealed && selectedPrize && <p>Selected Prize: {selectedPrize.RFLITEM}</p>}
+                    <p>{generatedName} </p>
+                    {isPrizeRevealed && selectedPrize && <p>{selectedPrize.RFLITEM}</p>}
                 </div>
                 <div className='winner-container-footer'>
                     
@@ -603,7 +617,9 @@ function RaffleDashboard() {
                             <button onClick={openRafflePage}>
                                 Open Raffle
                             </button>
-                            <button onClick={startDraw}>
+                            <button 
+                                onClick={startDraw}
+                                disabled={isStartDrawDisabled}>
                                 Start Draw
                             </button>
                         </div>
@@ -615,7 +631,8 @@ function RaffleDashboard() {
                             </button>
                         </div>
                         <div className='ctrl-body-end'>
-                            <button onClick={openEndDrawModal}>
+                            <button onClick={openEndDrawModal}
+                                disabled={isEndDrawDisabled}>
                                 End Draw
                             </button>
                         </div>
@@ -645,7 +662,7 @@ function RaffleDashboard() {
                                         <td>
                                             <button
                                                 onClick={() => selectPrize(prize)}
-                                                disabled={prize.RFLITEMQTY <= 0} // Disable if quantity is 0 or less
+                                                disabled={isDrawDisabled ||prize.RFLITEMQTY <= 0} // Disable if quantity is 0 or less
                                             >
                                                 Select
                                             </button>

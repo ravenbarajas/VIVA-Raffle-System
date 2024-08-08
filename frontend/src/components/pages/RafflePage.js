@@ -64,46 +64,50 @@ function RafflePage() {
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
-        {welcomeMessage ? (
-    <p>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
-) : (
-    <>
-        {generatedName && <p>Congratulations, {generatedName}</p>}
-        {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-        {waivedPrize && (
-            <p>
-                Prize "{waivedPrize.prize}" waived by {waivedPrize.name} ({waivedPrize.company})
-            </p>
-        )}
-        {showWinners && winners.length > 0 && (
-            <div className="winners-summary">
-                <h3>All Winners</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Company</th>
-                            <th>Prize</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {winners.map((winner, index) => (
-                            <tr key={index}>
-                                <td>{winner.DRWNAME}</td>
-                                <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                <td>{winner.DRWPRICE}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        )}
-    </>
-)}
-
+            {welcomeMessage ? (
+                <p>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
+            ) : (
+                <>
+                    {!showWinners && (
+                        <>
+                            {generatedName && <p>Congratulations, {generatedName}</p>}
+                            {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                            {waivedPrize && (
+                                <p>
+                                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name} ({waivedPrize.company})
+                                </p>
+                            )}
+                        </>
+                    )}
+                    {showWinners && winners.length > 0 && (
+                        <div className="winners-summary">
+                            <h3>All Winners</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Company</th>
+                                        <th>Prize</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  {winners.filter(winner => winner.DRWNUM === 1).map((winner, index) => (
+                                      <tr key={index}>
+                                          <td>{winner.DRWNAME}</td>
+                                          <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                          <td>{winner.DRWPRICE}</td>
+                                      </tr>
+                                  ))}
+                              </tbody>
+                            </table>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     </div>
-  );
+);
+
 }
 
 export default RafflePage;
