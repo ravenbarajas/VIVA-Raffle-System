@@ -9,6 +9,8 @@ class Winners extends Model
 {
     use HasFactory;
 
+    protected $table = 'draw_winners'; // Specify the correct table name
+    
     protected $primaryKey = 'DRWID';
 
     protected $fillable = [

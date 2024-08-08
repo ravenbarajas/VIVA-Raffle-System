@@ -8,6 +8,7 @@ function RafflePage() {
   const [winners, setWinners] = useState([]);
   const [showWinners, setShowWinners] = useState(false);
   const [waivedPrize, setWaivedPrize] = useState(null);
+  const [welcomeMessage, setWelcomeMessage] = useState(''); // State for welcome message
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -29,6 +30,7 @@ function RafflePage() {
         setPrizes([]);
         setWinners([]);
         setShowWinners(false);
+        setWelcomeMessage(''); // Clear welcome message
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
         localStorage.removeItem('winners');
@@ -39,6 +41,8 @@ function RafflePage() {
         setWaivedPrize(event.data.waivedPrize);
         setGeneratedName(''); // Clear generated name to remove winner notice
         setSelectedPrize(null); // Clear selected prize to remove prize notice
+      } else if (event.data.type === 'SHOW_WELCOME') {
+        setWelcomeMessage('Welcome to the Raffle! Click "Start Draw" to begin.');
       }
     };
     window.addEventListener('message', handleMessage);
@@ -49,15 +53,14 @@ function RafflePage() {
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
+            {welcomeMessage && <p>{welcomeMessage}</p>} {/* Display the welcome message */}
             {generatedName && <p>Congratulations, {generatedName}</p>}
             {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-
             {waivedPrize && (
                 <p>
                     Prize "{waivedPrize.prize}" waived by {waivedPrize.name} ({waivedPrize.company})
                 </p>
             )}
-
             {showWinners && winners.length > 0 && (
               <div className="winners-summary">
                 <h3>All Winners</h3>
@@ -72,9 +75,9 @@ function RafflePage() {
                   <tbody>
                     {winners.map((winner, index) => (
                       <tr key={index}>
-                        <td>{winner.name}</td>
-                        <td>{winner.company}</td>
-                        <td>{winner.prize}</td>
+                        <td>{winner.DRWNAME}</td>
+                        <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td> {/* Extract company name from the winner's name */}
+                        <td>{winner.DRWPRICE}</td>
                       </tr>
                     ))}
                   </tbody>

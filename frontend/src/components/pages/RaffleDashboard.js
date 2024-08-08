@@ -148,33 +148,23 @@ function RaffleItems() {
 function RaffleWinners() {
     const [winners, setWinners] = useState([]);
 
+    // Fetch winners from the API
     const fetchWinners = async () => {
-        const response = await fetch('/api/winners');
-        const data = await response.json();
-        setWinners(data);
+        try {
+            const response = await axios.get('http://localhost:8000/api/winners');
+            setWinners(response.data);
+        } catch (error) {
+            console.error('Fetch winners error:', error);
+        }
     };
 
     useEffect(() => {
         fetchWinners();
     }, []);
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        await fetch('/api/winners/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        fetchWinners(); // Refresh the list after upload
-    };
-
     return (
         <div>
             <h2>Raffle Winners</h2>
-            <input type="file" onChange={handleFileUpload} />
             <table>
                 <thead>
                     <tr>
@@ -202,7 +192,6 @@ function RaffleWinners() {
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('participants');
     const [generatedName, setGeneratedName] = useState('');
-
     const [selectedPrize, setSelectedPrize] = useState(null);
     const [prizes, setPrizes] = useState([]);
     const [participants, setParticipants] = useState([]);
@@ -262,56 +251,94 @@ function RaffleDashboard() {
     const openRafflePage  = () => {
         const raffleTab = window.open('/rafflePage', '_blank');
         raffleTabRef.current = raffleTab;
+
+        // Send a message to the RafflePage to show the welcome message
+        if (raffleTab) {
+            raffleTab.postMessage({ type: 'SHOW_WELCOME' }, '*');
+        }
     };
 
-    const generateName = () => {
+    const startDraw = () => {
+        if (raffleTabRef.current) {
+          raffleTabRef.current.postMessage({ type: 'START_DRAW' }, '*');
+        }
+    };
+
+    const fetchWinners = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/winners');
+            setWinners(response.data);
+        } catch (error) {
+            console.error('Fetch winners error:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchWinners();
+    }, []);
+
+    const generateName = async () => {
         if (!selectedPrize || selectedPrize.RFLITEMQTY <= 0) {
             console.error('No valid prize selected or prize quantity is zero');
-            return; // Ensure a prize is selected and quantity > 0 before generating a name
+            return;
         }
     
-        // Select a random participant from the list
         const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
         if (!randomParticipant) {
             console.error('No participants available for drawing');
-            return; // Handle case where no participants are available
+            return;
         }
     
         const randomName = randomParticipant.EMPNAME;
-        const companyName = randomParticipant.EMPCOMP; // Get the company name
+        const companyName = randomParticipant.EMPCOMP;
         setGeneratedName(`${randomName} (${companyName})`);
         localStorage.setItem('generatedName', `${randomName} (${companyName})`);
     
-        // Post messages for communication
-        if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
-            raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
+        const newWinner = { 
+            DRWNUM: 1, 
+            DRWNAME: `${randomName} (${companyName})`, 
+            DRWPRICE: selectedPrize.RFLITEM };
+    
+        try {
+            // Save to the database
+            const response = await axios.post('http://localhost:8000/api/winners', newWinner);
+    
+            if (response.status === 201) {
+                // Update prize quantity in the database
+                const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - 1 };
+                await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
+    
+                // Update prize quantity
+                const updatedPrizes = prizes.map(prize =>
+                    prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
+                );
+                setPrizes(updatedPrizes);
+                setSelectedPrize(prevSelectedPrize =>
+                    updatedPrizes.find(prize => prize.RFLID === prevSelectedPrize.RFLID)
+                );
+                localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
+    
+                // Add winner to the state
+                const winnerData = response.data;
+                setWinners(prevWinners => [...prevWinners, winnerData]);
+                localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
+                
+                 // Fetch winners to update the summary table
+                fetchWinners();
+    
+                setIsDrawDisabled(true);
+                setIsPrizeRevealed(true);
+                raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
+                raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
+                raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+                raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+            }
+        } catch (error) {
+            console.error('Error saving winner or updating prize:', error);
         }
-        
-        // Update prize quantity
-        const updatedPrizes = prizes.map(prize =>
-            prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
-        );
-        setPrizes(updatedPrizes);
-        setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
-        localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
     
-        // Create a new winner entry
-        const newWinner = { name: randomName, company: companyName, prize: selectedPrize.RFLITEM };
-        const updatedWinners = [...winners, newWinner];
-        setWinners(updatedWinners);
-        localStorage.setItem('winners', JSON.stringify(updatedWinners));
-    
-        // Disable draw button and reveal prize
         setIsDrawDisabled(true);
         setIsPrizeRevealed(true);
-    
-        // Post messages for communication
-        if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'PRIZE_SELECTED', prize: selectedPrize }, '*');
-            raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
-            raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
-        }
     };
     
     const restartDraw = () => {
@@ -354,51 +381,70 @@ function RaffleDashboard() {
     const [isWaivePrizeModalOpen, setIsWaivePrizeModalOpen] = useState(false);
     const [waivedWinner, setWaivedWinner] = useState(null);
     const [waivedPrizes, setWaivedPrizes] = useState([]);
+    const [waivedWinners, setWaivedWinners] = useState([]);
 
-    const handleWaive = (option) => {
-        // Restore the prize quantity when waiving
-        const restoredPrizes = prizes.map((prize) =>
+    const handleWaive = async (option) => {
+        if (!selectedPrize || selectedPrize.RFLITEMQTY <= 0) {
+            console.error('No valid prize selected or prize quantity is zero');
+            return;
+        }
+    
+        const updatedPrizes = prizes.map((prize) =>
             prize.RFLID === selectedPrize.RFLID
                 ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
                 : prize
         );
+        setPrizes(updatedPrizes);
     
-        setPrizes(restoredPrizes);
-    
-        const updatedWinners = winners.filter(
-            (winner) => winner.name !== generatedName || winner.prize !== selectedPrize.RFLITEM
+        const winnerToUpdate = winners.find(
+            (winner) => winner.DRWNAME === generatedName && winner.DRWPRICE === selectedPrize.RFLITEM
         );
     
-        setWinners(updatedWinners);
-        localStorage.setItem('winners', JSON.stringify(updatedWinners));
-    
-        const participant = participants.find(participant => `${participant.EMPNAME} (${participant.EMPCOMP})` === generatedName);
-        const waivedPrize = {
-            name: participant.EMPNAME,
-            company: participant.EMPCOMP,
-            prize: selectedPrize.RFLITEM,
-        };
-    
-        setWaivedPrizes([...waivedPrizes, waivedPrize]);
-        localStorage.setItem('waivedPrizes', JSON.stringify([...waivedPrizes, waivedPrize]));
-    
-        if (raffleTabRef.current) {
-            raffleTabRef.current.postMessage({ type: 'PRIZE_WAIVED', waivedPrize }, '*');
+        if (!winnerToUpdate) {
+            console.error('Winner not found');
+            return;
         }
     
-        if (option === 'choose_new') {
+        const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
+        setWinners(updatedWinners);
+        setWaivedWinners(prev => [...prev, { ...winnerToUpdate, DRWNUM: 0 }]);
+        localStorage.setItem('winners', JSON.stringify(updatedWinners));
+        localStorage.setItem('waivedWinners', JSON.stringify([...waivedWinners, { ...winnerToUpdate, DRWNUM: 0 }]));
+    
+        try {
+            await axios.patch(`http://localhost:8000/api/winners/${winnerToUpdate.DRWID}`, {
+                DRWNUM: 0 // Indicating a waived draw
+            });
+    
+            await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, {
+                RFLITEMQTY: selectedPrize.RFLITEMQTY + 1
+            });
+    
+            raffleTabRef.current.postMessage({ type: 'WAIVE_NOTICE', name: winnerToUpdate.DRWNAME, prize: selectedPrize.RFLITEM }, '*');
+        } catch (error) {
+            console.error('Save waived prize error:', error);
+        }
+    
+        if (option === 'redraw_same') {
+            const filteredParticipants = participants.filter(
+                participant => !updatedWinners.some(winner => winner.DRWNAME === participant.EMPNAME)
+            );
+            setParticipants(filteredParticipants);
+            setGeneratedName('');
+            setIsDrawDisabled(false);
+            generateName();
+        } else if (option === 'choose_new') {
             setSelectedPrize(null);
             setGeneratedName('');
             setIsDrawDisabled(true);
         }
     
-        setIsPrizeRevealed(false);
-        setGeneratedName('');
-        // Close the modal
-        setIsWaivePrizeModalOpen(false);
+        setIsWaivePrizeModalOpen(false); // Close the modal after waiving
     };
-
+    
     const waivePrize = (winner) => {
+        setSelectedPrize(prizes.find(prize => prize.RFLITEM === winner.DRWPRICE));
+        setGeneratedName(winner.DRWNAME);
         setWaivedWinner(winner);
         setIsWaivePrizeModalOpen(true);
     };
@@ -441,28 +487,29 @@ function RaffleDashboard() {
                 </div>
                 <div className='summary-container-body'>
                     <table>
-                    <thead>
+                        <thead>
                         <tr>
-                        <th>Name</th>
-                        <th>Company</th>
-                        <th>Prize</th>
-                        <th>Actions</th>
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Prize</th>
+                            <th>Actions</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {winners.map((winner, index) => (
-                        <tr key={index}>
-                            <td>{winner.name}</td>
-                            <td>{winner.company}</td>
-                            <td>{winner.prize}</td>
-                            <td>
-                                <button onClick={() => waivePrize(winner)}>Waive Prize</button>
-                            </td>
-                        </tr>
-                        ))}
-                    </tbody>
+                        </thead>
+                        <tbody>
+                            {winners.map((winner, index) => (
+                                <tr key={index}>
+                                    <td>{winner.DRWNAME}</td>
+                                    <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                    <td>{winner.DRWPRICE}</td>
+                                    <td>
+                                        <button onClick={() => waivePrize(winner)}>Waive Prize</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
                     </table>
                 </div>
+
                 <div className='summary-container-footer'>
                     
                 </div>
@@ -480,11 +527,11 @@ function RaffleDashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {waivedPrizes.map((waived, index) => (
+                            {waivedWinners.map((winner, index) => (
                                 <tr key={index}>
-                                    <td>{waived.name}</td>
-                                    <td>{waived.name}</td>
-                                    <td>{waived.prize}</td>
+                                    <td>{winner.DRWNAME}</td>
+                                    <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                    <td>{winner.DRWPRICE}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -544,7 +591,9 @@ function RaffleDashboard() {
                             <button onClick={openRafflePage}>
                                 Open Raffle
                             </button>
-                            <button>Start Draw</button>
+                            <button onClick={startDraw}>
+                                Start Draw
+                            </button>
                         </div>
                         <div className='ctrl-body-mid'>
                             <button 
@@ -552,7 +601,6 @@ function RaffleDashboard() {
                                 disabled={isDrawDisabled}>
                                     Draw Winner
                             </button>
-                            <button onClick={restartDraw}>Waive Draw</button>
                         </div>
                         <div className='ctrl-body-end'>
                             <button onClick={openEndDrawModal}>

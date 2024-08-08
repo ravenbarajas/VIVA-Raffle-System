@@ -48,5 +48,11 @@ class PrizeController extends Controller
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
+    public function update(Request $request, $id)
+    {
+        $prizes = Prizes::findOrFail($id);
+        $prizes->update($request->all());
+        return response()->json($prizes, 200);
+    }
 }
 
