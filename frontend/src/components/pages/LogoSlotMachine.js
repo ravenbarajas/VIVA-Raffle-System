@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../css/LogoSlotMachine.css';
 
-const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete }) => {
+const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) => {
     const [spinning, setSpinning] = useState(false);
     const [currentLogos, setCurrentLogos] = useState([0, 1, 2]);
 
@@ -13,7 +13,6 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete }) => {
 
             return () => clearInterval(interval);
         } else if (winnerCompany) {
-            // Stop at the winner's logo
             const winnerIndex = logos.findIndex(logo => logo.company === winnerCompany);
             setCurrentLogos([winnerIndex, winnerIndex, winnerIndex]);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
@@ -21,10 +20,10 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete }) => {
     }, [spinning, winnerCompany]);
 
     useEffect(() => {
-        if (winnerCompany) {
-            setSpinning(false);
+        if (triggerSpin) {
+            startSpinning();
         }
-    }, [winnerCompany]);
+    }, [triggerSpin]);
 
     const startSpinning = () => {
         setSpinning(true);
@@ -42,7 +41,6 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete }) => {
             <div className="slot">
                 <img src={logos[currentLogos[2]].src} alt="logo3" />
             </div>
-            <button onClick={startSpinning} disabled={spinning}>Spin</button>
         </div>
     );
 };

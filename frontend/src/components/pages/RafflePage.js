@@ -23,8 +23,9 @@ function RafflePage() {
   const [waivedPrize, setWaivedPrize] = useState(null);
   const [welcomeMessage, setWelcomeMessage] = useState(true);
 
-  const [winnerCompany, setWinnerCompany] = useState('');
-  
+  const [triggerSpin, setTriggerSpin] = useState(false);
+  const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
+
   const logos = [
     { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE  ENTERTAINMENT, INC.' }, 
     { src: logo4, company: 'VIVA LIFESTYLE and LEISURE, INC.' }, { src: logo5, company: 'EPIK STUDIOS, INC.' }, { src: logo6, company: 'VIVA RECORDS CORP.' }, 
@@ -41,11 +42,17 @@ function RafflePage() {
         setWinners([]);
         setShowWinners(false);
         setWaivedPrize(null);
+      } 
+        else if (event.data.type === 'TRIGGER_SPIN') {
+          setTriggerSpin(true);
+          
       } else if (event.data.type === 'START_DRAW') {
         setWelcomeMessage(false); // Hide welcome message and enable draw
       } else if (event.data.type === 'NAME_GENERATED') {
         setGeneratedName(event.data.name);
         localStorage.setItem('generatedName', event.data.name);
+        const company = event.data.name.split('(')[1].replace(')', '').trim();
+        setGeneratedWinnerCompany(company);
         setWaivedPrize(null); // Clear waived prize notice
       } else if (event.data.type === 'PRIZE_REVEALED') {
         setSelectedPrize(event.data.prize);
@@ -55,7 +62,6 @@ function RafflePage() {
       } else if (event.data.type === 'WINNER_ADDED') {
         setWinners(prevWinners => [...prevWinners, event.data.winner]);
         setWaivedPrize(null); // Clear waived prize notice
-        setWinnerCompany(event.data.winner.EMPCOMP); // Set the winner's company
       } else if (event.data.type === 'RESTART_DRAW') {
         setGeneratedName('');
         setSelectedPrize(null);
@@ -64,7 +70,6 @@ function RafflePage() {
         setShowWinners(false);
         setWelcomeMessage(false); // Ensure the welcome message is not shown on restart
         setWaivedPrize(null);
-        setWinnerCompany(''); // Clear the winner's company for slot machine reset
         localStorage.removeItem('generatedName');
         localStorage.removeItem('prizes');
         localStorage.removeItem('winners');
@@ -76,7 +81,6 @@ function RafflePage() {
         console.log('Waived Prize Received:', event.data.waivedPrize); // For debugging
         setGeneratedName(''); // Clear generated name
         setSelectedPrize(null); // Clear selected prize
-        setWinnerCompany(''); // Clear the winner's company for slot machine reset
     }
     };
 
@@ -84,6 +88,11 @@ function RafflePage() {
 
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  const handleSpinComplete = (winnerLogo) => {
+    console.log('Spin complete, winner logo:', winnerLogo);
+    // Additional logic after the spin completes
+  };
 
   return (
     <div className="rafflePage-container">
@@ -94,13 +103,12 @@ function RafflePage() {
                 <>
                     {!showWinners && (
                         <>
-                          <LogoSlotMachine
-                                logos={logos}
-                                winnerCompany={winnerCompany}
-                                onSpinComplete={(winnerLogo) => {
-                                    console.log('Spin complete, winner:', winnerLogo);
-                                }}
-                            />
+                          <LogoSlotMachine 
+                              logos={logos} 
+                              winnerCompany={generatedWinnerCompany} 
+                              triggerSpin={triggerSpin} 
+                              onSpinComplete={handleSpinComplete} 
+                          />
                             {generatedName && <p>Congratulations, {generatedName}</p>}
                             {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
                             {waivedPrize && (
