@@ -1,0 +1,26 @@
+.slot-machine {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slot {
+    width: 100px;
+    height: 100px;
+    margin: 0 10px;
+    border: 2px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.slot img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+button {
+    margin-top: 20px;
+}
