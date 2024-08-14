@@ -45,7 +45,6 @@ function RafflePage() {
       } 
         else if (event.data.type === 'TRIGGER_SPIN') {
           setTriggerSpin(true);
-          
       } else if (event.data.type === 'START_DRAW') {
         setWelcomeMessage(false); // Hide welcome message and enable draw
       } else if (event.data.type === 'NAME_GENERATED') {

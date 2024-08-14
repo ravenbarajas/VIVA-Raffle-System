@@ -2,25 +2,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 320px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f0f0f0;
 }
 
 .slot {
-    width: 100px;
-    height: 100px;
-    margin: 0 10px;
-    border: 2px solid #ccc;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    width: 100px;
+    height: 100px;
+    transition: transform 0.5s ease-in-out; /* Smooth scrolling effect */
+}
+
+.slot.spinning {
+    animation: spin 0.5s infinite linear;
 }
 
 .slot img {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     object-fit: contain;
 }
 
-button {
-    margin-top: 20px;
+@keyframes spin {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100px); } /* Adjust based on logo size */
 }

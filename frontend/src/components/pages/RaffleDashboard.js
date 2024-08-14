@@ -350,7 +350,7 @@ function RaffleDashboard() {
             } catch (error) {
                 console.error('Error saving winner or updating prize:', error);
             }
-        }, 3000); // Delay by 3 seconds to align with the slot machine spin duration
+        }, 0); // Delay by 3 seconds to align with the slot machine spin duration
     };
     
     const restartDraw = () => {

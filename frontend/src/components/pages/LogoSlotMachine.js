@@ -4,6 +4,13 @@ import '../css/LogoSlotMachine.css';
 const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) => {
     const [spinning, setSpinning] = useState(false);
     const [currentLogos, setCurrentLogos] = useState([0, 1, 2]);
+    const [winnerIndex, setWinnerIndex] = useState(null);
+
+    useEffect(() => {
+        if (triggerSpin) {
+            startSpinning();
+        }
+    }, [triggerSpin]);
 
     useEffect(() => {
         if (spinning) {
@@ -14,16 +21,11 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
             return () => clearInterval(interval);
         } else if (winnerCompany) {
             const winnerIndex = logos.findIndex(logo => logo.company === winnerCompany);
+            setWinnerIndex(winnerIndex);
             setCurrentLogos([winnerIndex, winnerIndex, winnerIndex]);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
         }
     }, [spinning, winnerCompany]);
-
-    useEffect(() => {
-        if (triggerSpin) {
-            startSpinning();
-        }
-    }, [triggerSpin]);
 
     const startSpinning = () => {
         setSpinning(true);
@@ -32,15 +34,11 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
 
     return (
         <div className="slot-machine">
-            <div className="slot">
-                <img src={logos[currentLogos[0]].src} alt="logo1" />
-            </div>
-            <div className="slot">
-                <img src={logos[currentLogos[1]].src} alt="logo2" />
-            </div>
-            <div className="slot">
-                <img src={logos[currentLogos[2]].src} alt="logo3" />
-            </div>
+            {currentLogos.map((logoIndex, i) => (
+                <div key={i} className={`slot ${spinning ? 'spinning' : ''}`}>
+                    <img src={logos[logoIndex].src} alt={`logo${i + 1}`} />
+                </div>
+            ))}
         </div>
     );
 };
