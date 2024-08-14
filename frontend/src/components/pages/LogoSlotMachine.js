@@ -15,17 +15,23 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
     useEffect(() => {
         if (spinning) {
             const interval = setInterval(() => {
-                setCurrentLogos(currentLogos.map(logo => (logo + 1) % logos.length));
+                setCurrentLogos(prevLogos => prevLogos.map(index => (index + 1) % logos.length));
             }, 100);
 
             return () => clearInterval(interval);
-        } else if (winnerCompany) {
-            const winnerIndex = logos.findIndex(logo => logo.company === winnerCompany);
-            setWinnerIndex(winnerIndex);
-            setCurrentLogos([winnerIndex, winnerIndex, winnerIndex]);
+        } else if (winnerIndex !== null) {
+            const newLogos = [winnerIndex, winnerIndex, winnerIndex];
+            setCurrentLogos(newLogos);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
         }
-    }, [spinning, winnerCompany]);
+    }, [spinning, winnerIndex]);
+
+    useEffect(() => {
+        if (winnerCompany) {
+            const index = logos.findIndex(logo => logo.company === winnerCompany);
+            setWinnerIndex(index);
+        }
+    }, [winnerCompany, logos]);
 
     const startSpinning = () => {
         setSpinning(true);
@@ -34,9 +40,17 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
 
     return (
         <div className="slot-machine">
-            {currentLogos.map((logoIndex, i) => (
-                <div key={i} className={`slot ${spinning ? 'spinning' : ''}`}>
-                    <img src={logos[logoIndex].src} alt={`logo${i + 1}`} />
+            {[0, 1, 2].map(col => (
+                <div key={col} className="column">
+                    {[0, 1, 2].map(row => {
+                        // Calculate index with offset for different rows
+                        const logoIndex = (currentLogos[col] + row) % logos.length;
+                        return (
+                            <div key={row} className={`slot ${row === 1 ? 'middle' : 'top-bottom'}`}>
+                                <img src={logos[logoIndex].src} alt={`logo-${col}-${row}`} />
+                            </div>
+                        );
+                    })}
                 </div>
             ))}
         </div>

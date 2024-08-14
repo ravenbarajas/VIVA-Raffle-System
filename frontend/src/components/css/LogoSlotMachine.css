@@ -2,33 +2,39 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 320px;
-    height: 300px;
-    overflow: hidden;
-    position: relative;
-    background-color: #f0f0f0;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    margin: 0 10px;
 }
 
 .slot {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100px;
-    height: 100px;
-    transition: transform 0.5s ease-in-out; /* Smooth scrolling effect */
+    overflow: hidden;
 }
 
-.slot.spinning {
-    animation: spin 0.5s infinite linear;
+.top-bottom {
+    width: 100px;
+    height: 80px;
+    border: 2px solid #ccc;
+}
+
+.middle {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ccc;
 }
 
 .slot img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
 }
 
-@keyframes spin {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-100px); } /* Adjust based on logo size */
+.slot-machine {
+    display: flex;
 }
