@@ -40,6 +40,7 @@ function RafflePage() {
         setWelcomeMessage(true);
         resetState();
       } else if (event.data.type === 'TRIGGER_SPIN') {
+        setShowResult(false);
         setTriggerSpin(true);
       } else if (event.data.type === 'START_DRAW') {
         setWelcomeMessage(false); // Hide welcome message and enable draw
@@ -93,11 +94,7 @@ function RafflePage() {
   const handleSpinComplete = (winnerLogo) => {
     console.log('Spin complete, winner logo:', winnerLogo);
     setTriggerSpin(false); // Reset triggerSpin after spin completion
-
-    // Delay showing result for 1 second (after the spin is complete)
-    setTimeout(() => {
-      setShowResult(true);
-    }, 1000);
+    setShowResult(true); // Show result immediately after spin completes
   };
 
   return (
@@ -119,7 +116,7 @@ function RafflePage() {
                             {showResult && selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
                             {waivedPrize && (
                                 <p>
-                                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name} ({waivedPrize.company})
+                                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
                                 </p>
                             )}
                         </>
@@ -151,8 +148,7 @@ function RafflePage() {
             )}
         </div>
     </div>
-);
-
+  );
 }
 
 export default RafflePage;

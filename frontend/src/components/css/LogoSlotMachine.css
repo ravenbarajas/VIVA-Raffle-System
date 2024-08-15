@@ -1,15 +1,17 @@
 .slot-machine {
     display: flex;
+    height: auto;
+    width: auto;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px; /* Space between rows */
+    gap: 8px; /* Space between rows */
 }
 
 .slot-row {
     display: flex;
     justify-content: center;
-    gap: 4px; /* Space between slots */
+    gap: 8px; /* Space between slots */
 }
 
 /* This is the animation for rolling effect */
@@ -27,9 +29,10 @@
 }
 
 .slot {
+    background-color: #fff;
     width: 100px;
     height: 100px;
-    border: 8px solid #344099; /* Default border color */
+    border: 12px solid #344099; /* Default border color */
     border-radius: 16px;
     display: flex;
     justify-content: center;

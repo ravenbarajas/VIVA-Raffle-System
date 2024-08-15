@@ -1,5 +1,11 @@
 .rafflePage-container {
+    display: flex;
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
     padding: 20px;
+    justify-content: center;
+    align-items: center;
   }
   
   .rafflePage-body {
@@ -7,4 +13,27 @@
     flex-direction: column;
     gap: 10px;
   }
+
+  .rafflePage-container {
+    background-color: black; /* Ensuring the background is black */
+    color: white; /* Making the text white */
+    padding: 20px;
+}
+
+.rafflePage-body p {
+    color: white; /* Make all paragraph text white */
+}
+
+.rafflePage-body h3 {
+    color: white; /* Make all headers white */
+}
+
+.winners-summary table {
+    color: white; /* Ensure the text inside the table is white */
+}
+
+.winners-summary th, .winners-summary td {
+    color: white; /* Ensure both table headers and table data are white */
+}
+
   

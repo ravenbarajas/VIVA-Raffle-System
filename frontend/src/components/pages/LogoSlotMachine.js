@@ -42,9 +42,9 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
                 getRandomLogos(), // Bottom row random logos
             ]);
             setMiddleRowBorders([
-                '#FDDB0E', // Change color for middle row slots
-                '#FDDB0E',
-                '#FDDB0E',
+                '#F98C02', // Change color for middle row slots
+                '#F98C02',
+                '#F98C02',
             ]);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
         }
@@ -65,7 +65,7 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
         setSpinning(true);
         setTimeout(() => setSpinning(false), 3000); // Spin for 3 seconds
     };
-//FDDB0E
+    
     return (
         <div className="slot-machine">
             {currentLogos.map((row, rowIndex) => (
