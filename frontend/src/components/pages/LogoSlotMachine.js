@@ -42,9 +42,9 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
                 getRandomLogos(), // Bottom row random logos
             ]);
             setMiddleRowBorders([
-                '#F98C02', // Change color for middle row slots
-                '#F98C02',
-                '#F98C02',
+                '#EC5800', // Change color for middle row slots
+                '#EC5800',
+                '#EC5800',
             ]);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
         }
@@ -65,26 +65,45 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
         setSpinning(true);
         setTimeout(() => setSpinning(false), 3000); // Spin for 3 seconds
     };
-    
+
     return (
         <div className="slot-machine">
-            {currentLogos.map((row, rowIndex) => (
-                <div key={rowIndex} className="slot-row">
-                    {row.map((logoIndex, colIndex) => (
-                        <div
-                            key={colIndex}
-                            className={`slot ${rowIndex === 1 ? 'middle-row' : ''}`}
-                            style={{
-                                borderColor: rowIndex === 1 ? middleRowBorders[colIndex] : '#344099'
-                            }}
-                        >
-                            <img src={logos[logoIndex].src} alt={`logo-${rowIndex}-${colIndex}`} />
+            <div className="row-wrapper row-0">
+                <div className="slot-row">
+                    {currentLogos[0].map((logoIndex, colIndex) => (
+                        <div key={colIndex} className="slot">
+                            <img src={logos[logoIndex].src} alt={`logo-${0}-${colIndex}`} />
                         </div>
                     ))}
                 </div>
-            ))}
+            </div>
+
+            <div className="row-wrapper row-1">
+                <div className="slot-row middle-row">
+                    {currentLogos[1].map((logoIndex, colIndex) => (
+                        <div 
+                            key={colIndex} 
+                            className="slot"
+                            style={{ borderColor: middleRowBorders[colIndex] }} // Apply border color dynamically
+                        >
+                            <img src={logos[logoIndex].src} alt={`logo-${1}-${colIndex}`} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="row-wrapper row-2">
+                <div className="slot-row">
+                    {currentLogos[2].map((logoIndex, colIndex) => (
+                        <div key={colIndex} className="slot">
+                            <img src={logos[logoIndex].src} alt={`logo-${2}-${colIndex}`} />
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };
+
 
 export default LogoSlotMachine;

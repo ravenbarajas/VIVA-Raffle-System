@@ -1,11 +1,8 @@
 .slot-machine {
     display: flex;
-    height: auto;
-    width: auto;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Space between rows */
 }
 
 .slot-row {
@@ -45,3 +42,37 @@
     height: 80px;
     object-fit: contain;
 }
+
+/* Independent row control */
+.row-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Ensure rows span the full width */
+}
+
+/* Top row: smaller size */
+.row-0 {
+    background-color: #38AA97;
+    width: 90%; /* Adjust the width for the top row */
+    padding: 1rem 2rem 1rem 2rem;
+    border-radius: 24px 24px 0px 0px; 
+}
+
+/* Middle row: larger size */
+.row-1 {
+    background-color: #FFAA33;
+    width: 100%; /* Adjust the width for the top row */
+    padding: 1rem 2rem 1rem 2rem;
+    border-radius: 24px;
+}
+
+/* Bottom row: smaller size */
+.row-2 {
+    background-color: #38AA97;
+    width: 90%; /* Adjust the width for the top row */
+    padding: 1rem 2rem 1rem 2rem;
+    border-radius: 0px 0px 24px 24px; 
+}
+
+

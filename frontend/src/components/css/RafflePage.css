@@ -3,7 +3,6 @@
     background-color: black;
     height: 100vh;
     width: 100vw;
-    padding: 20px;
     justify-content: center;
     align-items: center;
   }
@@ -11,14 +10,22 @@
   .rafflePage-body {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    width: 80vw;
     gap: 10px;
   }
-
-  .rafflePage-container {
-    background-color: black; /* Ensuring the background is black */
-    color: white; /* Making the text white */
-    padding: 20px;
-}
+  .rafflePage-slotmachine {
+    display: flex;
+    flex-direction: column;
+    background-color: #38AA97 ;
+  }
+  .rafflePage-header {
+    display: flex;
+    flex-direction: column;
+    background-color: #FF7518;
+  }
 
 .rafflePage-body p {
     color: white; /* Make all paragraph text white */

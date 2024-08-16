@@ -106,12 +106,13 @@ function RafflePage() {
                 <>
                     {!showWinners && (
                         <>
-                          <LogoSlotMachine 
-                              logos={logos} 
-                              winnerCompany={generatedWinnerCompany} 
-                              triggerSpin={triggerSpin} 
-                              onSpinComplete={handleSpinComplete} 
-                          />
+                            <LogoSlotMachine 
+                                logos={logos} 
+                                winnerCompany={generatedWinnerCompany} 
+                                triggerSpin={triggerSpin} 
+                                onSpinComplete={handleSpinComplete} 
+                            />
+                          <div className='rafflePage-header'>
                             {showResult && generatedName && <p>Congratulations, {generatedName}</p>}
                             {showResult && selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
                             {waivedPrize && (
@@ -119,6 +120,7 @@ function RafflePage() {
                                     Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
                                 </p>
                             )}
+                          </div>
                         </>
                     )}
                     {showWinners && winners.length > 0 && (
