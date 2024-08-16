@@ -42,9 +42,9 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
                 getRandomLogos(), // Bottom row random logos
             ]);
             setMiddleRowBorders([
-                '#EC5800', // Change color for middle row slots
-                '#EC5800',
-                '#EC5800',
+                '#FFA500', // Change color for middle row slots
+                '#FFA500',
+                '#FFA500',
             ]);
             onSpinComplete && onSpinComplete(logos[winnerIndex]);
         }

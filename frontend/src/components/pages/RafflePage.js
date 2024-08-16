@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../css/RafflePage.css';
 import LogoSlotMachine from './LogoSlotMachine';
+import mainlogo from  '../assets/logo/mainlogo.png';
 import logo1 from '../assets/logo/logo-1.png';
 import logo2 from '../assets/logo/logo-2.png';
 import logo3 from '../assets/logo/logo-3.png';
@@ -106,20 +107,51 @@ function RafflePage() {
                 <>
                     {!showWinners && (
                         <>
-                            <LogoSlotMachine 
-                                logos={logos} 
-                                winnerCompany={generatedWinnerCompany} 
-                                triggerSpin={triggerSpin} 
-                                onSpinComplete={handleSpinComplete} 
-                            />
-                          <div className='rafflePage-header'>
-                            {showResult && generatedName && <p>Congratulations, {generatedName}</p>}
-                            {showResult && selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                            {waivedPrize && (
-                                <p>
-                                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-                                </p>
-                            )}
+                        <div className='rafflePage-slotmachine'>
+                          <div className='rafflepage-machine-top1'>
+                            <div className='mainlogo-wrapper'>
+                              <img src={mainlogo} alt="Main Logo" />
+                            </div>
+                          </div>
+                          <div className='rafflepage-machine-top2'>
+
+                          </div>
+                          <div className='rafflePage-machine-upper'>
+                            <div className='lights-left-container'>
+                              <div className="lights-left">
+                                {[...Array(5)].map((_, index) => (
+                                    <div key={index} className="light-bulb"></div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className='rafflePage-logos'>
+                              <LogoSlotMachine 
+                                  logos={logos} 
+                                  winnerCompany={generatedWinnerCompany} 
+                                  triggerSpin={triggerSpin} 
+                                  onSpinComplete={handleSpinComplete} 
+                              />
+                            </div>
+                            <div className='lights-right-container'>
+                              <div className="lights-right">
+                                {[...Array(5)].map((_, index) => (
+                                    <div key={index} className="light-bulb"></div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className='rafflePage-hl'>
+                            
+                          </div>
+                            <div className='rafflePage-header'>
+                              {showResult && generatedName && <p>Congratulations, {generatedName}</p>}
+                              {showResult && selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                              {waivedPrize && (
+                                  <p>
+                                      Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
+                                  </p>
+                              )}
+                            </div>
                           </div>
                         </>
                     )}

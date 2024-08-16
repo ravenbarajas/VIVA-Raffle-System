@@ -12,19 +12,68 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 80vh;
-    width: 80vw;
-    gap: 10px;
   }
   .rafflePage-slotmachine {
     display: flex;
     flex-direction: column;
-    background-color: #38AA97 ;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    min-width: 600px;
   }
+  .rafflepage-machine-top1 {
+    display: flex;
+    background-color: #38AA97 ;
+    border: 24px solid #277669;
+    border-radius: 24px;
+    height: 128px;
+    width: 564px;
+  }
+  .mainlogo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Ensures it takes full width of the container */
+    height: 100%; /* Adjust this based on your desired height */
+    background-color: transparent; /* Optional: background color */
+  }
+  .mainlogo-wrapper img {
+      max-width: 100%; /* Ensure the image doesn't exceed container width */
+      max-height: 100%; /* Ensure the image doesn't exceed container height */
+      object-fit: contain; /* Keeps the aspect ratio */
+  }
+  .rafflepage-machine-top2 {
+    display: flex;
+    background-color: #D1013E ;
+    height: 48px;
+    width: 500px;
+  }
+  .rafflePage-machine-upper {
+    display: flex;
+    flex-direction: row;
+    padding: 2rem 1rem 2rem 1rem;
+    border-radius: 24px 24px 0px 0px; 
+    background-color: #38AA97;
+  }
+  .rafflePage-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0rem 2rem 0rem 2rem;
+  }
+  .rafflePage-hl {
+    display: flex;
+    background-color: #D1013E ;
+    border-radius: 24px 24px 0px 0px; 
+    height: 32px;
+    width: 115%;
+  }
+
   .rafflePage-header {
     display: flex;
     flex-direction: column;
-    background-color: #FF7518;
+    background-color: #fff;
+    max-width: 400px;
   }
 
 .rafflePage-body p {
@@ -42,5 +91,70 @@
 .winners-summary th, .winners-summary td {
     color: white; /* Ensure both table headers and table data are white */
 }
+.lights-left-container,
+.lights-right-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.lights-left,
+.lights-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 350px; /* Adjust as needed */
+    padding: 12px;
+}
+
+.lights-left {
+  display: flex;
+  align-items: start;
+}
+.lights-right {
+  display: flex;
+  align-items: end;
+}
+
+.light-bulb {
+    width: 30px;
+    height: 30px;
+    background-color: #FFD700; /* Yellow light bulb color */
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); /* Glow effect */
+    opacity: 1;
+    animation: flash 1s infinite ease-in-out;
+}
+
+/* Animation for flashing effect */
+@keyframes flash {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Add a delay for each light bulb to create staggered flashing effect */
+.lights-left .light-bulb:nth-child(1),
+.lights-right .light-bulb:nth-child(1) {
+    animation-delay: 0.2s;
+}
+.lights-left .light-bulb:nth-child(2),
+.lights-right .light-bulb:nth-child(2) {
+    animation-delay: 0.4s;
+}
+.lights-left .light-bulb:nth-child(3),
+.lights-right .light-bulb:nth-child(3) {
+    animation-delay: 0.6s;
+}
+.lights-left .light-bulb:nth-child(4),
+.lights-right .light-bulb:nth-child(4) {
+    animation-delay: 0.8s;
+}
+.lights-left .light-bulb:nth-child(5),
+.lights-right .light-bulb:nth-child(5) {
+    animation-delay: 1s;
+}
   

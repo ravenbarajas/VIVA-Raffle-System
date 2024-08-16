@@ -3,6 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 0rem .5rem 0rem .5rem;
 }
 
 .slot-row {
@@ -38,8 +39,8 @@
 }
 
 .slot img {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     object-fit: contain;
 }
 
@@ -53,15 +54,18 @@
 
 /* Top row: smaller size */
 .row-0 {
-    background-color: #38AA97;
+    background-color: #FF7518;
     width: 90%; /* Adjust the width for the top row */
-    padding: 1rem 2rem 1rem 2rem;
+    padding: 1.5rem 1.5rem .5rem 1.5rem;
     border-radius: 24px 24px 0px 0px; 
+    border-left: 16px solid #CC5500;
+    border-right: 16px solid #CC5500;
+    border-top: 12px solid #CC5500;
 }
 
 /* Middle row: larger size */
 .row-1 {
-    background-color: #FFAA33;
+    background-color: #D1013E;
     width: 100%; /* Adjust the width for the top row */
     padding: 1rem 2rem 1rem 2rem;
     border-radius: 24px;
@@ -69,10 +73,13 @@
 
 /* Bottom row: smaller size */
 .row-2 {
-    background-color: #38AA97;
+    background-color: #FF7518 ;
     width: 90%; /* Adjust the width for the top row */
-    padding: 1rem 2rem 1rem 2rem;
+    padding: .5rem 1.5rem 1.5rem 1.5rem;
     border-radius: 0px 0px 24px 24px; 
+    border-left: 16px solid #CC5500;
+    border-right: 16px solid #CC5500;
+    border-bottom: 12px solid #CC5500;
 }
 
 
