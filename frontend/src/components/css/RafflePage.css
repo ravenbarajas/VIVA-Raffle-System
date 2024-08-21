@@ -44,7 +44,7 @@
   }
   .rafflepage-machine-top2 {
     display: flex;
-    background-color: #D1013f ;
+    background-color: #D1013e ;
     height: 48px;
     width: 500px;
   }
@@ -77,11 +77,11 @@
   }
 
 .rafflePage-body p {
-    color: white; /* Make all paragraph text white */
+    color: #000; /* Make all paragraph text white */
 }
 
 .rafflePage-body h3 {
-    color: white; /* Make all headers white */
+    color: #000; /* Make all headers white */
 }
 
 .winners-summary table {
