@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import axios from 'axios';
 import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
 import WaivePrizeModal from '../modals/WaivePrizeModal.js';
 import '../css/RaffleDashboard.css';
+import { FaGripLines } from 'react-icons/fa'; // Import a hamburger icon from react-icons (or use any other icon library)
 
 // Table Pages //
 function RaffleParticipants() {
@@ -200,6 +202,9 @@ function RaffleDashboard() {
         return savedWinners ? JSON.parse(savedWinners) : [];
     });
 
+    // State to manage the reordered prizes
+    const [reorderedPrizes, setReorderedPrizes] = useState(prizes);
+    
     const raffleTabRef = useRef(null);
     const [isStartDrawDisabled, setIsStartDrawDisabled] = useState(true);
     const [isEndDrawDisabled, setIsEndDrawDisabled] = useState(true);
@@ -264,6 +269,30 @@ function RaffleDashboard() {
         }
     };
 
+    // Function to handle drag and drop
+    const onDragEnd = async (result) => {
+        const { destination, source, draggableId } = result;
+
+        // If there is no destination (dropped outside the list) or the position hasn't changed
+        if (!destination || (source.index === destination.index)) {
+            return;
+        }
+
+        // Reorder the prizes based on drag and drop
+        const reorderedPrizes = Array.from(prizes);
+        const [movedPrize] = reorderedPrizes.splice(source.index, 1);
+        reorderedPrizes.splice(destination.index, 0, movedPrize);
+
+        // Update the state with reordered prizes
+        setPrizes(reorderedPrizes);
+
+        // Automatically select the prize at the bottom of the list
+        const newSelectedPrize = reorderedPrizes[reorderedPrizes.length - 1];
+        setSelectedPrize(newSelectedPrize);
+
+        // Optional: You might want to save the reordered list to the server here
+    };
+    
     const startDraw = () => {
         setIsDrawDisabled(false); // Enable the select buttons
         if (raffleTabRef.current) {
@@ -285,73 +314,113 @@ function RaffleDashboard() {
         fetchWinners();
     }, []);
 
-    const generateName = async () => {
-        if (!selectedPrize || selectedPrize.RFLITEMQTY <= 0) {
-            console.error('No valid prize selected or prize quantity is zero');
+     // Function to generate names (draw winners)
+     const generateName = async () => {
+        // Ensure there are prizes available for selection
+        if (prizes.length === 0) {
+            console.error('No prizes available');
             return;
         }
     
-        const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
-        if (!randomParticipant) {
-            console.error('No participants available for drawing');
+        // Find the prize with the lowest RFLNUM (sequence number) that has a quantity > 0
+        const selectedPrize = prizes.reduce((lowest, prize) => 
+            (prize.RFLITEMQTY > 0 && (!lowest || prize.RFLNUM < lowest.RFLNUM)) ? prize : lowest
+        , null);
+    
+        // Check if a valid prize was found
+        if (!selectedPrize) {
+            console.error('No valid prize available with quantity greater than 0');
             return;
         }
     
-        const randomName = randomParticipant.EMPNAME;
-        const companyName = randomParticipant.EMPCOMP;
-
-        // Trigger slot machine spin
+        // Determine the number of winners to draw based on the selected prize or default to 1
+        const winnersCount = selectedPrize.winnersCount || 1;
+        const winners = [];
+        const usedParticipants = new Set();
+    
+        // Trigger slot machine spin animation
         raffleTabRef.current.postMessage({ type: 'TRIGGER_SPIN' }, '*');
-
-        // Delay the winner notice and prize reveal until after the spin completes
+    
+        // Delay for the spin animation to complete before announcing winners
         setTimeout(async () => {
-            setGeneratedName(`${randomName} (${companyName})`);
+            for (let i = 0; i < winnersCount; i++) {
+                let randomParticipant;
+                do {
+                    randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+                } while (randomParticipant && usedParticipants.has(randomParticipant.EMPNAME));
+    
+                if (!randomParticipant) {
+                    console.error('No more unique participants available for drawing');
+                    break;
+                }
+    
+                usedParticipants.add(randomParticipant.EMPNAME);
+    
+                const randomName = randomParticipant.EMPNAME;
+                const companyName = randomParticipant.EMPCOMP;
+                const winnerName = `${randomName} (${companyName})`;
+    
+                winners.push(winnerName);
+    
+                const newWinner = { 
+                    DRWNUM: winners.length, 
+                    DRWNAME: winnerName, 
+                    DRWPRICE: selectedPrize.RFLITEM 
+                };
+    
+                try {
+                    // Save the winner to the database
+                    const response = await axios.post('http://localhost:8000/api/winners', newWinner);
+    
+                    if (response.status === 201) {
+                        const winnerData = response.data;
+                        setWinners(prevWinners => [...prevWinners, winnerData]);
+    
+                        // Notify with the generated name and winner added
+                        raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: winnerName }, '*');
+                        raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+                    } else {
+                        console.error('Failed to save winner: ', response.status);
+                    }
+                } catch (error) {
+                    console.error('Error saving winner:', error);
+                }
+            }
+    
+            // Join the winners array into a string
+            const generatedNames = winners.join(', ');
+            setGeneratedName(generatedNames);
             setIsPrizeRevealed(true);
-            localStorage.setItem('generatedName', `${randomName} (${companyName})`);
-
-            const newWinner = { 
-                DRWNUM: 1, 
-                DRWNAME: `${randomName} (${companyName})`, 
-                DRWPRICE: selectedPrize.RFLITEM 
-            };
+            localStorage.setItem('generatedName', generatedNames);
     
             try {
-                // Save to the database
-                const response = await axios.post('http://localhost:8000/api/winners', newWinner);
-        
-                if (response.status === 201) {
-                    // Update prize quantity in the database
-                    const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - 1 };
-                    await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
-        
-                    // Update prize quantity
+                // Update the prize quantity in the database
+                const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - winnersCount };
+                const response = await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
+    
+                if (response.status === 200) {
+                    // Update prize quantity in state
                     const updatedPrizes = prizes.map(prize =>
-                        prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } : prize
+                        prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - winnersCount } : prize
                     );
                     setPrizes(updatedPrizes);
-                    setSelectedPrize(prevSelectedPrize =>
-                        updatedPrizes.find(prize => prize.RFLID === prevSelectedPrize.RFLID)
-                    );
+                    setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
                     localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
-        
-                    // Add winner to the state
-                    const winnerData = response.data;
-                    setWinners(prevWinners => [...prevWinners, winnerData]);
-                    localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
-                    
+    
                     // Fetch winners to update the summary table
                     fetchWinners();
-        
-                    raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: `${randomName} (${companyName})` }, '*');
+    
                     raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
                     raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
-                    raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+                } else {
+                    console.error('Failed to update prize: ', response.status);
                 }
             } catch (error) {
-                console.error('Error saving winner or updating prize:', error);
+                console.error('Error updating prize:', error);
             }
-        }, 0); // Delay by 3 seconds to align with the slot machine spin duration
+        }, 3000); // Adjust delay based on slot machine animation duration
     };
+    
     
     const restartDraw = () => {
         setGeneratedName('');
@@ -372,9 +441,9 @@ function RaffleDashboard() {
 
     const selectPrize = (prize) => {
         setSelectedPrize(prize);
-        setIsDrawDisabled(prize.RFLITEMQTY <= 0); // Enable or disable the "Draw Winner" button based on prize quantity
-        setGeneratedName(null); // Clear the previous winner's name
-        setIsPrizeRevealed(false); // Hide the prize when a new prize is selected
+        setIsDrawDisabled(prize.RFLITEMQTY <= 0);
+        setGeneratedName(null);
+        setIsPrizeRevealed(false);
     };
     
     const endDraw = () => {
@@ -507,6 +576,32 @@ function RaffleDashboard() {
         }
     };
 
+    const [winnerCount, setWinnerCount] = useState(1); // Default to 1 winner per draw
+
+    // Handle change in the dropdown for selecting number of winners
+    const handleWinnerCountChange = (event) => {
+        setWinnerCount(parseInt(event.target.value, 10)); // Update winner count based on selection
+    };
+
+    const updatePrizeWinnersCount = (prizeId, count) => {
+        setPrizes(prevPrizes =>
+            prevPrizes.map(prize =>
+                prize.RFLID === prizeId
+                    ? { ...prize, winnersCount: count }
+                    : prize
+            )
+        );
+    };
+    
+    const updatePrizeSequence = (prizes) => {
+        // Update the RFLNUM based on the new order
+        const updatedPrizes = prizes.map((prize, index) => ({
+            ...prize,
+            RFLNUM: index + 1
+        }));
+        setPrizes(updatedPrizes); // Update the state with the new sequence
+    };
+
   return (
     <div className="raffleDashboard-container">
         <div className="summary-grid-item">
@@ -580,7 +675,11 @@ function RaffleDashboard() {
 
                 </div>
                 <div className='winner-container-body'>
-                    <p>{generatedName} </p>
+                    {generatedName && (
+                        <p>
+                            Winner(s): {Array.isArray(generatedName) ? generatedName.join(', ') : generatedName}
+                        </p>
+                    )}
                     {isPrizeRevealed && selectedPrize && <p>{selectedPrize.RFLITEM}</p>}
                 </div>
                 <div className='winner-container-footer'>
@@ -631,10 +730,11 @@ function RaffleDashboard() {
                         </div>
                         <div className='ctrl-body-mid'>
                             <button 
-                                onClick={generateName} 
-                                disabled={isDrawDisabled}>
-                                    Draw Winner
+                                onClick={() => generateName(winnerCount)} 
+                                disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
+                                Draw Winners
                             </button>
+
                         </div>
                         <div className='ctrl-body-end'>
                             <button onClick={openEndDrawModal}
@@ -652,32 +752,57 @@ function RaffleDashboard() {
 
                     </div>
                     <div className='prize-container-body'>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Prize</th>
-                                    <th>Quantity</th>
-                                    <th>Select</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {prizes.map((prize) => (
-                                    <tr key={prize.RFLID}> {/* Use a unique identifier */}
-                                        <td>{prize.RFLITEM}</td> {/* Adjust field names as needed */}
-                                        <td>{prize.RFLITEMQTY}</td>
-                                        <td>
-                                            <button
-                                                onClick={() => selectPrize(prize)}
-                                                disabled={isDrawDisabled ||prize.RFLITEMQTY <= 0} // Disable if quantity is 0 or less
-                                            >
-                                                Select
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <DragDropContext onDragEnd={onDragEnd}>
+                            <Droppable droppableId="prizeList">
+                                {(provided) => (
+                                    <table ref={provided.innerRef} {...provided.droppableProps}>
+                                        <thead>
+                                            <tr>
+                                                <th></th> {/* Empty header for drag handle */}
+                                                <th>Prize</th>
+                                                <th>Quantity</th>
+                                                <th>Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {prizes.map((prize, index) => (
+                                                <Draggable key={prize.RFLID} draggableId={prize.RFLID.toString()} index={index}>
+                                                    {(provided) => (
+                                                        <tr
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                        >
+                                                            <td>
+                                                                <FaGripLines style={{ cursor: 'grab' }} />
+                                                            </td>
+                                                            <td>{prize.RFLITEM}</td>
+                                                            <td>{prize.RFLITEMQTY}</td>
+                                                            <td>
+                                                                <select 
+                                                                    value={prize.winnersCount || 1} 
+                                                                    onChange={(e) => updatePrizeWinnersCount(prize.RFLID, parseInt(e.target.value))}
+                                                                    disabled={prize.RFLITEMQTY <= 0}
+                                                                >
+                                                                    {[...Array(Math.min(prize.RFLITEMQTY, 10)).keys()].map(i => (
+                                                                        <option key={i + 1} value={i + 1}>
+                                                                            {i + 1}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
                     </div>
+
                     <div className='prize-container-footer'>
                         
                     </div>

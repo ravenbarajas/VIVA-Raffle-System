@@ -72,12 +72,14 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
                 <div className="slot-row">
                     {currentLogos[0].map((logoIndex, colIndex) => (
                         <div key={colIndex} className="slot">
-                            <img src={logos[logoIndex].src} alt={`logo-${0}-${colIndex}`} />
+                            {logos[logoIndex] && (
+                                <img src={logos[logoIndex].src} alt={`logo-${0}-${colIndex}`} />
+                            )}
                         </div>
                     ))}
                 </div>
             </div>
-
+    
             <div className="row-wrapper row-1">
                 <div className="slot-row middle-row">
                     {currentLogos[1].map((logoIndex, colIndex) => (
@@ -86,23 +88,28 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
                             className="slot"
                             style={{ borderColor: middleRowBorders[colIndex] }} // Apply border color dynamically
                         >
-                            <img src={logos[logoIndex].src} alt={`logo-${1}-${colIndex}`} />
+                            {logos[logoIndex] && (
+                                <img src={logos[logoIndex].src} alt={`logo-${1}-${colIndex}`} />
+                            )}
                         </div>
                     ))}
                 </div>
             </div>
-
+    
             <div className="row-wrapper row-2">
                 <div className="slot-row">
                     {currentLogos[2].map((logoIndex, colIndex) => (
                         <div key={colIndex} className="slot">
-                            <img src={logos[logoIndex].src} alt={`logo-${2}-${colIndex}`} />
+                            {logos[logoIndex] && (
+                                <img src={logos[logoIndex].src} alt={`logo-${2}-${colIndex}`} />
+                            )}
                         </div>
                     ))}
                 </div>
             </div>
         </div>
     );
+    
 };
 
 

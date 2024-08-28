@@ -102,7 +102,7 @@ function RafflePage() {
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
             {welcomeMessage ? (
-                <p>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
+                <p className='raffleMsg'>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
             ) : (
                 <>
                     {!showWinners && (
@@ -143,15 +143,29 @@ function RafflePage() {
                           <div className='rafflePage-hl'>
                             
                           </div>
-                            <div className='rafflePage-header'>
-                              {showResult && generatedName && <p>Congratulations, {generatedName}</p>}
-                              {showResult && selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                              {waivedPrize && (
-                                  <p>
-                                      Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-                                  </p>
-                              )}
-                            </div>
+                          <div className='rafflePage-header'>
+    {showResult && generatedName && (
+        <div className="winner-grid">
+            {Array.isArray(generatedName) ? generatedName.map((name, index) => (
+                <div key={index} className="winner-card">
+                    <p>Congratulations, {name}</p>
+                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                </div>
+            )) : (
+                <div className="winner-card">
+                    <p>Congratulations, {generatedName}</p>
+                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                </div>
+            )}
+        </div>
+    )}
+    {waivedPrize && (
+        <p>
+            Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
+        </p>
+    )}
+</div>
+
                           </div>
                         </>
                     )}
