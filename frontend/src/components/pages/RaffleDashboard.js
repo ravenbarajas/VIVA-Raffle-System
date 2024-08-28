@@ -421,7 +421,6 @@ function RaffleDashboard() {
         }, 3000); // Adjust delay based on slot machine animation duration
     };
     
-    
     const restartDraw = () => {
         setGeneratedName('');
         setSelectedPrize(null);

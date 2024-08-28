@@ -144,28 +144,30 @@ function RafflePage() {
                             
                           </div>
                           <div className='rafflePage-header'>
-    {showResult && generatedName && (
-        <div className="winner-grid">
-            {Array.isArray(generatedName) ? generatedName.map((name, index) => (
-                <div key={index} className="winner-card">
-                    <p>Congratulations, {name}</p>
-                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                </div>
-            )) : (
-                <div className="winner-card">
-                    <p>Congratulations, {generatedName}</p>
-                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                </div>
-            )}
-        </div>
-    )}
-    {waivedPrize && (
-        <p>
-            Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-        </p>
-    )}
-</div>
+                            {showResult && generatedName && (
+                              <div className="winners-overlay">
+                                {Array.isArray(generatedName) && generatedName.length > 1 ? (
+                                  generatedName.map((name, index) => (
+                                    <div key={index} className="winner-card">
+                                      <p>Congratulations, {name}</p>
+                                      {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="winner-card">
+                                    <p>Congratulations, {generatedName}</p>
+                                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
+                                  </div>
+                                )}
+                              </div>
+                            )}
 
+                            {waivedPrize && (
+                              <p>
+                                Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
+                              </p>
+                            )}
+                          </div>
                           </div>
                         </>
                     )}
