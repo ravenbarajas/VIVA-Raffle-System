@@ -35,45 +35,67 @@ function RafflePage() {
     { src: logo10, company: 'VIVA BOOKS PUBLISHING, INC.' }, { src: logo11, company: 'VIVA COMMUNICATIONS, INC.' }, { src: logo12, company: 'VIVA INTERNATIONAL FOOD & RESTAURANTS, INC.' },
   ];
 
+  const getLogoForCompany = (companyName) => {
+    const logo = logos.find(logo => logo.company === companyName);
+    return logo ? logo.src : null; // Return null or a placeholder if no match is found
+  };
+
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data.type === 'WELCOME_MESSAGE') {
-        setWelcomeMessage(true);
-        resetState();
+          setWelcomeMessage(true);
+          resetState();
       } else if (event.data.type === 'TRIGGER_SPIN') {
-        setShowResult(false);
-        setTriggerSpin(true);
+          setShowResult(false);
+          setTriggerSpin(true);
       } else if (event.data.type === 'START_DRAW') {
-        setWelcomeMessage(false); // Hide welcome message and enable draw
+          setWelcomeMessage(false); // Hide welcome message and enable draw
       } else if (event.data.type === 'NAME_GENERATED') {
-        setGeneratedName(event.data.name);
-        localStorage.setItem('generatedName', event.data.name);
-        const company = event.data.name.split('(')[1].replace(')', '').trim();
-        setGeneratedWinnerCompany(company);
-        setWaivedPrize(null); // Clear waived prize notice
+        try {
+            const names = JSON.parse(event.data.name); // Ensure it's parsed as an array
+    
+            // Check if names is an array and has at least one element
+            if (Array.isArray(names) && names.length > 0) {
+                setGeneratedName(names);
+                localStorage.setItem('generatedName', JSON.stringify(names));
+    
+                // Safeguard against undefined values and ensure split only happens on a valid string
+                const firstName = names[0];
+                const company = firstName?.split('(')[1]?.replace(')', '').trim() || 'Unknown'; // Fallback to 'Unknown' if company name is not available
+    
+                setGeneratedWinnerCompany(company);
+                setWaivedPrize(null); // Clear waived prize notice
+            } else {
+                console.error('Names array is empty or not valid.');
+            }
+        } catch (error) {
+          console.error('Error parsing names:', error);
+        }
       } else if (event.data.type === 'PRIZE_REVEALED') {
-        setSelectedPrize(event.data.prize);
+          setSelectedPrize(event.data.prize);
       } else if (event.data.type === 'UPDATE_PRIZES') {
-        setPrizes(event.data.prizes);
-        localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
+          setPrizes(event.data.prizes);
+          localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } else if (event.data.type === 'WINNER_ADDED') {
-        setWinners(prevWinners => [...prevWinners, event.data.winner]);
-        setWaivedPrize(null); // Clear waived prize notice
+          setWinners(prevWinners => [...prevWinners, event.data.winner]);
+          setWaivedPrize(null); // Clear waived prize notice
       } else if (event.data.type === 'RESTART_DRAW') {
-        resetState();
+          resetState();
       } else if (event.data.type === 'END_DRAW') {
-        setWinners(event.data.winners);
-        setShowWinners(true);
+          setWinners(event.data.winners);
+          setShowWinners(true);
       } else if (event.data.type === 'PRIZE_WAIVED') {
-        setWaivedPrize(event.data.waivedPrize);
-        setGeneratedName(''); // Clear generated name
-        setSelectedPrize(null); // Clear selected prize
-    }
+          setWaivedPrize(event.data.waivedPrize);
+          setGeneratedName(''); // Clear generated name
+          setSelectedPrize(null); // Clear selected prize
+      }
     };
 
     window.addEventListener('message', handleMessage);
 
-    return () => window.removeEventListener('message', handleMessage);
+    return () => {
+        window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   const resetState = () => {
@@ -143,31 +165,37 @@ function RafflePage() {
                           <div className='rafflePage-hl'>
                             
                           </div>
-                          <div className='rafflePage-header'>
-                            {showResult && generatedName && (
-                              <div className="winners-overlay">
-                                {Array.isArray(generatedName) && generatedName.length > 1 ? (
-                                  generatedName.map((name, index) => (
-                                    <div key={index} className="winner-card">
-                                      <p>Congratulations, {name}</p>
-                                      {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                                    </div>
-                                  ))
-                                ) : (
-                                  <div className="winner-card">
-                                    <p>Congratulations, {generatedName}</p>
-                                    {selectedPrize && <p>You won {selectedPrize.RFLITEM}</p>}
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                          <div className="rafflePage-header">
+    {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
+        <div className="winners-overlay">
+            {generatedName.map((name, index) => {
+                // Extract the company name from the winner name
+                const companyName = name.split('(')[1]?.replace(')', '').trim();
+                const logoSrc = getLogoForCompany(companyName);
 
-                            {waivedPrize && (
-                              <p>
-                                Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-                              </p>
-                            )}
-                          </div>
+                return (
+                    <div key={index} className="winner-card">
+                        <div className="card">
+                            <div className="card-face card-front">
+                                <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                            </div>
+                            <div className="card-face card-back">
+                                <p className="winner-name">Congratulations, {name}</p>
+                                {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    )}
+    {waivedPrize && (
+        <p>
+            Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
+        </p>
+    )}
+</div>
+
                           </div>
                         </>
                     )}
