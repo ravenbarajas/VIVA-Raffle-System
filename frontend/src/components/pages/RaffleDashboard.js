@@ -316,6 +316,12 @@ function RaffleDashboard() {
 
      // Function to draw winners
      const drawPrize = async () => {
+        // Clear previous winners and notify RafflePage
+        raffleTabRef.current.postMessage({ type: 'RESET_WINNERS' }, '*');
+        setGeneratedName([]);
+        setIsPrizeRevealed(false);
+        setSelectedPrize(null);
+
         // Ensure there are prizes available for selection
         if (prizes.length === 0) {
             console.error('No prizes available');
@@ -387,7 +393,6 @@ function RaffleDashboard() {
             }
     
             // Send the winners array as a JSON string
-            const generatedNames = winners.join(', ');
             raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: JSON.stringify(winners) }, '*');
     
             setGeneratedName(winners);

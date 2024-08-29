@@ -29,7 +29,7 @@ function RafflePage() {
   const [showResult, setShowResult] = useState(false); // New state for controlling the message display
 
   const logos = [
-    { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE  ENTERTAINMENT, INC.' }, 
+    { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE ENTERTAINMENT, INC.' }, 
     { src: logo4, company: 'VIVA LIFESTYLE and LEISURE, INC.' }, { src: logo5, company: 'EPIK STUDIOS, INC.' }, { src: logo6, company: 'VIVA RECORDS CORP.' }, 
     { src: logo7, company: 'VICOR MUSIC CORP.' }, { src: logo8, company: 'VIVA MUSIC PUBLISHING, INC.' }, { src: logo9, company: 'OC PRODUCTIONS AND ENTERTAINMENT, INC.' }, 
     { src: logo10, company: 'VIVA BOOKS PUBLISHING, INC.' }, { src: logo11, company: 'VIVA COMMUNICATIONS, INC.' }, { src: logo12, company: 'VIVA INTERNATIONAL FOOD & RESTAURANTS, INC.' },
@@ -50,6 +50,9 @@ function RafflePage() {
           setTriggerSpin(true);
       } else if (event.data.type === 'START_DRAW') {
           setWelcomeMessage(false); // Hide welcome message and enable draw
+      }else if (event.data.type === 'RESET_WINNERS') {
+        setGeneratedName([]); // Clear previous winners
+        setSelectedPrize(null); // Clear previous prize
       } else if (event.data.type === 'NAME_GENERATED') {
         try {
             const names = JSON.parse(event.data.name); // Ensure it's parsed as an array
