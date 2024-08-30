@@ -192,6 +192,7 @@ function RafflePage() {
                 <div className="winners-overlay">
                     {generatedName.map((name, index) => {
                         const companyName = name.split('(')[1]?.replace(')', '').trim();
+                        const winnerName = name.split('(')[0].trim();
                         const logoSrc = getLogoForCompany(companyName);
 
                         return (
@@ -205,7 +206,9 @@ function RafflePage() {
                                         <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
                                     </div>
                                     <div className="card-face card-back">
-                                        <p className="winner-name">Congratulations, {name}</p>
+                                        <p className="winner-header">Congratulations,</p>
+                                        <p className="winner-name">{winnerName}</p>
+                                        <p className="winner-company">{companyName}</p>
                                         {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
                                     </div>
                                 </div>
