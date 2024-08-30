@@ -123,6 +123,25 @@ function RafflePage() {
     setShowResult(true); // Show result immediately after spin completes
   };
 
+  const [flippedCards, setFlippedCards] = useState([]); // Track flipped cards
+
+    // Reset flipped cards when a new draw starts
+    useEffect(() => {
+      if (Array.isArray(generatedName) && generatedName.length > 0) {
+          // Reset flipped state when a new draw starts
+          setFlippedCards(new Array(generatedName.length).fill(false));
+      }
+  }, [generatedName]);
+
+  const handleCardClick = (index) => {
+      // Flip the card when clicked
+      setFlippedCards(prevState => {
+          const newState = [...prevState];
+          newState[index] = true; // Flip only the clicked card
+          return newState;
+      });
+  };
+
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
@@ -169,35 +188,38 @@ function RafflePage() {
                             
                           </div>
                           <div className="rafflePage-header">
-    {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
-        <div className="winners-overlay">
-            {generatedName.map((name, index) => {
-                // Extract the company name from the winner name
-                const companyName = name.split('(')[1]?.replace(')', '').trim();
-                const logoSrc = getLogoForCompany(companyName);
+            {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
+                <div className="winners-overlay">
+                    {generatedName.map((name, index) => {
+                        const companyName = name.split('(')[1]?.replace(')', '').trim();
+                        const logoSrc = getLogoForCompany(companyName);
 
-                return (
-                    <div key={index} className="winner-card">
-                        <div className="card">
-                            <div className="card-face card-front">
-                                <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                        return (
+                            <div 
+                                key={index} 
+                                className="winner-card"
+                                onClick={() => handleCardClick(index)}
+                            >
+                                <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                    <div className="card-face card-front">
+                                        <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                                    </div>
+                                    <div className="card-face card-back">
+                                        <p className="winner-name">Congratulations, {name}</p>
+                                        {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="card-face card-back">
-                                <p className="winner-name">Congratulations, {name}</p>
-                                {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
-                            </div>
-                        </div>
-                    </div>
-                );
-            })}
+                        );
+                    })}
+                </div>
+            )}
+            {waivedPrize && (
+                <p>
+                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
+                </p>
+            )}
         </div>
-    )}
-    {waivedPrize && (
-        <p>
-            Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-        </p>
-    )}
-</div>
 
                           </div>
                         </>

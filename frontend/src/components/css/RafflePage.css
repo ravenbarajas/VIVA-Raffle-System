@@ -181,9 +181,10 @@
 }
 
 .winner-card {
-  width: 200px;
-  height: 300px;
+  width: 250px; /* Adjusted width for rectangle shape */
+  height: 150px; /* Adjusted height for rectangle shape */
   perspective: 1000px; /* Required for 3D flip effect */
+  cursor: pointer;
 }
 
 .card {
@@ -194,8 +195,8 @@
   transition: transform 0.6s;
 }
 
-.card:hover {
-  transform: rotateY(180deg); /* Flip effect */
+.card.is-flipped {
+  transform: rotateY(180deg); /* Flip effect when clicked */
 }
 
 .card-face {
@@ -227,9 +228,11 @@
   justify-content: center;
   transform: rotateY(180deg); /* Hide back side initially */
 }
+
 .card-back p {
   color: #000;
 }
+
 .winner-name, .prize-won {
   margin: 10px 0;
 }
