@@ -738,6 +738,10 @@ function RaffleDashboard() {
                                 disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
                                 Draw Winners
                             </button>
+                            <button
+                                onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
+                                Flip All
+                            </button>
 
                         </div>
                         <div className='ctrl-body-end'>

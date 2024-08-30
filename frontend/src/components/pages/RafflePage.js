@@ -92,6 +92,9 @@ function RafflePage() {
           setGeneratedName(''); // Clear generated name
           setSelectedPrize(null); // Clear selected prize
       }
+        else if (event.data.type === 'FLIP_ALL_CARDS') {
+          setFlippedCards(new Array(generatedName.length).fill(true)); // Flip all cards
+      }
     };
 
     window.addEventListener('message', handleMessage);
@@ -99,7 +102,7 @@ function RafflePage() {
     return () => {
         window.removeEventListener('message', handleMessage);
     };
-  }, []);
+  }, [generatedName]);
 
   const resetState = () => {
     setGeneratedName('');
@@ -223,7 +226,6 @@ function RafflePage() {
                 </p>
             )}
         </div>
-
                           </div>
                         </>
                     )}

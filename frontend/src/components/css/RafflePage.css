@@ -175,8 +175,8 @@
   background-color: rgba(0, 0, 0, 0.8);
   padding: 20px;
   border-radius: 10px;
-  width: 80%;
-  height: 80%;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -197,7 +197,7 @@
 }
 
 .card.is-flipped {
-  transform: rotateY(180deg); /* Flip effect when clicked */
+  transform: rotateX(180deg); /* Flip effect when clicked */
 }
 
 .card-face {
@@ -231,7 +231,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transform: rotateY(180deg); /* Hide back side initially */
+  transform: rotateX(180deg); /* Hide back side initially */
 }
 
 .card-back p {
