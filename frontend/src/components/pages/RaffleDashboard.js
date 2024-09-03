@@ -444,19 +444,29 @@ function RaffleDashboard() {
         }, 3000); // Adjust delay based on slot machine animation duration
     };
     // Function to redraw waived winners
-    const redrawPrize = async (waivedWinners) => {
-        if (waivedWinners.length === 0) {
+    const redrawPrize = async (selectedWinners) => {
+        if (selectedWinners.length === 0) {
             console.error('No winners selected for redraw');
             return;
         }
     
-        const usedParticipants = new Set();
+        // Initialize newWinners as an empty array for the current redraw
         const newWinners = [];
+        const usedParticipants = new Set();
     
+        // Trigger slot machine spin animation
         raffleTabRef.current.postMessage({ type: 'TRIGGER_SPIN' }, '*');
     
         setTimeout(async () => {
-            for (let i = 0; i < waivedWinners.length; i++) {
+            // Remove previously selected winners from the current state
+            const currentWinners = [...winners];  // Make a copy of current winners
+            const updatedWinners = currentWinners.filter(w => !selectedWinners.some(sw => sw.DRWNAME === w.DRWNAME));
+            
+            setWinners(updatedWinners); // Update state to remove previous winners
+    
+            for (let i = 0; i < selectedWinners.length; i++) {
+                const winnerToRedraw = selectedWinners[i];
+    
                 const availableParticipants = participants.filter(
                     participant => !usedParticipants.has(participant.EMPNAME)
                 );
@@ -470,19 +480,22 @@ function RaffleDashboard() {
                 usedParticipants.add(randomParticipant.EMPNAME);
     
                 const winnerName = `${randomParticipant.EMPNAME} (${randomParticipant.EMPCOMP})`;
+    
                 newWinners.push(winnerName);
     
                 const newWinner = {
-                    DRWNUM: winners.length + 1,
+                    DRWNUM: updatedWinners.length + 1,
                     DRWNAME: winnerName,
-                    DRWPRICE: waivedWinners[i].DRWPRICE
+                    DRWPRICE: winnerToRedraw.DRWPRICE
                 };
     
                 try {
+                    // Save the new winner to the database
                     const response = await axios.post('http://localhost:8000/api/winners', newWinner);
     
                     if (response.status === 201) {
-                        setWinners(prevWinners => [...prevWinners, response.data]);
+                        const winnerData = response.data;
+                        setWinners(prevWinners => [...prevWinners, winnerData]);
     
                         raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
                     } else {
@@ -500,29 +513,64 @@ function RaffleDashboard() {
             localStorage.setItem('generatedName', JSON.stringify(newWinners));
     
             try {
-                const updatedPrizes = prizes.map(prize =>
-                    prize.RFLITEM === waivedWinners[0].DRWPRICE
-                        ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - waivedWinners.length }
-                        : prize
-                );
-    
-                await axios.patch(
-                    `http://localhost:8000/api/prizes/${waivedWinners[0].RFLID}`,
-                    { RFLITEMQTY: updatedPrizes.find(prize => prize.RFLITEM === waivedWinners[0].DRWPRICE).RFLITEMQTY }
-                );
-    
-                setPrizes(updatedPrizes);
-                setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === waivedWinners[0].RFLID) || null);
-                localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
-    
-                fetchWinners();
-    
-                raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
-                raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+                // Start deduction process
+console.log('Start deduction process');
+
+// Fetch the current prize quantity
+const prize = prizes.find(prize => prize.RFLITEM === selectedWinners[0].DRWPRICE);
+
+if (!prize || !prize.RFLID) {
+    console.error('Prize ID is undefined or prize not found');
+    return;
+}
+
+// First, add back the waived prizes to the current quantity
+const waivedPrizeQty = selectedWinners.length;
+const currentPrizeQty = prize.RFLITEMQTY + waivedPrizeQty;
+
+console.log('Current Prize Quantity (before deduction):', currentPrizeQty);
+
+// Calculate the number of winners to deduct based on the length of `newWinners`
+const prizeQtyToDeduct = newWinners.length;
+console.log('Prize Quantity to Deduct (newWinners.length):', prizeQtyToDeduct);
+
+// Now deduct only the redrawn winners from the updated quantity
+const updatedPrizeQty = currentPrizeQty - prizeQtyToDeduct;
+
+console.log('Updated Prize Quantity (after deduction):', updatedPrizeQty);
+
+// Proceed with the API call to update the database
+const response = await axios.patch(
+    `http://localhost:8000/api/prizes/${prize.RFLID}`,
+    { RFLITEMQTY: updatedPrizeQty }
+);
+
+if (response.status === 200) {
+    console.log('Successfully updated prize in database.');
+
+    const updatedPrizes = prizes.map(p =>
+        p.RFLID === prize.RFLID
+            ? { ...p, RFLITEMQTY: updatedPrizeQty }
+            : p
+    );
+    setPrizes(updatedPrizes);
+    setSelectedPrize(updatedPrizes.find(p => p.RFLID === prize.RFLID) || null);
+    localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
+
+    console.log('Updated local state and localStorage with new prize quantity.');
+
+    // Fetch winners to update the summary table
+    fetchWinners();
+
+    raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize }, '*');
+    raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+                } else {
+                    console.error('Failed to update prize: ', response.status);
+                }
             } catch (error) {
                 console.error('Error updating prize:', error);
             }
-        }, 3000);
+        }, 3000); // Adjust delay based on slot machine animation duration
     };
     
     
