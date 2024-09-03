@@ -50,7 +50,7 @@ function RafflePage() {
           setTriggerSpin(true);
       } else if (event.data.type === 'START_DRAW') {
           setWelcomeMessage(false); // Hide welcome message and enable draw
-      }else if (event.data.type === 'RESET_WINNERS') {
+      } else if (event.data.type === 'RESET_WINNERS') {
         setGeneratedName([]); // Clear previous winners
         setSelectedPrize(null); // Clear previous prize
       } else if (event.data.type === 'NAME_GENERATED') {
