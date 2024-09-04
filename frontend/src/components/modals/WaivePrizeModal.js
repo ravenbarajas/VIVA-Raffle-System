@@ -17,8 +17,8 @@ const WaivePrizeModal = ({ isOpen, onClose, onWaive, selectedPrize }) => {
             <h2>Confirm Waiving Prize</h2>
             <p>Are you sure you want to waive the prize "{selectedPrize.RFLITEM}"?</p>
             <div className="waive-prize-modal-buttons">
-                <button onClick={handleWaive}>Confirm</button>
-                <button onClick={onClose}>Cancel</button>
+              <button onClick={onWaive}>Confirm</button>
+              <button onClick={onClose}>Cancel</button>
             </div>
         </div>
     </div>
