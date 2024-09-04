@@ -573,14 +573,7 @@ function RaffleDashboard() {
             console.error('No valid prize selected');
             return;
         }
-    
-        const updatedPrizes = prizes.map((prize) =>
-            prize.RFLID === selectedPrize.RFLID
-                ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
-                : prize
-        );
-        setPrizes(updatedPrizes);
-    
+
         const winnerToUpdate = winners.find(
             (winner) => winner.DRWNAME === generatedName && winner.DRWPRICE === selectedPrize.RFLITEM
         );
@@ -590,6 +583,15 @@ function RaffleDashboard() {
             return;
         }
     
+        // Update prize quantity
+        const updatedPrizes = prizes.map((prize) =>
+            prize.RFLID === selectedPrize.RFLID
+                ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
+                : prize
+        );
+        setPrizes(updatedPrizes);
+    
+        // Remove the waived winner from the list and update the waived winners list
         const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
         setWinners(updatedWinners);
         setWaivedWinners(prev => [...prev, { ...winnerToUpdate, DRWNUM: 0 }]);
@@ -837,11 +839,6 @@ function RaffleDashboard() {
                                 onClick={() => drawPrize(winnerCount)} 
                                 disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
                                 Draw Winners
-                            </button>
-                            <button
-                                onClick={handleRedrawWaivePrize}
-                                disabled={selectedWinners.length === 0}>
-                                Redraw Waive Prize
                             </button>
 
                         </div>

@@ -223,7 +223,7 @@ function RafflePage() {
                                         })}
                                     </div>
                                 )}
-                            </div>
+                          </div>
                           </div>
                         </>
                     )}
