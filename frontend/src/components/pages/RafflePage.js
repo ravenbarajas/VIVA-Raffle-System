@@ -56,6 +56,9 @@ function RafflePage() {
       } else if (event.data.type === 'NAME_GENERATED') {
         try {
             const names = JSON.parse(event.data.name); // Ensure it's parsed as an array
+
+            // Clear previous generated names before setting new ones
+            setGeneratedName([]);
     
             // Check if names is an array and has at least one element
             if (Array.isArray(names) && names.length > 0) {
@@ -191,41 +194,36 @@ function RafflePage() {
                             
                           </div>
                           <div className="rafflePage-header">
-            {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
-                <div className="winners-overlay">
-                    {generatedName.map((name, index) => {
-                        const companyName = name.split('(')[1]?.replace(')', '').trim();
-                        const winnerName = name.split('(')[0].trim();
-                        const logoSrc = getLogoForCompany(companyName);
+                                {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
+                                    <div className="winners-overlay">
+                                        {generatedName.map((name, index) => {
+                                            const companyName = name.split('(')[1]?.replace(')', '').trim();
+                                            const winnerName = name.split('(')[0].trim();
+                                            const logoSrc = getLogoForCompany(companyName);
 
-                        return (
-                            <div 
-                                key={index} 
-                                className="winner-card"
-                                onClick={() => handleCardClick(index)}
-                            >
-                                <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                    <div className="card-face card-front">
-                                        <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                                            return (
+                                                <div 
+                                                    key={index} 
+                                                    className="winner-card"
+                                                    onClick={() => handleCardClick(index)}
+                                                >
+                                                    <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                        <div className="card-face card-front">
+                                                            <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                                                        </div>
+                                                        <div className="card-face card-back">
+                                                            <p className="winner-header">Congratulations,</p>
+                                                            <p className="winner-name">{winnerName}</p>
+                                                            <p className="winner-company">{companyName}</p>
+                                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                    <div className="card-face card-back">
-                                        <p className="winner-header">Congratulations,</p>
-                                        <p className="winner-name">{winnerName}</p>
-                                        <p className="winner-company">{companyName}</p>
-                                        {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
-                                    </div>
-                                </div>
+                                )}
                             </div>
-                        );
-                    })}
-                </div>
-            )}
-            {waivedPrize && (
-                <p>
-                    Prize "{waivedPrize.prize}" waived by {waivedPrize.name}
-                </p>
-            )}
-        </div>
                           </div>
                         </>
                     )}
