@@ -85,6 +85,12 @@ function RafflePage() {
       } else if (event.data.type === 'WINNER_ADDED') {
           setWinners(prevWinners => [...prevWinners, event.data.winner]);
           setWaivedPrize(null); // Clear waived prize notice
+
+          // Optionally flip the new card to reveal the winner
+          setFlippedCards(prevFlippedCards => {
+            const newFlippedCards = [...prevFlippedCards, false];
+            return newFlippedCards;
+        });
       } else if (event.data.type === 'RESTART_DRAW') {
           resetState();
       } else if (event.data.type === 'END_DRAW') {
@@ -140,11 +146,10 @@ function RafflePage() {
   }, [generatedName]);
 
   const handleCardClick = (index) => {
-      // Flip the card when clicked
-      setFlippedCards(prevState => {
-          const newState = [...prevState];
-          newState[index] = true; // Flip only the clicked card
-          return newState;
+      setFlippedCards(prevFlippedCards => {
+          const newFlippedCards = [...prevFlippedCards];
+          newFlippedCards[index] = !newFlippedCards[index];
+          return newFlippedCards;
       });
   };
 
@@ -213,7 +218,7 @@ function RafflePage() {
                                                         </div>
                                                         <div className="card-face card-back">
                                                             <p className="winner-header">Congratulations,</p>
-                                                            <p className="winner-name">{winnerName}</p>
+                                                            <p className="winner-name">{generatedName[index].split('(')[0].trim()}</p>
                                                             <p className="winner-company">{companyName}</p>
                                                             {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
                                                         </div>
