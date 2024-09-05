@@ -454,28 +454,35 @@ function RaffleDashboard() {
             }
         }, 3000); // Adjust delay based on slot machine animation duration
     };
-
-    const [flippedCards, setFlippedCards] = useState([]);
-
-    const redrawPrize = async () => {
+    // Function to redraw waived winners
+    const redrawPrize = async (waivedWinner) => {
         try {
-            /// Exclude the waived winner from the list of participants
-            const filteredParticipants = participants.filter(
-                participant => !waivedWinners.some(waived => waived.DRWNAME === participant.EMPNAME)
-            );
+            // Ensure selectedPrize is defined
+            if (!selectedPrize || !selectedPrize.RFLITEMQTY) {
+                console.error('Selected prize or RFLITEMQTY is undefined');
+                return;
+            }
 
-            if (filteredParticipants.length === 0) {
-                console.error('No participants available for drawing');
+            // Get a set of used participant names
+            const usedParticipants = new Set(winners.map(w => w.DRWNAME.split(' (')[0]));
+            const availableParticipants = participants.filter(
+                participant => !usedParticipants.has(participant.EMPNAME)
+            );
+    
+            if (availableParticipants.length === 0) {
+                console.error('No more unique participants available for drawing');
                 return;
             }
     
-             // Randomly select a new participant
-            const randomParticipant = filteredParticipants[Math.floor(Math.random() * filteredParticipants.length)];
+            // Randomly select a new participant for the prize
+            const randomParticipant = availableParticipants[Math.floor(Math.random() * availableParticipants.length)];
+            const winnerName = `${randomParticipant.EMPNAME} (${randomParticipant.EMPCOMP})`;
+    
             const newWinner = {
-                DRWNUM: winners.length + 1,
-                DRWNAME: `${randomParticipant.EMPNAME} (${randomParticipant.EMPCOMP})`,
-                DRWPRICE: selectedPrize.RFLITEM,
-                DRWPRICEID: selectedPrize.RFLID
+                DRWNUM: winners.length + 1,  // New DRWNUM based on current number of winners
+                DRWNAME: winnerName,
+                DRWPRICE: waivedWinner.DRWPRICE,
+                DRWPRICEID: waivedWinner.DRWPRICEID
             };
     
             // Save the new winner to the database
@@ -486,32 +493,40 @@ function RaffleDashboard() {
                 setWinners(prevWinners => [...prevWinners, winnerData]);
                 localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
 
-                // Deduct the prize quantity again after the redraw
+                raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
+
+                // Optionally flip the card here to reveal the new winner
+                setGeneratedName(winnerName);
+                setIsPrizeRevealed(true);
+                localStorage.setItem('generatedName', JSON.stringify(winnerName));
+    
+                // Update prize quantity in the backend
+                const prizeId = waivedWinner.DRWPRICEID;
+                const prizeToUpdate = prizes.find(prize => prize.RFLID === prizeId);
+                if (!prizeToUpdate) {
+                    console.error('Prize to update not found');
+                    return;
+                }
+
                 const updatedPrizes = prizes.map(prize =>
-                    prize.RFLID === selectedPrize.RFLID
-                        ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY}
+                    prize.RFLID === prizeId
+                        ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } // Deduct the prize quantity
                         : prize
                 );
-                setPrizes(updatedPrizes);
 
-                await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, {
-                    RFLITEMQTY: selectedPrize.RFLITEMQTY
+                setPrizes(updatedPrizes);
+                await axios.patch(`http://localhost:8000/api/prizes/${prizeId}`, {
+                    RFLITEMQTY: updatedPrizes.find(prize => prize.RFLID === prizeId).RFLITEMQTY
                 });
-    
-                // Notify the raffle page of the new winner
-                raffleTabRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
-                
-                // Optionally flip the card here to reveal the new winner
-                setGeneratedName([newWinner.DRWNAME]);
-                setIsPrizeRevealed(true);
-                localStorage.setItem('generatedName', JSON.stringify([newWinner.DRWNAME]));
+
             } else {
-                console.error('Failed to save new winner:', response.status);
+                console.error('Failed to save new winner: ', response.status);
             }
         } catch (error) {
             console.error('Error saving new winner:', error);
         }
     };
+    
     
     const restartDraw = () => {
         setGeneratedName('');
@@ -591,7 +606,9 @@ function RaffleDashboard() {
         const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
         setWinners(updatedWinners);
         setWaivedWinners(prev => [...prev, { ...winnerToUpdate, DRWNUM: 0 }]);
-   
+        localStorage.setItem('winners', JSON.stringify(updatedWinners));
+        localStorage.setItem('waivedWinners', JSON.stringify([...waivedWinners, { ...winnerToUpdate, DRWNUM: 0 }]));
+    
         try {
             await axios.patch(`http://localhost:8000/api/winners/${winnerToUpdate.DRWID}`, {
                 DRWNUM: 0 // Indicating a waived draw
@@ -615,19 +632,13 @@ function RaffleDashboard() {
         }
     
         if (option === 'redraw_same') {
-            // Flip the card back and draw a new winner
-            setFlippedCards(prev => {
-                const newFlippedCards = [...prev];
-                const index = winners.findIndex(w => w.DRWID === winnerToUpdate.DRWID);
-                if (index !== -1) {
-                    newFlippedCards[index] = false;
-                }
-                return newFlippedCards;
-            });
-
-            setGeneratedName([]);
+            const filteredParticipants = participants.filter(
+                participant => !updatedWinners.some(winner => winner.DRWNAME === participant.EMPNAME)
+            );
+            setParticipants(filteredParticipants);
+            setGeneratedName('');
             setIsDrawDisabled(false);
-            await redrawPrize(); // Ensure redrawPrize function is defined
+            drawPrize();
         } else if (option === 'choose_new') {
             setSelectedPrize(null);
             setGeneratedName('');

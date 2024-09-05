@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/RafflePage.css';
-import axios from 'axios';
-
 import LogoSlotMachine from './LogoSlotMachine';
-import mainlogo from  '../assets/logo/mainlogo.png'; 
+import mainlogo from  '../assets/logo/mainlogo.png';
 import logo1 from '../assets/logo/logo-1.png';
 import logo2 from '../assets/logo/logo-2.png';
 import logo3 from '../assets/logo/logo-3.png';
@@ -18,10 +16,8 @@ import logo11 from '../assets/logo/logo-11.png';
 import logo12 from '../assets/logo/logo-12.png';
 
 function RafflePage() {
-  const [generatedName, setGeneratedName] = useState([]);
+  const [generatedName, setGeneratedName] = useState('');
   const [selectedPrize, setSelectedPrize] = useState(null);
-  const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
-
   const [prizes, setPrizes] = useState([]);
   const [winners, setWinners] = useState([]);
   const [showWinners, setShowWinners] = useState(false);
@@ -31,8 +27,6 @@ function RafflePage() {
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
   const [showResult, setShowResult] = useState(false); // New state for controlling the message display
-
-  const raffleDashboardRef = useRef(null);
 
   const logos = [
     { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE ENTERTAINMENT, INC.' }, 
@@ -91,12 +85,6 @@ function RafflePage() {
       } else if (event.data.type === 'WINNER_ADDED') {
           setWinners(prevWinners => [...prevWinners, event.data.winner]);
           setWaivedPrize(null); // Clear waived prize notice
-
-          // Optionally flip the new card to reveal the winner
-          setFlippedCards(prevFlippedCards => {
-            const newFlippedCards = [...prevFlippedCards, false];
-            return newFlippedCards;
-        });
       } else if (event.data.type === 'RESTART_DRAW') {
           resetState();
       } else if (event.data.type === 'END_DRAW') {
@@ -151,173 +139,13 @@ function RafflePage() {
       }
   }, [generatedName]);
 
-   // Function to handle card click and flip
-   const handleCardClick = (index) => {
-      const updatedFlippedCards = [...flippedCards];
-      updatedFlippedCards[index] = !updatedFlippedCards[index];
-      setFlippedCards(updatedFlippedCards);
-  };
-
-  // Function to redraw a new winner (stub)
-  const redrawPrize = async () => {
-      try {
-           // Fetch participants from the server
-          const participantsResponse = await axios.get('http://localhost:8000/api/participants');
-          const participants = participantsResponse.data;
-
-          // Fetch winners from the server
-          const winnersResponse = await axios.get('http://localhost:8000/api/winners');
-          const winners = winnersResponse.data;
-
-          // Filter out waived winners
-          const waivedWinners = winners.filter(winner => winner.DRWNUM === 0);
-
-          // Exclude the waived winners from the list of participants
-          const filteredParticipants = participants.filter(
-              participant => !waivedWinners.some(waived => waived.DRWNAME === participant.EMPNAME)
-          );
-
-          if (filteredParticipants.length === 0) {
-              console.error('No participants available for drawing');
-              return null; // Ensure to return null or handle this case appropriately
-          }
-
-          // Randomly select a new participant
-          const randomParticipant = filteredParticipants[Math.floor(Math.random() * filteredParticipants.length)];
-          const newWinner = {
-              DRWNUM: winners.length + 1,
-              DRWNAME: `${randomParticipant.EMPNAME} (${randomParticipant.EMPCOMP})`,
-              DRWPRICE: selectedPrize?.RFLITEM, // Optional chaining to handle potential null values
-              DRWPRICEID: selectedPrize?.RFLID
-          };
-
-          if (!newWinner.DRWPRICE || !newWinner.DRWPRICEID) {
-              console.error('Selected prize is not valid');
-              return null;
-          }
-
-          // Save the new winner to the database
-          const response = await axios.post('http://localhost:8000/api/winners', newWinner);
-
-          if (response.status === 201) {
-              const winnerData = response.data;
-              setWinners(prevWinners => [...prevWinners, winnerData]);
-              localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
-
-              // Update the prize quantity
-              const updatedPrizes = prizes.map(prize =>
-                  prize.RFLID === selectedPrize.RFLID
-                      ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - 1 } // Deduct 1 for the new winner
-                      : prize
-              );
-              setPrizes(updatedPrizes);
-
-              await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, {
-                  RFLITEMQTY: updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID).RFLITEMQTY
-              });
-
-              // Notify the raffle dashboard of the new winner
-              if (raffleDashboardRef.current) {
-                  raffleDashboardRef.current.postMessage({ type: 'WINNER_ADDED', winner: newWinner }, '*');
-              } else {
-                  console.error('RaffleDashboard reference is not set');
-              }
-
-              // Optionally update the UI to reflect the new winner
-              setGeneratedName([newWinner.DRWNAME]);
-              setIsPrizeRevealed(true);
-              localStorage.setItem('generatedName', JSON.stringify([newWinner.DRWNAME]));
-
-              return newWinner; // Return the new winner for further use
-          } else {
-              console.error('Failed to save new winner:', response.status);
-              return null;
-          }
-      } catch (error) {
-          console.error('Error saving new winner:', error);
-          return null;
-      }
-  };
-
-  // Handle waiving a winner
-  const handleWaiveWinner = async (e, index) => {
-    e.stopPropagation(); // Prevents the click event from bubbling up and affecting the card flip
-
-    const selectedName = generatedName[index];
-    if (!selectedName) {
-        console.error('Selected name is undefined');
-        return;
-    }
-
-     // Find the winner to update
-     const winnerToUpdate = winners.find(
-        (winner) => winner.DRWNAME === selectedName && winner.DRWPRICE === selectedPrize?.RFLITEM
-    );
-
-    if (!winnerToUpdate) {
-        console.error('Winner not found');
-        console.log('Winners List:', winners);
-        console.log('Selected Name:', selectedName);
-        return;
-    }
-
-    // Flip the card back
-    const updatedFlippedCards = [...flippedCards];
-    updatedFlippedCards[index] = false;
-    setFlippedCards(updatedFlippedCards);
-
-    // Update prize quantity
-    const updatedPrizes = prizes.map(prize =>
-        prize.RFLID === selectedPrize?.RFLID
-            ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
-            : prize
-    );
-    setPrizes(updatedPrizes);
-
-    // Remove the waived winner from the list and update the waived winners list
-    const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
-    setWinners(updatedWinners);
-    setWaivedWinners(prev => [...prev, { ...winnerToUpdate, DRWNUM: 0 }]);
-
-    try {
-      // Update the waived winner's DRWNUM in the database
-      await axios.patch(`http://localhost:8000/api/winners/${winnerToUpdate.DRWID}`, {
-          DRWNUM: 0 // Indicating a waived draw
+  const handleCardClick = (index) => {
+      // Flip the card when clicked
+      setFlippedCards(prevState => {
+          const newState = [...prevState];
+          newState[index] = true; // Flip only the clicked card
+          return newState;
       });
-
-      // Update prize quantity in the database
-      await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize?.RFLID}`, {
-          RFLITEMQTY: updatedPrizes.find(prize => prize.RFLID === selectedPrize?.RFLID)?.RFLITEMQTY
-      });
-
-      // Send a message to the Raffle Page
-      if (raffleTabRef.current) {
-          raffleTabRef.current.postMessage({
-              type: 'PRIZE_WAIVED',
-              waivedPrize: {
-                  name: winnerToUpdate.DRWNAME,
-                  prize: selectedPrize?.RFLITEM,
-                  company: 'Company Name' // Adjust as needed
-              }
-          }, '*');
-      } else {
-          console.error('RaffleDashboard reference is not set');
-      }
-
-      // Redraw a new winner if 'redraw_same' option is selected
-      if (option === 'redraw_same') {
-          setGeneratedName([]); // Clear current names
-          setIsDrawDisabled(false); // Enable draw button
-          await redrawPrize(); // Ensure redrawPrize function is defined
-      } else if (option === 'choose_new') {
-          setSelectedPrize(null);
-          setGeneratedName('');
-      }
-
-      setIsWaivePrizeModalOpen(false); // Close the modal after waiving
-    } catch (error) {
-        console.error('Error updating winner or prize:', error);
-    }
   };
 
   return (
@@ -374,27 +202,23 @@ function RafflePage() {
                                             const logoSrc = getLogoForCompany(companyName);
 
                                             return (
-                                              <div 
-                                                  key={index} 
-                                                  className="winner-card"
-                                                  onClick={() => handleCardClick(index)}
-                                              >
-                                                  <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                      <div className="card-face card-front">
-                                                          <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
-                                                      </div>
-                                                      <div className="card-face card-back">
-                                                          <p className="winner-header">Congratulations,</p>
-                                                          <p className="winner-name">{winnerName}</p>
-                                                          <p className="winner-company">{companyName}</p>
-                                                          {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
-                                                          
-                                                          <button className="waive-button" onClick={(e) => handleWaiveWinner(e, index)}>
-                                                            Waive Prize
-                                                          </button>
-                                                      </div>
-                                                  </div>
-                                              </div>
+                                                <div 
+                                                    key={index} 
+                                                    className="winner-card"
+                                                    onClick={() => handleCardClick(index)}
+                                                >
+                                                    <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                        <div className="card-face card-front">
+                                                            <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                                                        </div>
+                                                        <div className="card-face card-back">
+                                                            <p className="winner-header">Congratulations,</p>
+                                                            <p className="winner-name">{winnerName}</p>
+                                                            <p className="winner-company">{companyName}</p>
+                                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             );
                                         })}
                                     </div>
