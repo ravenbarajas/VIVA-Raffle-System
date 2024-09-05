@@ -83,9 +83,29 @@ function RafflePage() {
           setPrizes(event.data.prizes);
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } else if (event.data.type === 'WINNER_ADDED') {
-          setWinners(prevWinners => [...prevWinners, event.data.winner]);
+          const winner = event.data.winner;
+          setNewWinner(winner);
+      
+          setWinners(prevWinners => [...prevWinners, winner]);
+      
+          // Update the generated name based on whether it's a redraw or a normal draw
+          setGeneratedName(prevGeneratedName => event.data.isRedraw 
+              ? [winner.DRWNAME]  // Replace the name if it's a redraw
+              : [...prevGeneratedName, winner.DRWNAME]); // Append for normal draw
+          
+          setSelectedPrize(event.data.prize); // Ensure the prize is set correctly
+      
+          if (event.data.isRedraw) {
+              // If it's a redraw, reset the flip state for only the redrawn card
+              setFlippedCards([false]);
+          } else {
+              // For normal draws, add a new entry to the flipped cards array
+              setFlippedCards(prevFlippedCards => [...prevFlippedCards, false]);
+          }
+      
           setWaivedPrize(null); // Clear waived prize notice
-      } else if (event.data.type === 'RESTART_DRAW') {
+      }
+     else if (event.data.type === 'RESTART_DRAW') {
           resetState();
       } else if (event.data.type === 'END_DRAW') {
           setWinners(event.data.winners);
@@ -93,9 +113,7 @@ function RafflePage() {
       } else if (event.data.type === 'PRIZE_WAIVED') {
           setWaivedPrize(event.data.waivedPrize);
           setGeneratedName(''); // Clear generated name
-          setSelectedPrize(null); // Clear selected prize
-      }
-        else if (event.data.type === 'FLIP_ALL_CARDS') {
+      } else if (event.data.type === 'FLIP_ALL_CARDS') {
           setFlippedCards(new Array(generatedName.length).fill(true)); // Flip all cards
       }
     };
@@ -139,14 +157,37 @@ function RafflePage() {
       }
   }, [generatedName]);
 
-  const handleCardClick = (index) => {
-      // Flip the card when clicked
-      setFlippedCards(prevState => {
-          const newState = [...prevState];
-          newState[index] = true; // Flip only the clicked card
-          return newState;
-      });
+  const [newWinner, setNewWinner] = useState(null);
+
+  const handleNewWinner = (winner) => {
+      setNewWinner(winner);
   };
+
+  const handleCardClick = (index) => {
+    if (!newWinner) {
+        console.error('newWinner is not defined');
+        return;
+    }
+
+    // Toggle the flip state of the card when clicked
+    setFlippedCards(prevState => {
+        const newState = [...prevState];
+        newState[index] = !newState[index]; // Toggle flip state
+        return newState;
+    });
+
+    // Update the generatedName only if newWinner is available
+    setGeneratedName(prevGeneratedName => {
+        const updatedNames = [...prevGeneratedName];
+        if (newWinner && newWinner.EMPCOMP) {
+            updatedNames[index] = `Redrawn Winner (${newWinner.EMPCOMP})`;
+        } else {
+            console.error('newWinner.EMPCOMP is not defined');
+            updatedNames[index] = 'Redrawn Winner (Unknown Company)'; // Fallback text
+        }
+        return updatedNames;
+    });
+};
 
   return (
     <div className="rafflePage-container">

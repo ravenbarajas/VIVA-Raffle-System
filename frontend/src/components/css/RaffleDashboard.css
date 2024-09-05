@@ -53,6 +53,13 @@
     flex-direction: column;
     height: 100%;
   }
+
+  .winner-card .winner-name {
+    white-space: nowrap; /* Prevents breaking within words */
+    word-break: normal;   /* Ensures normal word breaking */
+    text-align: center;   /* Centers the text horizontally */
+}
+
   
 
   
