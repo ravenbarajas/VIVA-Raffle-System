@@ -211,22 +211,7 @@ function RaffleDashboard() {
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
 
-    const [selectedWinners, setSelectedWinners] = useState([]);
-
-    const handleSelectWinner = (winner) => {
-        setSelectedWinners(prev =>
-            prev.includes(winner) ? prev.filter(item => item !== winner) : [...prev, winner]
-        );
-    };
-
-    const handleRedrawWaivePrize = () => {
-        if (selectedWinners.length > 0) {
-            const prize = prizes.find(prize => prize.RFLITEM === selectedWinners[0].DRWPRICE);
-            setSelectedPrize(prize);
-            setGeneratedName(selectedWinners.map(winner => winner.DRWNAME).join(', '));
-            setIsWaivePrizeModalOpen(true); // Open the confirmation modal
-        }
-    };
+    const [error, setError] = useState(null);
     
     const fetchPrizes = async () => {
         try {
@@ -264,6 +249,8 @@ function RaffleDashboard() {
             } else if (event.data.type === 'END_DRAW') {
                 setWinners(event.data.winners);
                 setIsEndDrawModalOpen(true); // Open the modal
+            } else if (event.data.type === 'PRIZE_WAIVED') {
+                handlePrizeWaived(event.data.waivedPrize);
             }
         };
 
@@ -271,6 +258,30 @@ function RaffleDashboard() {
 
         return () => window.removeEventListener('message', handleMessage);
     }, []); 
+
+    const handlePrizeWaived = (waivedPrize) => {
+        // Update prize quantity in local state
+        const updatedPrizes = prizes.map(prize =>
+            prize.RFLITEM === waivedPrize.prize
+                ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
+                : prize
+        );
+        setPrizes(updatedPrizes);
+    
+        // Update the prize quantity in the database
+        const prizeToUpdate = prizes.find(prize => prize.RFLITEM === waivedPrize.prize);
+        if (prizeToUpdate) {
+            axios.patch(`http://localhost:8000/api/prizes/${prizeToUpdate.RFLID}`, {
+                RFLITEMQTY: prizeToUpdate.RFLITEMQTY + 1
+            })
+            .then(response => {
+                console.log('Prize quantity updated successfully');
+            })
+            .catch(error => {
+                console.error('Error updating prize quantity:', error);
+            });
+        }
+    };
 
     // Raffle Button Controls //
     const openRafflePage = () => {
@@ -703,7 +714,6 @@ function RaffleDashboard() {
                             <th>Name</th>
                             <th>Company</th>
                             <th>Prize</th>
-                            <th>Waive</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -714,9 +724,6 @@ function RaffleDashboard() {
                                         <td>{winner.DRWNAME}</td>
                                         <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
                                         <td>{winner.DRWPRICE}</td>
-                                        <td>
-                                            <button onClick={() => waivePrize(winner)}>Waive Prize</button>
-                                        </td>
                                     </tr>
                                 ))}
                         </tbody>
@@ -915,13 +922,6 @@ function RaffleDashboard() {
                     onCancel={handleCancelEndDraw}
                 />
             )}
-            
-            <WaivePrizeModal
-                isOpen={isWaivePrizeModalOpen}
-                onClose={() => setIsWaivePrizeModalOpen(false)}
-                onWaive={handleWaive}
-                selectedPrize={selectedPrize}
-            />
             </div>
             );
         }
