@@ -147,7 +147,7 @@ function RafflePage() {
     setShowResult(true); // Show result immediately after spin completes
   };
 
-  const [flippedCards, setFlippedCards] = useState([]); // Track flipped cards
+  const [flippedCards, setFlippedCards] = useState(new Array(generatedName.length).fill(false));
 
     // Reset flipped cards when a new draw starts
     useEffect(() => {
@@ -176,18 +176,18 @@ function RafflePage() {
         return newState;
     });
 
-    // Update the generatedName only if newWinner is available
+    // Update the generatedName array with the new winner details
     setGeneratedName(prevGeneratedName => {
         const updatedNames = [...prevGeneratedName];
         if (newWinner && newWinner.EMPCOMP) {
-            updatedNames[index] = `Redrawn Winner (${newWinner.EMPCOMP})`;
+            updatedNames[index] = `${newWinner.EMPNAME} (${newWinner.EMPCOMP})`;
         } else {
             console.error('newWinner.EMPCOMP is not defined');
-            updatedNames[index] = 'Redrawn Winner (Unknown Company)'; // Fallback text
+            updatedNames[index] = 'Redrawn Winner (Unknown Company)';
         }
         return updatedNames;
     });
-};
+  };
 
   return (
     <div className="rafflePage-container">

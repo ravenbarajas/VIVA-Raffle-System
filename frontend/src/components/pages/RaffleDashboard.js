@@ -458,9 +458,9 @@ function RaffleDashboard() {
                 const winnerData = response.data;
                 setWinners(prevWinners => [...prevWinners, winnerData]);
                 setGeneratedName([newWinner.DRWNAME]); // Set the new winner's name
-            setIsPrizeRevealed(true); // Reveal the prize
-            localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
-            localStorage.setItem('generatedName', JSON.stringify([newWinner.DRWNAME]));
+                setIsPrizeRevealed(true); // Reveal the prize
+                localStorage.setItem('winners', JSON.stringify([...winners, winnerData]));
+                localStorage.setItem('generatedName', JSON.stringify([newWinner.DRWNAME]));
 
                 // Deduct the prize quantity again after the redraw
                 const updatedPrizes = prizes.map(prize =>
