@@ -53,7 +53,7 @@ function RaffleParticipants() {
             <h2>Raffle Participants</h2>
             <input type="file" onChange={handleFileUpload} />
             <p>{uploadStatus}</p>
-            <table>
+            <table className='raffle-participants-tbl'>
                 <thead>
                     <tr>
                         <th>EMPID</th>
@@ -123,7 +123,7 @@ function RaffleItems() {
             <h2>Raffle Items</h2>
             <input type="file" onChange={handleFileUpload} />
             <p>{uploadStatus}</p>
-            <table>
+            <table className='raffle-items-tbl'>
                 <thead>
                     <tr>
                         <th>RFLID</th>
@@ -167,7 +167,7 @@ function RaffleWinners() {
     return (
         <div>
             <h2>Raffle Winners</h2>
-            <table>
+            <table className='raffle-winners-tbl'>
                 <thead>
                     <tr>
                         <th>DRWID</th>
@@ -315,7 +315,7 @@ function RaffleDashboard() {
     }, []);
 
      // Function to draw winners
-     const drawPrize = async () => {
+    const drawPrize = async () => {
         // Clear previous winners and notify RafflePage
         raffleTabRef.current.postMessage({ type: 'RESET_WINNERS' }, '*');
         setGeneratedName([]);
@@ -676,7 +676,7 @@ function RaffleDashboard() {
                     <h3>Winners</h3>
                 </div>
                 <div className='summary-container-body'>
-                    <table>
+                    <table className='summary-winner-tbl'>
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -690,7 +690,7 @@ function RaffleDashboard() {
                                 .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
                                 .map((winner, index) => (
                                     <tr key={index}>
-                                        <td>{winner.DRWNAME}</td>
+                                        <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
                                         <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
                                         <td>{winner.DRWPRICE}</td>
                                         <td>
@@ -711,7 +711,7 @@ function RaffleDashboard() {
                     <h3>Waived Prizes</h3>
                 </div>
                 <div className='summary-container-body'>
-                    <table>
+                    <table className='summary-waived-winner-tbl'>
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -722,7 +722,7 @@ function RaffleDashboard() {
                         <tbody>
                             {waivedWinners.map((winner, index) => (
                                 <tr key={index}>
-                                    <td>{winner.DRWNAME}</td>
+                                    <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
                                     <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
                                     <td>{winner.DRWPRICE}</td>
                                 </tr>

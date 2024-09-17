@@ -21,11 +21,31 @@
   }
   .summary-grid-item,  .winner-grid-item   {
     width: 50vw; /* Example width */
-    height: 40vh; /* Example height */
+    height: 50vh; /* Example height */
+  }
+  .summary-winner-tbl td{
+    text-align: start;
+    padding: .5rem 1rem .5rem 1rem;
+  }
+  .summary-waived-winner-tbl td{
+    text-align: start;
+    padding: .5rem 1rem .5rem 1rem;
+  }
+  .raffle-participants-tbl td {
+    text-align: start;
+    padding: .5rem 1rem .5rem 1rem;
+  }
+  .raffle-items-tbl td {
+    text-align: start;
+    padding: .5rem 1rem .5rem 1rem;
+  }
+  .raffle-winners-tbl td {
+    text-align: start;
+    padding: .5rem 1rem .5rem 1rem;
   }
   .tbl-grid-item,  .ctrl-grid-item   {
     width: 50vw; /* Example width */
-    height: 60vh; /* Example height */
+    height: 50vh; /* Example height */
   }
   .navigation-buttons {
     display: flex;
@@ -51,6 +71,11 @@
     flex-direction: row;
   }
   .tbl-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .summary-container {
     display: flex;
     flex-direction: column;
     height: 100%;
