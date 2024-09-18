@@ -544,29 +544,44 @@ function RaffleDashboard() {
             console.error('No valid prize selected');
             return;
         }
-    
+        
+        // Update the prize quantities
         const updatedPrizes = prizes.map((prize) =>
             prize.RFLID === selectedPrize.RFLID
                 ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY + 1 }
                 : prize
         );
         setPrizes(updatedPrizes);
-    
+
+        // Find the winner to waive by matching with DRWID (if possible) or with DRWNAME
         const winnerToUpdate = winners.find(
-            (winner) => winner.DRWNAME === generatedName && winner.DRWPRICE === selectedPrize.RFLITEM
+            (winner) => 
+                winner.DRWNAME === generatedName && 
+                winner.DRWPRICE === selectedPrize.RFLITEM
         );
     
+        // If winner not found, log error and exit
         if (!winnerToUpdate) {
             console.error('Winner not found');
             return;
         }
+
+        // Trigger slot machine spin animation
+        raffleTabRef.current.postMessage({ type: 'TRIGGER_SPIN' }, '*');
     
+         // Remove the waived winner from the winners list and add to waivedWinners
         const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
         setWinners(updatedWinners);
-        setWaivedWinners(prev => [...prev, { ...winnerToUpdate, DRWNUM: 0 }]);
+
+        // Add the waived winner to waivedWinners, marking DRWNUM as 0
+        const waivedWinner = { ...winnerToUpdate, DRWNUM: 0 };
+        setWaivedWinners(prev => [...prev, waivedWinner]);
+
+        // Update local storage with the updated winners and waived winners
         localStorage.setItem('winners', JSON.stringify(updatedWinners));
-        localStorage.setItem('waivedWinners', JSON.stringify([...waivedWinners, { ...winnerToUpdate, DRWNUM: 0 }]));
+        localStorage.setItem('waivedWinners', JSON.stringify([...waivedWinners, waivedWinner]));
     
+        // Save the waived winner and prize updates to the server
         try {
             await axios.patch(`http://localhost:8000/api/winners/${winnerToUpdate.DRWID}`, {
                 DRWNUM: 0 // Indicating a waived draw
@@ -576,13 +591,13 @@ function RaffleDashboard() {
                 RFLITEMQTY: selectedPrize.RFLITEMQTY + 1
             });
     
-            // Send a message to the Raffle Page
+            // Notify the Raffle Page about the waived prize
             raffleTabRef.current.postMessage({
                 type: 'PRIZE_WAIVED',
                 waivedPrize: {
                     name: winnerToUpdate.DRWNAME,
                     prize: selectedPrize.RFLITEM,
-                    company: 'Company Name' // Adjust as needed
+                    company: winnerToUpdate.EMPCOMP || 'Unknown Company' // Adjust company field as needed
                 }
             }, '*');
         } catch (error) {
@@ -590,6 +605,7 @@ function RaffleDashboard() {
         }
     
         if (option === 'redraw_same') {
+            // Filter out winners to make sure the same participant isn't selected again
             const filteredParticipants = participants.filter(
                 participant => !updatedWinners.some(winner => winner.DRWNAME === participant.EMPNAME)
             );
@@ -606,13 +622,26 @@ function RaffleDashboard() {
     };
     
     const waivePrize = (winner) => {
+        // Find the prize for the waived winner
         setSelectedPrize(prizes.find(prize => prize.RFLITEM === winner.DRWPRICE));
         setGeneratedName(winner.DRWNAME);
         setWaivedWinner(winner);
+
+        // Send a message to the RafflePage to flip the card of the waived winner
+        if (raffleTabRef.current) {
+            const waivedWinnerIndex = generatedName.findIndex(name => name === winner.DRWNAME);
+            if (waivedWinnerIndex !== -1) {
+                raffleTabRef.current.postMessage({
+                    type: 'FLIP_CARD',
+                    index: waivedWinnerIndex
+                }, '*');
+            }
+        }
+    
         setIsWaivePrizeModalOpen(true);
-        // Enable the select buttons for new prizes
         setIsDrawDisabled(false);
     };
+    
     // End Draw Modal
     const [isEndDrawModalOpen, setIsEndDrawModalOpen] = useState(false);
 
@@ -787,7 +816,8 @@ function RaffleDashboard() {
                     </div>
                     <div className='ctrl-container-body'>
                         <div className='ctrl-body-start'>
-                            <button onClick={openRafflePage}>
+                            <button 
+                                onClick={openRafflePage}>
                                 Open Raffle
                             </button>
                             <button 
@@ -827,7 +857,7 @@ function RaffleDashboard() {
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable droppableId="prizeList">
                                 {(provided) => (
-                                    <table ref={provided.innerRef} {...provided.droppableProps}>
+                                    <table className="prize-tbl" ref={provided.innerRef} {...provided.droppableProps}>
                                         <thead>
                                             <tr>
                                                 <th></th> {/* Empty header for drag handle */}
@@ -874,7 +904,6 @@ function RaffleDashboard() {
                             </Droppable>
                         </DragDropContext>
                     </div>
-
                     <div className='prize-container-footer'>
                         
                     </div>
