@@ -42,18 +42,23 @@ function RafflePage() {
 
   useEffect(() => {
     const handleMessage = (event) => {
+        // Welcome message in Raffle Page
       if (event.data.type === 'WELCOME_MESSAGE') {
           setWelcomeMessage(true);
           resetState();
-      } else if (event.data.type === 'TRIGGER_SPIN') {
+      } // Trigger logo slot machine animation
+      else if (event.data.type === 'TRIGGER_SPIN') {
           setShowResult(false);
           setTriggerSpin(true);
-      } else if (event.data.type === 'START_DRAW') {
+      } // Hide the welcome message and show the logo slot machine
+      else if (event.data.type === 'START_DRAW') {
           setWelcomeMessage(false); // Hide welcome message and enable draw
-      } else if (event.data.type === 'RESET_WINNERS') {
+      } // Reset state after each draw
+      else if (event.data.type === 'RESET_WINNERS') {
         setGeneratedName([]); // Clear previous winners
         setSelectedPrize(null); // Clear previous prize
-      } else if (event.data.type === 'NAME_GENERATED') {
+      } // Draw Winners
+      else if (event.data.type === 'NAME_GENERATED') {
         try {
             const names = JSON.parse(event.data.name); // Ensure it's parsed as an array
 
@@ -77,70 +82,115 @@ function RafflePage() {
         } catch (error) {
           console.error('Error parsing names:', error);
         }
-      } else if (event.data.type === 'PRIZE_REVEALED') {
+      } // Include the prize in draw
+      else if (event.data.type === 'PRIZE_REVEALED') {
           setSelectedPrize(event.data.prize);
-      } else if (event.data.type === 'UPDATE_PRIZES') {
+      } // Update the state and quantity of the Prize
+      else if (event.data.type === 'UPDATE_PRIZES') {
           setPrizes(event.data.prizes);
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
-      } else if (event.data.type === 'WINNER_ADDED') {
+      } // Add the winner to winners table and winner cards
+      else if (event.data.type === 'WINNER_ADDED') {
             const winner = event.data.winner;
+            const isRedraw = event.data.isRedraw;
+
             setNewWinner(winner);
         
             // Ensure the previous generated name is always an array
             setGeneratedName(prevGeneratedName => {
                 let safePrevNames = Array.isArray(prevGeneratedName) ? prevGeneratedName : [];
         
-                // Check if the winner already exists in the previous names to avoid duplicates
-                const winnerExists = safePrevNames.findIndex(name => name === winner.DRWNAME) !== -1;
-        
-                if (event.data.isRedraw) {
-                    // If it's a redraw, replace the previous name with the new one
-                    return [winner.DRWNAME];
-                } else if (!winnerExists) {
-                    // Append only if the winner is not already in the list
-                    return [...safePrevNames, winner.DRWNAME];
+                // If it's a redraw, replace the redrawn name with the new winner
+                if (isRedraw) {
+                    const indexToReplace = safePrevNames.findIndex(name => name === winner.previousName);
+                    if (indexToReplace !== -1) {
+                        // Replace the specific winner being redrawn
+                        const updatedNames = [...safePrevNames];
+                        updatedNames[indexToReplace] = winner.DRWNAME;
+                        return updatedNames;
+                    }
                 } else {
-                    // If the winner exists, return the existing list without adding
-                    return safePrevNames;
+                    // Append new winner if it's a normal draw and no duplicates exist
+                    const winnerExists = safePrevNames.findIndex(name => name === winner.DRWNAME) !== -1;
+                    if (!winnerExists) {
+                        return [...safePrevNames, winner.DRWNAME];
+                    }
                 }
+
+                return safePrevNames;
             });
         
             // Set the selected prize correctly
             setSelectedPrize(event.data.prize);
         
-            // Handle flipped cards based on whether it's a redraw or a normal draw
+            // Update flipped cards based on redraw or normal draw
             setFlippedCards(prevFlippedCards => {
-                const safePrevFlippedCards = Array.isArray(prevFlippedCards) ? prevFlippedCards : [];
-                
-                if (event.data.isRedraw) {
-                    // If it's a redraw, reset the flip state for only the redrawn card
-                    return [false];
+                let safePrevFlippedCards = Array.isArray(prevFlippedCards) ? prevFlippedCards : [];
+
+                if (isRedraw) {
+                    // Reset only the card of the redrawn winner
+                    const indexToFlip = generatedName.findIndex(name => name === winner.DRWNAME);
+                    if (indexToFlip !== -1) {
+                        const updatedFlippedCards = [...safePrevFlippedCards];
+                        updatedFlippedCards[indexToFlip] = false; // Reset the flip state for this card
+                        return updatedFlippedCards;
+                    }
                 } else {
-                    // For normal draws, add a new entry to the flipped cards array
+                    // Append a new entry for a normal draw
                     return [...safePrevFlippedCards, false];
                 }
+
+                return safePrevFlippedCards;
             });
         
             // Clear waived prize notice
             setWaivedPrize(null);
-        } else if (event.data.type === 'RESTART_DRAW') {
-          resetState();
-      } else if (event.data.type === 'END_DRAW') {
-          setWinners(event.data.winners);
-          setShowWinners(true);
-      } else if (event.data.type === 'PRIZE_WAIVED') {
-          setWaivedPrize(event.data.waivedPrize);
-          setGeneratedName(''); // Clear generated name
-      } else if (event.data.type === 'FLIP_ALL_CARDS') {
-          setFlippedCards(new Array(generatedName.length).fill(true)); // Flip all cards
-      } else if (event.data.type === 'FLIP_CARD') {
+      } // Restart draw (Not in use; Old feature)
+      else if (event.data.type === 'RESTART_DRAW') {
+        resetState();
+      } // End draw and roll creddits (Not fully functional)
+      else if (event.data.type === 'END_DRAW') {
+        setWinners(event.data.winners);
+        setShowWinners(true);
+      } // Waiving of prize
+      else if (event.data.type === 'PRIZE_WAIVED') {
+        const waivedPrize = event.data.waivedPrize;
+    
+        // Ensure waivedPrize and its name are defined
+        if (!waivedPrize || !waivedPrize.name) {
+            console.error('Waived prize or name is undefined');
+            return;
+        }
+    
+        setWaivedPrize(waivedPrize);
+    
+        // Ensure generatedName is an array before finding the index
+        const waivedWinnerIndex = Array.isArray(generatedName)
+            ? generatedName.findIndex(name => name === waivedPrize.name)
+            : -1;
+    
+        if (waivedWinnerIndex !== -1) {
+            // Flip only the card of the waived winner
+            setFlippedCards(prevState => {
+                const newState = [...prevState];
+                newState[waivedWinnerIndex] = false; // Reset the flip state for this card
+                return newState;
+            });
+        } else {
+            console.error('Waived winner not found in generatedName array');
+        }
+      } // Flip all drawn winner cards
+      else if (event.data.type === 'FLIP_ALL_CARDS') {
+            setFlippedCards(new Array(generatedName.length).fill(true)); // Flip all cards
+      } // Flip a single drawn winner cards
+      else if (event.data.type === 'FLIP_CARD') {
             const { index } = event.data;
             setFlippedCards(prevState => {
                 const newState = [...prevState];
                 newState[index] = true; // Flip only the specified card
                 return newState;
             });
-        }
+      }
     };
 
     window.addEventListener('message', handleMessage);
@@ -174,15 +224,15 @@ function RafflePage() {
 
   const [flippedCards, setFlippedCards] = useState(new Array(generatedName.length).fill(false));
 
+  const [newWinner, setNewWinner] = useState(null);
+
     // Reset flipped cards when a new draw starts
     useEffect(() => {
-      if (Array.isArray(generatedName) && generatedName.length > 0) {
-          // Reset flipped state when a new draw starts
-          setFlippedCards(new Array(generatedName.length).fill(false));
-      }
-  }, [generatedName]);
-
-  const [newWinner, setNewWinner] = useState(null);
+        if (Array.isArray(generatedName) && generatedName.length > 0 && !newWinner) {
+            // Reset the flipped cards to their unflipped state for a new draw
+            setFlippedCards(new Array(generatedName.length).fill(false));
+        }
+    }, [generatedName, newWinner]);
 
   const handleNewWinner = (winner) => {
       setNewWinner(winner);

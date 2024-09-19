@@ -565,9 +565,6 @@ function RaffleDashboard() {
             console.error('Winner not found');
             return;
         }
-
-        // Trigger slot machine spin animation
-        raffleTabRef.current.postMessage({ type: 'TRIGGER_SPIN' }, '*');
     
          // Remove the waived winner from the winners list and add to waivedWinners
         const updatedWinners = winners.filter(winner => winner.DRWID !== winnerToUpdate.DRWID);
@@ -595,8 +592,8 @@ function RaffleDashboard() {
             raffleTabRef.current.postMessage({
                 type: 'PRIZE_WAIVED',
                 waivedPrize: {
-                    name: winnerToUpdate.DRWNAME,
-                    prize: selectedPrize.RFLITEM,
+                    name: winnerToUpdate.DRWNAME || 'Unknown Winner', 
+                    prize: selectedPrize.RFLITEM || 'Unknown Prize',
                     company: winnerToUpdate.EMPCOMP || 'Unknown Company' // Adjust company field as needed
                 }
             }, '*');
