@@ -469,7 +469,8 @@ function RaffleDashboard() {
                     type: 'WINNER_ADDED',
                     winner: newWinner,
                     prize: selectedPrize,
-                    isRedraw: true
+                    isRedraw: true,
+                    waivedWinnerName: waivedWinner.DRWNAME
                 }, '*');
 
                 // Deduct the prize quantity again after the redraw

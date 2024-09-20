@@ -94,57 +94,52 @@ function RafflePage() {
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } // Add the winner to winners table and winner cards
       else if (event.data.type === 'WINNER_ADDED') {
-        const winner = event.data.winner;
-        const isRedraw = event.data.isRedraw;
-    
+        const { winner, isRedraw, waivedWinnerName, prize } = event.data;
+
         setNewWinner(winner);
+        setSelectedPrize(prize);
     
         // Ensure the previous generated name is always an array
         setGeneratedName(prevGeneratedName => {
-            let safePrevNames = Array.isArray(prevGeneratedName) ? prevGeneratedName : [];
+            let updatedNames = Array.isArray(prevGeneratedName) ? [...prevGeneratedName] : [];
     
-            // If it's a redraw, replace the redrawn name with the new winner
-            if (isRedraw) {
-                const indexToReplace = safePrevNames.findIndex(name => name === winner.previousName);
+            if (isRedraw && waivedWinnerName) {
+                // Replace the waived winner with the new winner
+                const indexToReplace = updatedNames.findIndex(name => name === waivedWinnerName);
                 if (indexToReplace !== -1) {
-                    // Replace the specific winner being redrawn
-                    const updatedNames = [...safePrevNames];
                     updatedNames[indexToReplace] = winner.DRWNAME;
-                    return updatedNames;
+                } else {
+                    // If the waived winner is not found, append the new winner
+                    updatedNames.push(winner.DRWNAME);
                 }
             } else {
-                // Append new winner if it's a normal draw and no duplicates exist
-                const winnerExists = safePrevNames.findIndex(name => name === winner.DRWNAME) !== -1;
-                if (!winnerExists) {
-                    return [...safePrevNames, winner.DRWNAME];
+                // For normal draws, check for duplicates before appending
+                if (!updatedNames.includes(winner.DRWNAME)) {
+                    updatedNames.push(winner.DRWNAME);
                 }
             }
-    
-            return safePrevNames;
+            return updatedNames;
         });
     
-        // Set the selected prize correctly
-        setSelectedPrize(event.data.prize);
-    
-        // Update flipped cards based on redraw or normal draw
         setFlippedCards(prevFlippedCards => {
-            let safePrevFlippedCards = Array.isArray(prevFlippedCards) ? prevFlippedCards : [];
+            let updatedFlippedCards = Array.isArray(prevFlippedCards) ? [...prevFlippedCards] : [];
     
-            if (isRedraw) {
-                // Reset only the card of the redrawn winner
-                const indexToFlip = safePrevFlippedCards.length > 0 ? 
-                    safePrevFlippedCards.findIndex(name => name === winner.DRWNAME) : -1;
-                if (indexToFlip !== -1) {
-                    const updatedFlippedCards = [...safePrevFlippedCards];
-                    updatedFlippedCards[indexToFlip] = false; // Card is hidden initially
-                    return updatedFlippedCards;
+            if (isRedraw && waivedWinnerName) {
+                const indexToUpdate = updatedFlippedCards.findIndex((_, index) => 
+                    generatedName[index] === waivedWinnerName
+                );
+                if (indexToUpdate !== -1) {
+                    updatedFlippedCards[indexToUpdate] = false;  // Reset to unflipped
+                } else {
+                    updatedFlippedCards.push(false);  // Add new unflipped card if waived winner not found
                 }
             } else {
-                // Append a new entry for a normal draw (start with the card hidden)
-                return [...safePrevFlippedCards, false]; // Card is hidden initially
+                // For normal draws, add a new unflipped card if it doesn't already exist
+                if (updatedFlippedCards.length < generatedName.length + 1) {
+                    updatedFlippedCards.push(false);
+                }
             }
-    
-            return safePrevFlippedCards;
+            return updatedFlippedCards;
         });
     
         // Clear waived prize notice
