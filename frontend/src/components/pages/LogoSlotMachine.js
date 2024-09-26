@@ -50,7 +50,7 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
             '#344099',
         ]);
         setSpinning(true);
-        setTimeout(() => setSpinning(false), 3000); // Spin for 3 seconds
+        setTimeout(() => setSpinning(false), 2000); // Spin for 3 seconds
     };
 
     return (

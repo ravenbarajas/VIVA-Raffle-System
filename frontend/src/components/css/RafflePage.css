@@ -57,18 +57,43 @@
   }
   .slotmachine-body-center {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2rem 1rem 2rem 1rem;
     border-radius: 24px 24px 0px 0px;
-    background-color: #38AA97;
+  }
+  .slotmachine-body-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .logos-body {
+    display: flex;
+    flex-direction: row;
+    height: 310px;
+    width: 780px;
+    justify-content: center;
+    align-items: center;
+    background-color: #0047AB ;
+    border-radius: 24px 24px 0px 0px;
+  }
+  .slots-body {
+    display: flex;
+    flex-direction: row;
+    height: 380px;
+    width: 880px;
+    justify-content: center;
+    align-items: center;
+    background-color: #38AA97 ;
+    border-radius: 24px 24px 0px 0px;
   }
   .slotmachine-body-right {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    margin-bottom: -13rem;
   }
   .slotmachine-shoulder {
     display: flex;
@@ -96,22 +121,30 @@
     align-items: center;
     height: auto;
     width: auto;
+    perspective: 300px; /* Add perspective to make the 3D rotation visible */
+    transform-origin: center; /* Rotate from the top of the handle */
   }
+  .slotmachine-shaft.pull-down {
+    animation: handlePull 2s ease-in-out forwards; /* Trigger the 3D rotation animation only when pull-down class is added */
+}
   .slotmachine-shaft1 {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     height: 25px;
-    width: 40px;
+    width: 20px;
     background-color: #C0C0C0 ;
     border-radius: 0px 0px 0px 0px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4); /* Shadow for depth */
+    border: 1px solid #A9A9A9; /* Light border for more detail */
   }
   .slotmachine-shaft-container {
     display: flex;
     justify-content: start;
     align-items: start;
     height: 300px;
+    position: relative; /* To allow relative positioning of the handle */
   }
   .slotmachine-shaft-down {
     display: flex;
@@ -120,6 +153,7 @@
     align-items: center;
     margin-left: -1rem;
     height: 300px;
+    transform-style: preserve-3d; /* Preserve 3D for better effect */
   }
   .slotmachine-shaft-up {
     display: flex;
@@ -131,6 +165,8 @@
     border-radius: 0px 0px 16px 0px;
     margin-top: -1rem;
     z-index: 0;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4); /* Give depth */
+    transform-style: preserve-3d;
   }
   .slotmachine-bulb {
     width: 50px;
@@ -139,6 +175,19 @@
     border-radius: 50%;
     margin-top: 1rem;
     z-index: 1;
+}
+
+/* Animation for pulling the handle down */
+@keyframes handlePull {
+  0% {
+    transform: rotateX(0); /* Start in the upright position */
+  }
+  50% {
+    transform: rotateX(90deg); /* Halfway through, rotate 90 degrees */
+  }
+  100% {
+    transform: rotateX(0); /* Return to the original position */
+  }
 }
 
   .rafflePage-logos {
@@ -184,6 +233,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0rem 1rem;
 }
 
 .lights-left,
@@ -209,7 +259,7 @@
     height: 30px;
     background-color: #FFD700; /* Yellow light bulb color */
     border-radius: 50%;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); /* Glow effect */
+    box-shadow: 0 0 20px rgba(209, 1, 62, 0.7); /* Glow effect */
     opacity: 1;
     animation: flash 1s infinite ease-in-out;
 }
@@ -246,6 +296,11 @@
     animation-delay: 1s;
 }
 .winners-overlay {
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+.overlay-cards {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -263,13 +318,18 @@
   height: 100%;
   overflow-y: auto;
 }
-
+.overlay-banner {
+  color: #fff;
+  font-size: 36px;
+  z-index: 1001;
+  
+}
 .winner-card {
-  width: 250px; /* Adjusted width for rectangle shape */
+  width: 280px; /* Adjusted width for rectangle shape */
   height: 150px; /* Adjusted height for rectangle shape */
   perspective: 1000px; /* Required for 3D flip effect */
   cursor: pointer;
-  padding: .5rem;
+  padding: 1rem;
 }
 
 .card {
@@ -290,7 +350,7 @@
   height: 100%;
   backface-visibility: hidden;
   padding: .5rem;
-  border-radius: 1rem;
+  border-radius: .5rem;
   display: flex;
   flex-direction: column;
 }
@@ -304,8 +364,8 @@
 }
 
 .company-logo {
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 150px;
+  max-height: 150px;
 }
 
 .card-back {
@@ -316,6 +376,7 @@
   align-items: center;
   justify-content: center;
   transform: rotateX(180deg); /* Hide back side initially */
+  padding: 1rem;
 }
 
 .card-back p {

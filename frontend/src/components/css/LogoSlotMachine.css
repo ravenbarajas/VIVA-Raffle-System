@@ -9,7 +9,7 @@
 .slot-row {
     display: flex;
     justify-content: center;
-    gap: 6px; /* Space between slots */
+    gap: 8px; /* Space between slots */
 }
 
 /* This is the animation for rolling effect */
@@ -29,7 +29,7 @@
 .slot {
     background-color: #fff;
     width: 180px;
-    height: 220px;
+    height: 180px;
     border: 10px solid #5e615e;
     border-radius: 8px;
     display: flex;
@@ -39,8 +39,8 @@
 }
 
 .slot img {
-    width: 200px;
-    height: 230px;
+    width: 180px;
+    height: 180px;
     object-fit: fill;
 }
 
@@ -66,7 +66,7 @@
 /* Middle row: larger size */
 .row-1 {
     background-color: #5e615e;
-    width: 620px; /* Adjust the width for the top row */
+    width: 600px; /* Adjust the width for the top row */
     padding: 1rem 2.25rem 1rem 2.25rem;
     border-radius: 12px;
 }

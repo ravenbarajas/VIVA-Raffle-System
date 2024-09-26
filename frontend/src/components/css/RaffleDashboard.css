@@ -1,15 +1,22 @@
 .raffleDashboard-container {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     width: 100vw;
-    grid-template-columns: repeat(2, 1fr); /* 2 columns with equal width */
-    grid-template-rows: repeat(2, 1fr); /* 2 rows with equal height */
     gap: .25rem;
     overflow-y: hidden;
     overflow-x: hidden;
   }
+  .dashboard-section-top {
+    display: flex;
+    flex-direction: row;
+  }
+  .dashboard-section-bottom {
+    display: flex;
+    flex-direction: row;
+  }
   .summary-grid-item,  .winner-grid-item,  .tbl-grid-item,  .ctrl-grid-item    {
-    padding: .5rem;
+    padding: 1rem;
     background: #f0f0f0; /* Light background for items */
     border: 1px solid #ddd; /* Border around items */
     display: flex;
@@ -18,10 +25,6 @@
     text-align: center;
     overflow: auto; /* Enable scrollbars when content overflows */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  }
-  .summary-grid-item,  .winner-grid-item   {
-    width: 50vw; /* Example width */
-    height: 50vh; /* Example height */
   }
   .summary-winner-tbl td{
     text-align: start;
@@ -43,7 +46,19 @@
     text-align: start;
     padding: .5rem 1rem .5rem 1rem;
   }
-  .tbl-grid-item,  .ctrl-grid-item   {
+  .ctrl-grid-item   {
+    width: 60vw; /* Example width */
+    height: 50vh; /* Example height */
+  }
+  .winner-grid-item   {
+    width: 40vw; /* Example width */
+    height: 50vh; /* Example height */
+  }
+  .summary-grid-item   {
+    width: 50vw; /* Example width */
+    height: 50vh; /* Example height */
+  }
+  .tbl-grid-item   {
     width: 50vw; /* Example width */
     height: 50vh; /* Example height */
   }
@@ -54,15 +69,21 @@
   }
   .ctrl-container-body {
     display: flex;
+    height: 100%;
     flex-direction: column;
     gap: .5rem;
     padding-right: 1rem ;
   }
   .prize-container-body {
-    border: 3px solid #000;
-    padding: .5rem;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: .5rem;
+    padding-right: 1rem ;
   }
   .ctrl-body-start, .ctrl-body-mid, .ctrl-body-end {
+    display: flex;
+    flex-direction: column;
     border: 3px solid #000;
     padding: .5rem;
   }
@@ -74,6 +95,7 @@
   .raffle-ctrl-container {
     display: flex;
     flex-direction: row;
+    height: 100%;
   }
   .tbl-container {
     display: flex;
@@ -95,8 +117,40 @@
   text-align: start;
     padding: .5rem .5rem .5rem .5rem;
 }
+.winner-container-body ul {
+  list-style-type: none; /* Remove bullets */
+  padding: 0;
+}
 
-  
+.winner-container-body li {
+  margin-bottom: 0.5rem; /* Add spacing between lines */
+  text-align: start;
+}
+
+.winner-container-footer .prize-item {
+  font-weight: bold;
+  font-size: 1.2rem; /* Adjust size */
+  color: #000; /* Example color */
+  margin-top: 1rem; /* Add some spacing */
+  text-align: center; /* Center it in the footer */
+}
+
+.body-wrapper-start {
+  display: flex;
+  flex-direction: row;
+}
+.body-wrapper-mid {
+  display: flex;
+  flex-direction: row;
+}
+.body-wrapper-end {
+  display: flex;
+  flex-direction: row;
+}
+.button-info-wrapper {
+  display: flex;
+  flex-direction: column;
+}
 
   
   

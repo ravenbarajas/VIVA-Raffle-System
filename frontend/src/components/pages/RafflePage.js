@@ -25,6 +25,7 @@ function RafflePage() {
   const [welcomeMessage, setWelcomeMessage] = useState(true);
 
   const [triggerSpin, setTriggerSpin] = useState(false);
+  const [triggerPull, setTriggerPull] = useState(false);
   const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
   const [showResult, setShowResult] = useState(false); // New state for controlling the message display
 
@@ -48,8 +49,21 @@ function RafflePage() {
           resetState();
       } // Trigger logo slot machine animation
       else if (event.data.type === 'TRIGGER_SPIN') {
-          setShowResult(false);
-          setTriggerSpin(true);
+          // Reset result, trigger handle pull and spin
+        setTriggerPull(true);  // Trigger the handle pull-down animation
+
+        // After the handle is pulled down, trigger the slot machine spin
+        setTimeout(() => {
+            setTriggerSpin(true);  // Trigger the slot machine spin
+            setTriggerPull(false); // Reset the handle after pulling it down
+        }, 1500); // Add a delay to simulate the lever pull before the slot machine starts spinning
+
+        // Stop spin animation after a set time (e.g., 3 seconds)
+        setTimeout(() => {
+            setTriggerSpin(false);
+            setShowResult(true); // Show result after spinning
+        }, 4000); // 1 second for handle + 3 seconds for spin
+
       } // Hide the welcome message and show the logo slot machine
       else if (event.data.type === 'START_DRAW') {
           setWelcomeMessage(false); // Hide welcome message and enable draw
@@ -207,6 +221,7 @@ function RafflePage() {
     setWaivedPrize(null);
     setGeneratedWinnerCompany('');
     setTriggerSpin(false); // Reset spin trigger
+    setTriggerPull(false); // Reset spin trigger
     setShowResult(false); // Reset result display
     localStorage.removeItem('generatedName');
     localStorage.removeItem('prizes');
@@ -216,6 +231,7 @@ function RafflePage() {
   const handleSpinComplete = (winnerLogo) => {
     console.log('Spin complete, winner logo:', winnerLogo);
     setTriggerSpin(false); // Reset triggerSpin after spin completion
+    setTriggerPull(false); // Reset triggerSpin after spin completion
     setShowResult(true); // Show result immediately after spin completes
   };
 
@@ -254,36 +270,42 @@ function RafflePage() {
                     {!showWinners && (
                         <>
                         <div className='rafflePage-slotmachine'>
-                          <div className='rafflepage-machine-top1'>
-                            <div className='mainlogo-wrapper'>
-                              <img src={mainlogo} alt="Main Logo" />
-                            </div>
-                          </div>
-                          <div className='rafflepage-machine-top2'>
-
-                          </div>
                           <div className='slotmachine-body-col'>
                             <div className='slotmachine-body-center'>
-                                <div className='lights-left-container'>
-                                    <div className="lights-left">
-                                        {[...Array(5)].map((_, index) => (
-                                            <div key={index} className="light-bulb"></div>
-                                        ))}
+                                <div className='slotmachine-body-container'>
+                                    <div className='rafflepage-machine-top1'>
+                                        <div className='mainlogo-wrapper'>
+                                        <img src={mainlogo} alt="Main Logo" />
+                                        </div>
+                                    </div>
+                                    <div className='rafflepage-machine-top2'>
+
                                     </div>
                                 </div>
-                                <div className='rafflePage-logos'>
-                                <LogoSlotMachine 
-                                    logos={logos} 
-                                    winnerCompany={generatedWinnerCompany} 
-                                    triggerSpin={triggerSpin} 
-                                    onSpinComplete={handleSpinComplete} 
-                                />
-                                </div>
-                                <div className='lights-right-container'>
-                                    <div className="lights-right">
-                                        {[...Array(5)].map((_, index) => (
-                                            <div key={index} className="light-bulb"></div>
-                                        ))}
+                                <div className='slots-body'>
+                                    <div className='lights-left-container'>
+                                        <div className="lights-left">
+                                            {[...Array(5)].map((_, index) => (
+                                                <div key={index} className="light-bulb"></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className='logos-body'>
+                                        <div className='rafflePage-logos'>
+                                        <LogoSlotMachine 
+                                            logos={logos} 
+                                            winnerCompany={generatedWinnerCompany} 
+                                            triggerSpin={triggerSpin} 
+                                            onSpinComplete={handleSpinComplete} 
+                                        />
+                                        </div>
+                                    </div>
+                                    <div className='lights-right-container'>
+                                        <div className="lights-right">
+                                            {[...Array(5)].map((_, index) => (
+                                                <div key={index} className="light-bulb"></div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -294,7 +316,7 @@ function RafflePage() {
                                 <div className='slotmachine-shoulder2'>
 
                                 </div>
-                                <div className='slotmachine-shaft'>
+                                <div className={`slotmachine-shaft ${triggerPull ? 'pull-down' : ''}`}>
                                     <div className='slotmachine-shaft1'>
 
                                     </div>
@@ -316,33 +338,37 @@ function RafflePage() {
                             
                           </div>
                           <div className="rafflePage-header">
+                            
                                 {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
                                     <div className="winners-overlay">
-                                        {generatedName.map((name, index) => {
-                                            const companyName = name.split('(')[1]?.replace(')', '').trim();
-                                            const winnerName = name.split('(')[0].trim();
-                                            const logoSrc = getLogoForCompany(companyName);
+                                        <p className='overlay-banner'>Congratulations winners!</p>
+                                        <div className='overlay-cards'>
+                                            {generatedName.map((name, index) => {
+                                                const companyName = name.split('(')[1]?.replace(')', '').trim();
+                                                const winnerName = name.split('(')[0].trim();
+                                                const logoSrc = getLogoForCompany(companyName);
 
-                                            return (
-                                                <div 
-                                                    key={index} 
-                                                    className="winner-card"
-                                                    onClick={() => handleCardClick(index)}
-                                                >
-                                                    <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                        <div className="card-face card-front">
-                                                            <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
-                                                        </div>
-                                                        <div className="card-face card-back">
-                                                            <p className="winner-header">Congratulations,</p>
-                                                            <p className="winner-name">{winnerName}</p>
-                                                            <p className="winner-company">{companyName}</p>
-                                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                                return (
+                                                    <div 
+                                                        key={index} 
+                                                        className="winner-card"
+                                                        onClick={() => handleCardClick(index)}
+                                                    >
+                                                        <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                            <div className="card-face card-front">
+                                                                <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
+                                                            </div>
+                                                            <div className="card-face card-back">
+                                                                <p className="winner-header">Congratulations,</p>
+                                                                <p className="winner-name">{winnerName}</p>
+                                                                <p className="winner-company">{companyName}</p>
+                                                                {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 )}
                           </div>
