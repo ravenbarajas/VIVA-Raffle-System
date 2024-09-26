@@ -262,30 +262,56 @@ function RafflePage() {
                           <div className='rafflepage-machine-top2'>
 
                           </div>
-                          <div className='rafflePage-machine-upper'>
-                            <div className='lights-left-container'>
-                              <div className="lights-left">
-                                {[...Array(5)].map((_, index) => (
-                                    <div key={index} className="light-bulb"></div>
-                                ))}
-                              </div>
+                          <div className='slotmachine-body-col'>
+                            <div className='slotmachine-body-center'>
+                                <div className='lights-left-container'>
+                                    <div className="lights-left">
+                                        {[...Array(5)].map((_, index) => (
+                                            <div key={index} className="light-bulb"></div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className='rafflePage-logos'>
+                                <LogoSlotMachine 
+                                    logos={logos} 
+                                    winnerCompany={generatedWinnerCompany} 
+                                    triggerSpin={triggerSpin} 
+                                    onSpinComplete={handleSpinComplete} 
+                                />
+                                </div>
+                                <div className='lights-right-container'>
+                                    <div className="lights-right">
+                                        {[...Array(5)].map((_, index) => (
+                                            <div key={index} className="light-bulb"></div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <div className='rafflePage-logos'>
-                              <LogoSlotMachine 
-                                  logos={logos} 
-                                  winnerCompany={generatedWinnerCompany} 
-                                  triggerSpin={triggerSpin} 
-                                  onSpinComplete={handleSpinComplete} 
-                              />
-                            </div>
-                            <div className='lights-right-container'>
-                              <div className="lights-right">
-                                {[...Array(5)].map((_, index) => (
-                                    <div key={index} className="light-bulb"></div>
-                                ))}
-                              </div>
+                            <div className='slotmachine-body-right'>
+                                <div className='slotmachine-shoulder'>
+
+                                </div>
+                                <div className='slotmachine-shoulder2'>
+
+                                </div>
+                                <div className='slotmachine-shaft'>
+                                    <div className='slotmachine-shaft1'>
+
+                                    </div>
+                                    <div className='slotmachine-shaft-container'>
+                                        <div className='slotmachine-shaft-down'>
+                                            <div className='slotmachine-bulb'>
+                                                
+                                            </div>
+                                            <div className='slotmachine-shaft-up'>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                           </div>
+                          
                           <div className='rafflePage-hl'>
                             
                           </div>

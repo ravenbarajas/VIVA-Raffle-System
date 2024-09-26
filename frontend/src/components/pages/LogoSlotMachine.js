@@ -3,16 +3,11 @@ import '../css/LogoSlotMachine.css';
 
 const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) => {
     const [spinning, setSpinning] = useState(false);
-    const [currentLogos, setCurrentLogos] = useState([
-        [0, 1, 2], // Top row
-        [3, 4, 5], // Middle row (this will be replaced with winner logos)
-        [6, 7, 8], // Bottom row
-    ]);
-
+    const [middleRow, setMiddleRow] = useState([0, 1, 2]); // Only middle row
     const [middleRowBorders, setMiddleRowBorders] = useState([
-        '#344099', // Default border color
-        '#344099', // Default border color
-        '#344099', // Default border color
+        '#9ea19e', // Default border color
+        '#9ea19e', // Default border color
+        '#9ea19e', // Default border color
     ]);
 
     // Generate random indices for logos
@@ -25,22 +20,14 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
     useEffect(() => {
         if (spinning) {
             const interval = setInterval(() => {
-                setCurrentLogos([
-                    getRandomLogos(), // Top row
-                    getRandomLogos(), // Keep middle row static for now
-                    getRandomLogos(), // Bottom row
-                ]);
+                setMiddleRow(getRandomLogos()); // Only update the middle row
             }, 100);
 
             return () => clearInterval(interval);
         } else if (winnerCompany) {
             const winnerIndex = logos.findIndex(logo => logo.company === winnerCompany);
             const winnerRow = [winnerIndex, winnerIndex, winnerIndex]; // Middle row is all winner logos
-            setCurrentLogos([
-                getRandomLogos(), // Top row random logos
-                winnerRow,        // Middle row is the winner
-                getRandomLogos(), // Bottom row random logos
-            ]);
+            setMiddleRow(winnerRow); // Update only the middle row
             setMiddleRowBorders([
                 '#FFA500', // Change color for middle row slots
                 '#FFA500',
@@ -68,40 +55,16 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
 
     return (
         <div className="slot-machine">
-            <div className="row-wrapper row-0">
-                <div className="slot-row">
-                    {currentLogos[0].map((logoIndex, colIndex) => (
-                        <div key={colIndex} className="slot">
-                            {logos[logoIndex] && (
-                                <img src={logos[logoIndex].src} alt={`logo-${0}-${colIndex}`} />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-    
             <div className="row-wrapper row-1">
                 <div className="slot-row middle-row">
-                    {currentLogos[1].map((logoIndex, colIndex) => (
+                    {middleRow.map((logoIndex, colIndex) => (
                         <div 
                             key={colIndex} 
                             className="slot"
                             style={{ borderColor: middleRowBorders[colIndex] }} // Apply border color dynamically
                         >
                             {logos[logoIndex] && (
-                                <img src={logos[logoIndex].src} alt={`logo-${1}-${colIndex}`} />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-    
-            <div className="row-wrapper row-2">
-                <div className="slot-row">
-                    {currentLogos[2].map((logoIndex, colIndex) => (
-                        <div key={colIndex} className="slot">
-                            {logos[logoIndex] && (
-                                <img src={logos[logoIndex].src} alt={`logo-${2}-${colIndex}`} />
+                                <img src={logos[logoIndex].src} alt={`logo-${colIndex}`} />
                             )}
                         </div>
                     ))}
@@ -109,8 +72,6 @@ const LogoSlotMachine = ({ logos, winnerCompany, onSpinComplete, triggerSpin }) 
             </div>
         </div>
     );
-    
 };
-
 
 export default LogoSlotMachine;

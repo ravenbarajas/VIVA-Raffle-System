@@ -20,7 +20,6 @@
     justify-content: center;
     align-items: center;
     height: auto;
-    min-width: 600px;
   }
   .rafflepage-machine-top1 {
     display: flex;
@@ -46,28 +45,113 @@
   .rafflepage-machine-top2 {
     display: flex;
     background-color: #D1013e ;
-    height: 48px;
+    height: 32px;
     width: 500px;
   }
-  .rafflePage-machine-upper {
+  .slotmachine-body-col {
     display: flex;
     flex-direction: row;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+  }
+  .slotmachine-body-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     padding: 2rem 1rem 2rem 1rem;
-    border-radius: 24px 24px 0px 0px; 
+    border-radius: 24px 24px 0px 0px;
     background-color: #38AA97;
   }
+  .slotmachine-body-right {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .slotmachine-shoulder {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: end;
+    height: 120px;
+    width: 30px;
+    background-color: #D1013E ;
+  }
+  .slotmachine-shoulder2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: end;
+    height: 120px;
+    width: 15px;
+    background-color: #850127 ;
+    border-radius: 0px 24px 24px 0px;
+  }
+  .slotmachine-shaft {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    width: auto;
+  }
+  .slotmachine-shaft1 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 25px;
+    width: 40px;
+    background-color: #C0C0C0 ;
+    border-radius: 0px 0px 0px 0px;
+  }
+  .slotmachine-shaft-container {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    height: 300px;
+  }
+  .slotmachine-shaft-down {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    margin-left: -1rem;
+    height: 300px;
+  }
+  .slotmachine-shaft-up {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    height: 113px;
+    width: 25px;
+    background-color: #C0C0C0 ;
+    border-radius: 0px 0px 16px 0px;
+    margin-top: -1rem;
+    z-index: 0;
+  }
+  .slotmachine-bulb {
+    width: 50px;
+    height: 50px;
+    background-color: #D1013e; /* Yellow light bulb color */
+    border-radius: 50%;
+    margin-top: 1rem;
+    z-index: 1;
+}
+
   .rafflePage-logos {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0rem 2rem 0rem 2rem;
   }
   .rafflePage-hl {
     display: flex;
     background-color: #D1013E ;
     border-radius: 24px 24px 0px 0px; 
     height: 32px;
-    width: 115%;
+    width: 110%;
   }
 
   .rafflePage-header {
@@ -107,7 +191,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 350px; /* Adjust as needed */
+    height: 280px; /* Adjust as needed */
     padding: 12px;
 }
 
