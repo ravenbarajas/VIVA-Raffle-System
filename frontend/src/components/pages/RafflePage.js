@@ -48,7 +48,7 @@ function RafflePage() {
           setWelcomeMessage(true);
           resetState();
       } // Trigger logo slot machine animation
-      else if (event.data.type === 'TRIGGER_SPIN') {
+      else if (event.data.type === 'TRIGGER_DRAW') {
           // Reset result, trigger handle pull and spin
         setTriggerPull(true);  // Trigger the handle pull-down animation
 
@@ -62,7 +62,7 @@ function RafflePage() {
         setTimeout(() => {
             setTriggerSpin(false);
             setShowResult(true); // Show result after spinning
-        }, 4000); // 1 second for handle + 3 seconds for spin
+        }, 0); // 1 second for handle + 3 seconds for spin
 
       } // Hide the welcome message and show the logo slot machine
       else if (event.data.type === 'START_DRAW') {
@@ -91,8 +91,11 @@ function RafflePage() {
                 setGeneratedWinnerCompany(company);
                 setWaivedPrize(null); // Clear waived prize notice
 
-                 // Ensure all cards are flipped to hide the names initially
-                 setFlippedCards(Array(names.length).fill(false)); // All cards start flipped with their backs hidden
+                // Set a slight delay to ensure the UI has time to update with the new names
+                setTimeout(() => {
+                    // Reveal all cards at once
+                    setFlippedCards(Array(names.length).fill(false));
+                }, 300); // 100ms delay, adjust if needed
     
             } else {
                 console.error('Names array is empty or not valid.');
@@ -159,7 +162,8 @@ function RafflePage() {
     
         // Clear waived prize notice
         setWaivedPrize(null);
-      } // Restart draw (Not in use; Old feature)
+      }
+     // Restart draw (Not in use; Old feature)
       else if (event.data.type === 'RESTART_DRAW') {
         resetState();
       } // End draw and roll creddits (Not fully functional)
@@ -247,7 +251,6 @@ function RafflePage() {
             setFlippedCards(new Array(generatedName.length).fill(false));
         }
     }, [generatedName]);
-
   const handleNewWinner = (winner) => {
       setNewWinner(winner);
   };
@@ -271,78 +274,11 @@ function RafflePage() {
                     {!showWinners && (
                         <>
                         <div className='rafflePage-slotmachine'>
-                          <div className='slotmachine-body-col'>
-                            <div className='slotmachine-body-center'>
-                                <div className='slotmachine-body-container'>
-                                    <div className='rafflepage-machine-top1'>
-                                        <div className='mainlogo-wrapper'>
-                                        <img src={mainlogo} alt="Main Logo" />
-                                        </div>
-                                    </div>
-                                    <div className='rafflepage-machine-top2'>
-
-                                    </div>
-                                </div>
-                                <div className='slots-body'>
-                                    <div className='lights-left-container'>
-                                        <div className="lights-left">
-                                            {[...Array(5)].map((_, index) => (
-                                                <div key={index} className="light-bulb"></div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className='logos-body'>
-                                        <div className='rafflePage-logos'>
-                                        <LogoSlotMachine 
-                                            logos={logos} 
-                                            winnerCompany={generatedWinnerCompany} 
-                                            triggerSpin={triggerSpin} 
-                                            onSpinComplete={handleSpinComplete} 
-                                        />
-                                        </div>
-                                    </div>
-                                    <div className='lights-right-container'>
-                                        <div className="lights-right">
-                                            {[...Array(5)].map((_, index) => (
-                                                <div key={index} className="light-bulb"></div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='slotmachine-body-right'>
-                                <div className='slotmachine-shoulder'>
-
-                                </div>
-                                <div className='slotmachine-shoulder2'>
-
-                                </div>
-                                <div className={`slotmachine-shaft ${triggerPull ? 'pull-down' : ''}`}>
-                                    <div className='slotmachine-shaft1'>
-
-                                    </div>
-                                    <div className='slotmachine-shaft-container'>
-                                        <div className='slotmachine-shaft-down'>
-                                            <div className='slotmachine-bulb'>
-                                                
-                                            </div>
-                                            <div className='slotmachine-shaft-up'>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                          </div>
-                          
-                          <div className='rafflePage-hl'>
-                            
-                          </div>
                           <div className="rafflePage-header">
                             
                                 {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
                                     <div className="winners-overlay">
-                                        <p className='overlay-banner'>Congratulations winners!</p>
+                                        
                                         <div className='overlay-cards'>
                                             {generatedName.map((name, index) => {
                                                 const companyName = name.split('(')[1]?.replace(')', '').trim();
@@ -373,7 +309,7 @@ function RafflePage() {
                                     </div>
                                 )}
                           </div>
-                          </div>
+                        </div>
                         </>
                     )}
                     {showWinners && winners.length > 0 && (

@@ -259,7 +259,7 @@
     height: 30px;
     background-color: #FFD700; /* Yellow light bulb color */
     border-radius: 50%;
-    box-shadow: 0 0 20px rgba(209, 1, 62, 0.7); /* Glow effect */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); /* Glow effect */
     opacity: 1;
     animation: flash 1s infinite ease-in-out;
 }

@@ -345,89 +345,91 @@ function RaffleDashboard() {
         const usedParticipants = new Set();
     
         // Trigger slot machine spin animation
-        raffleTabRef.current.postMessage({ type: 'TRIGGER_SPIN' }, '*');
+        raffleTabRef.current.postMessage({ type: 'TRIGGER_DRAW' }, '*');
     
         // Delay for the spin animation to complete before announcing winners
-        setTimeout(async () => {
-            for (let i = 0; i < winnersCount; i++) {
-                let randomParticipant;
-                do {
-                    randomParticipant = participants[Math.floor(Math.random() * participants.length)];
-                } while (randomParticipant && usedParticipants.has(randomParticipant.EMPNAME));
-    
-                if (!randomParticipant) {
-                    console.error('No more unique participants available for drawing');
-                    break;
-                }
-    
-                usedParticipants.add(randomParticipant.EMPNAME);
-    
-                const randomName = randomParticipant.EMPNAME;
-                const companyName = randomParticipant.EMPCOMP;
-                const winnerName = `${randomName} (${companyName})`;
-    
-                winners.push(winnerName);
-    
-                const newWinner = { 
-                    DRWNUM: winners.length, 
-                    DRWNAME: winnerName, 
-                    DRWPRICE: selectedPrize.RFLITEM 
-                };
-    
-                try {
-                    // Save the winner to the database
-                    const response = await axios.post('http://localhost:8000/api/winners', newWinner);
-    
-                    if (response.status === 201) {
-                        const winnerData = response.data;
-                        setWinners(prevWinners => [...prevWinners, winnerData]);
-    
-                        // Notify with the generated name and winner added
-                        raffleTabRef.current.postMessage({ 
-                            type: 'WINNER_ADDED', 
-                            winner: newWinner,
-                            isRedraw: false }, '*');
-                    } else {
-                        console.error('Failed to save winner: ', response.status);
-                    }
-                } catch (error) {
-                    console.error('Error saving winner:', error);
-                }
+        for (let i = 0; i < winnersCount; i++) {
+            let randomParticipant;
+            do {
+                randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+            } while (randomParticipant && usedParticipants.has(randomParticipant.EMPNAME));
+
+            if (!randomParticipant) {
+                console.error('No more unique participants available for drawing');
+                break;
             }
-    
-            // Send the winners array as a JSON string
-            raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: JSON.stringify(winners) }, '*');
-    
-            setGeneratedName(winners);
-            setIsPrizeRevealed(true);
-            localStorage.setItem('generatedName', JSON.stringify(winners));
-    
+
+            usedParticipants.add(randomParticipant.EMPNAME);
+
+            const randomName = randomParticipant.EMPNAME;
+            const companyName = randomParticipant.EMPCOMP;
+            const winnerName = `${randomName} (${companyName})`;
+
+            winners.push(winnerName);
+
+            const newWinner = { 
+                DRWNUM: winners.length, 
+                DRWNAME: winnerName, 
+                DRWPRICE: selectedPrize.RFLITEM 
+            };
+
             try {
-                // Update the prize quantity in the database
-                const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - winnersCount };
-                const response = await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
-    
-                if (response.status === 200) {
-                    // Update prize quantity in state
-                    const updatedPrizes = prizes.map(prize =>
-                        prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - winnersCount } : prize
-                    );
-                    setPrizes(updatedPrizes);
-                    setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
-                    localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
-    
-                    // Fetch winners to update the summary table
-                    fetchWinners();
-    
-                    raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
-                    raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+                // Save the winner to the database
+                const response = await axios.post('http://localhost:8000/api/winners', newWinner);
+
+                if (response.status === 201) {
+                    const winnerData = response.data;
+                    setWinners(prevWinners => [...prevWinners, winnerData]);
+
                 } else {
-                    console.error('Failed to update prize: ', response.status);
+                    console.error('Failed to save winner: ', response.status);
                 }
             } catch (error) {
-                console.error('Error updating prize:', error);
+                console.error('Error saving winner:', error);
             }
-        }, 3500); // Adjust here the card reveal delay
+        }
+
+        // Send the winners array as a JSON string
+        raffleTabRef.current.postMessage({ type: 'NAME_GENERATED', name: JSON.stringify(winners) }, '*');
+
+        setGeneratedName(winners);
+        setIsPrizeRevealed(true);
+        localStorage.setItem('generatedName', JSON.stringify(winners));
+
+        // Notify about all winners added
+        winners.forEach((winner, index) => {
+            raffleTabRef.current.postMessage({ 
+                type: 'WINNER_ADDED', 
+                winner: { DRWNUM: index + 1, DRWNAME: winner, DRWPRICE: selectedPrize.RFLITEM },
+                isRedraw: false 
+            }, '*');
+        });
+
+        try {
+            // Update the prize quantity in the database
+            const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - winnersCount };
+            const response = await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
+
+            if (response.status === 200) {
+                // Update prize quantity in state
+                const updatedPrizes = prizes.map(prize =>
+                    prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - winnersCount } : prize
+                );
+                setPrizes(updatedPrizes);
+                setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
+                localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
+
+                // Fetch winners to update the summary table
+                fetchWinners();
+
+                raffleTabRef.current.postMessage({ type: 'PRIZE_REVEALED', prize: selectedPrize }, '*');
+                raffleTabRef.current.postMessage({ type: 'UPDATE_PRIZES', prizes: updatedPrizes }, '*');
+            } else {
+                console.error('Failed to update prize: ', response.status);
+            }
+        } catch (error) {
+            console.error('Error updating prize:', error);
+        }
     };
 
     const [flippedCards, setFlippedCards] = useState([]);
