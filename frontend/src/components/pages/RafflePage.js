@@ -90,9 +90,10 @@ function RafflePage() {
         
                 setGeneratedWinnerCompany(company);
                 setWaivedPrize(null); // Clear waived prize notice
+
+                 // Ensure all cards are flipped to hide the names initially
+                 setFlippedCards(Array(names.length).fill(false)); // All cards start flipped with their backs hidden
     
-                // Ensure all cards are flipped to hide the names initially
-                setFlippedCards(Array(names.length).fill(false)); // All cards start flipped with their backs hidden
             } else {
                 console.error('Names array is empty or not valid.');
             }
