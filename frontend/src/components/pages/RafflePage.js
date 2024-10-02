@@ -26,6 +26,7 @@ function RafflePage() {
 
   const [logoSrcs, setLogoSrcs] = useState([]);  // To track the logos (mainLogo or company logos)
   const [isRolling, setIsRolling] = useState(true);  // To track whether the rolling animation is ongoing
+  const [revealedLogos, setRevealedLogos] = useState(Array(generatedName.length).fill(false));
   const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
   const [flippedLogos, setFlippedLogos] = useState([]);
 
@@ -34,20 +35,27 @@ function RafflePage() {
   
    // Function to handle animation and reveal logos
    const triggerLogoFlip = () => {
-    // Initially show the mainLogo for all cards
-    setLogoSrcs(Array(generatedName.length).fill(mainlogo));
-    setIsRolling(true);  // Trigger rolling animation
-  
-    // Set a timeout to stop the rolling animation and flip to company logos
+    setIsRolling(true);
+    setRevealedLogos(Array(generatedName.length).fill(false));
+    
     setTimeout(() => {
-      const updatedLogos = generatedName.map(name => {
-        const companyName = name.split('(')[1]?.replace(')', '').trim();
-        return getLogoForCompany(companyName);  // Get the company logo based on the company name
+      setIsRolling(false);
+      
+      generatedName.forEach((name, index) => {
+        setTimeout(() => {
+          setLogoSrcs(prevLogos => {
+            const newLogos = [...prevLogos];
+            const companyName = name.split('(')[1]?.replace(')', '').trim();
+            newLogos[index] = getLogoForCompany(companyName);
+            return newLogos;
+          });
+          setRevealedLogos(prev => {
+            const newRevealed = [...prev];
+            newRevealed[index] = true;
+            return newRevealed;
+          });
+        }, index * 100);
       });
-  
-      setLogoSrcs(updatedLogos);  // Set the updated logos (company logos)
-      setIsRolling(false);  // Stop rolling animation
-      setFlippedLogos(new Array(generatedName.length).fill(true));  // Set flippedLogos to true to flip to company logos
     }, flipDuration);
   };
   
@@ -83,7 +91,7 @@ function RafflePage() {
         setTimeout(() => {
             setTriggerSpin(true);  // Trigger the slot machine spin
             setTriggerPull(false); // Reset the handle after pulling it down
-        }, 1500); // Add a delay to simulate the lever pull before the slot machine starts spinning
+        }, 500); // Add a delay to simulate the lever pull before the slot machine starts spinning
 
         // Stop spin animation after a set time (e.g., 3 seconds)
         setTimeout(() => {
@@ -187,13 +195,6 @@ function RafflePage() {
         
         // Clear waived prize notice
         setWaivedPrize(null);
-
-        setFlippedCards(new Array(generatedName.length).fill(false));
-         // Reset flipped logos to show the mainLogo initially
-        setFlippedLogos(new Array(generatedName.length).fill(false));
-
-        // Trigger the logo flip animation
-        triggerLogoFlip();
       } // Restart draw (Not in use; Old feature)
       else if (event.data.type === 'RESTART_DRAW') {
         resetState();
@@ -278,8 +279,14 @@ function RafflePage() {
    // Reset flipped cards when a new draw starts
    useEffect(() => {
     if (Array.isArray(generatedName) && generatedName.length > 0) {
+        setFlippedCards(new Array(generatedName.length).fill(false));
         setFlippedLogos(new Array(generatedName.length).fill(false));
         setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
+        
+    // Trigger the logo flip animation after a short delay
+    setTimeout(() => {
+        triggerLogoFlip();
+      }, 100); // Short delay to ensure state has updated
     }
 }, [generatedName]);
 
@@ -312,8 +319,8 @@ function RafflePage() {
                                         {generatedName.map((name, index) => {
                                             const companyName = name.split('(')[1]?.replace(')', '').trim();
                                             const winnerName = name.split('(')[0].trim();
-                                              // Get the logo for the company or show mainlogo
-                                              const logoSrc = flippedLogos[index] ? getLogoForCompany(companyName) : mainlogo;  
+                                            // Get the logo for the company or show mainlogo
+                                            const logoSrc = isRolling || !revealedLogos[index] ? mainlogo : logoSrcs[index];
 
                                             return (
                                                 <div 
@@ -324,9 +331,9 @@ function RafflePage() {
                                                     <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
                                                         <div className="card-face card-front">
                                                             <img 
-                                                                src={isRolling ? mainlogo : logoSrc} 
+                                                                src={logoSrc} 
                                                                 alt={`logo-${index}`} 
-                                                                className={`company-logo ${isRolling ? 'rolling' : ''}`}  // Apply rolling class during animation
+                                                                className={`company-logo ${isRolling ? 'rolling' : ''}`}
                                                             />
                                                         </div>
                                                         <div className="card-face card-back">

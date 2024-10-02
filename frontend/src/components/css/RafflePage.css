@@ -329,13 +329,15 @@
   z-index: 1001;
 }
 .company-logo {
-  width: 160px; /* Adjust size as needed */
-  height: 120px;
-  transition: transform 1s ease-in-out; /* Smooth transition */
+  width: 100%;      /* Let the width take up the full container */
+  height: auto;     /* Maintain the aspect ratio based on width */
+  max-height: 100%; /* Ensure the logo doesn’t exceed the container height */
+  object-fit: contain; /* Ensure the image scales down if necessary without being distorted */
+  transition: transform 1s ease-in-out; /* Smooth transition for any transformations */
 }
 
 .company-logo.rolling {
-  animation: slot-machine-roll .3s infinite;  /* Simple rolling animation */
+  animation: slot-machine-roll .25s infinite;  /* Simple rolling animation */
 }
 
 @keyframes slot-machine-roll {
