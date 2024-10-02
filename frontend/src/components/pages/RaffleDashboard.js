@@ -210,6 +210,14 @@ function RaffleDashboard() {
     const [isEndDrawDisabled, setIsEndDrawDisabled] = useState(true);
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
+
+    // Function to handle dropdown selection for flip duration
+    const handleFlipDurationChange = (e) => {
+        const selectedDuration = parseInt(e.target.value, 10);
+        
+        // Post the message to RafflePage to update the flip duration
+        window.postMessage({ type: 'SET_FLIP_DURATION', duration: selectedDuration }, '*');
+    };
     
     const fetchPrizes = async () => {
         try {
@@ -713,6 +721,27 @@ function RaffleDashboard() {
                                             style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
                                             Start Draw
                                         </button>
+                                    </div>
+                                </div>
+                                <div className='body-wrapper-start'>
+
+                                </div>
+                            </div>
+                            <div className='ctrl-body-start'>
+                                <div className='button-info-wrapper'>
+                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
+                                        <FaInfoCircle size={18}/>
+                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
+                                            &nbsp;To adjust animation time, click "Animation Duration"
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <label htmlFor="flip-duration">Animation Time:</label>
+                                            <select onChange={handleFlipDurationChange}>
+                                                <option value="2000">2 seconds</option>
+                                                <option value="3000">3 seconds</option>
+                                                <option value="5000">5 seconds</option>
+                                            </select>
                                     </div>
                                 </div>
                                 <div className='body-wrapper-start'>

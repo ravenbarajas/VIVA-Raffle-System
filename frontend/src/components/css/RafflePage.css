@@ -203,32 +203,7 @@
     width: 110%;
   }
 
-  .rafflePage-header {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    margin-top: 20px;
-    background-color: rgba(0, 0, 0, 0.7); /* Dark transparent background */
-  }
-  .rafflePage-header p {
-    color: #fff;
-  }
-
-  .raffleMsg {
-    color: #fff;
-  }
-.rafflePage-body h3 {
-    color: #fff; /* Make all headers white */
-}
-
-.winners-summary table {
-    color: white; /* Ensure the text inside the table is white */
-}
-
-.winners-summary th, .winners-summary td {
-    color: white; /* Ensure both table headers and table data are white */
-}
-.lights-left-container,
+  .lights-left-container,
 .lights-right-container {
   display: flex;
   justify-content: center;
@@ -295,10 +270,40 @@
 .lights-right .light-bulb:nth-child(5) {
     animation-delay: 1s;
 }
+
+.rafflePage-header {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-top: 20px;
+  background-color: rgba(0, 0, 0, 0.7); /* Dark transparent background */
+  align-items: center;
+}
+.rafflePage-header p {
+  color: #fff;
+}
+
+.raffleMsg {
+  color: #fff;
+}
+.rafflePage-body h3 {
+  color: #fff; /* Make all headers white */
+}
+
+.winners-summary table {
+    color: white; /* Ensure the text inside the table is white */
+}
+
+.winners-summary th, .winners-summary td {
+    color: white; /* Ensure both table headers and table data are white */
+}
+
 .winners-overlay {
   z-index: 1000;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .overlay-cards {
   position: fixed;
@@ -322,8 +327,32 @@
   color: #fff;
   font-size: 36px;
   z-index: 1001;
-  
 }
+.company-logo {
+  width: 160px; /* Adjust size as needed */
+  height: 120px;
+  transition: transform 1s ease-in-out; /* Smooth transition */
+}
+
+.company-logo.rolling {
+  animation: slot-machine-roll .3s infinite;  /* Simple rolling animation */
+}
+
+@keyframes slot-machine-roll {
+  0% { transform: translateY(0); }
+  10% { transform: translateY(-10%); }
+  20% { transform: translateY(-20%); }
+  30% { transform: translateY(-30%); }
+  40% { transform: translateY(-40%); }
+  50% { transform: translateY(-50%); }
+  60% { transform: translateY(-60%); }
+  70% { transform: translateY(-70%); }
+  80% { transform: translateY(-80%); }
+  90% { transform: translateY(-90%); }
+  100% { transform: translateY(-100%); }
+}
+
+
 .winner-card {
   width: 280px; /* Adjusted width for rectangle shape */
   height: 150px; /* Adjusted height for rectangle shape */

@@ -24,6 +24,33 @@ function RafflePage() {
   const [waivedPrize, setWaivedPrize] = useState(null);
   const [welcomeMessage, setWelcomeMessage] = useState(true);
 
+  const [logoSrcs, setLogoSrcs] = useState([]);  // To track the logos (mainLogo or company logos)
+  const [isRolling, setIsRolling] = useState(true);  // To track whether the rolling animation is ongoing
+  const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
+  const [flippedLogos, setFlippedLogos] = useState([]);
+
+  // Show mainLogo by default
+  const [showDefaultLogo, setShowDefaultLogo] = useState(true);
+  
+   // Function to handle animation and reveal logos
+   const triggerLogoFlip = () => {
+    // Initially show the mainLogo for all cards
+    setLogoSrcs(Array(generatedName.length).fill(mainlogo));
+    setIsRolling(true);  // Trigger rolling animation
+  
+    // Set a timeout to stop the rolling animation and flip to company logos
+    setTimeout(() => {
+      const updatedLogos = generatedName.map(name => {
+        const companyName = name.split('(')[1]?.replace(')', '').trim();
+        return getLogoForCompany(companyName);  // Get the company logo based on the company name
+      });
+  
+      setLogoSrcs(updatedLogos);  // Set the updated logos (company logos)
+      setIsRolling(false);  // Stop rolling animation
+      setFlippedLogos(new Array(generatedName.length).fill(true));  // Set flippedLogos to true to flip to company logos
+    }, flipDuration);
+  };
+  
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [triggerPull, setTriggerPull] = useState(false);
   const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
@@ -71,6 +98,10 @@ function RafflePage() {
       else if (event.data.type === 'RESET_WINNERS') {
         setGeneratedName([]); // Clear previous winners
         setSelectedPrize(null); // Clear previous prize
+      } // Update the flip duration
+      else if (event.data.type === 'SET_FLIP_DURATION') {
+        console.log('Flip duration updated to:', event.data.duration);  // Test log
+        setFlipDuration(event.data.duration);
       } // Draw Winners
       else if (event.data.type === 'NAME_GENERATED') {
         try {
@@ -90,12 +121,6 @@ function RafflePage() {
         
                 setGeneratedWinnerCompany(company);
                 setWaivedPrize(null); // Clear waived prize notice
-
-                // Set a slight delay to ensure the UI has time to update with the new names
-                setTimeout(() => {
-                    // Reveal all cards at once
-                    setFlippedCards(Array(names.length).fill(false));
-                }, 300); // 100ms delay, adjust if needed
     
             } else {
                 console.error('Names array is empty or not valid.');
@@ -159,11 +184,17 @@ function RafflePage() {
             }
             return updatedFlippedCards;
         });
-    
+        
         // Clear waived prize notice
         setWaivedPrize(null);
-      }
-     // Restart draw (Not in use; Old feature)
+
+        setFlippedCards(new Array(generatedName.length).fill(false));
+         // Reset flipped logos to show the mainLogo initially
+        setFlippedLogos(new Array(generatedName.length).fill(false));
+
+        // Trigger the logo flip animation
+        triggerLogoFlip();
+      } // Restart draw (Not in use; Old feature)
       else if (event.data.type === 'RESTART_DRAW') {
         resetState();
       } // End draw and roll creddits (Not fully functional)
@@ -214,7 +245,7 @@ function RafflePage() {
     return () => {
         window.removeEventListener('message', handleMessage);
     };
-  }, [generatedName]);
+  }, [generatedName, flipDuration]);
 
   const resetState = () => {
     setGeneratedName('');
@@ -244,13 +275,14 @@ function RafflePage() {
 
   const [newWinner, setNewWinner] = useState(null);
 
-    // Reset flipped cards when a new draw starts
-    useEffect(() => {
-        if (Array.isArray(generatedName) && generatedName.length > 0) {
-            // Reset flipped state when a new draw starts
-            setFlippedCards(new Array(generatedName.length).fill(false));
-        }
-    }, [generatedName]);
+   // Reset flipped cards when a new draw starts
+   useEffect(() => {
+    if (Array.isArray(generatedName) && generatedName.length > 0) {
+        setFlippedLogos(new Array(generatedName.length).fill(false));
+        setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
+    }
+}, [generatedName]);
+
   const handleNewWinner = (winner) => {
       setNewWinner(winner);
   };
@@ -273,43 +305,43 @@ function RafflePage() {
                 <>
                     {!showWinners && (
                         <>
-                        <div className='rafflePage-slotmachine'>
-                          <div className="rafflePage-header">
-                            
-                                {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
-                                    <div className="winners-overlay">
-                                        
-                                        <div className='overlay-cards'>
-                                            {generatedName.map((name, index) => {
-                                                const companyName = name.split('(')[1]?.replace(')', '').trim();
-                                                const winnerName = name.split('(')[0].trim();
-                                                const logoSrc = getLogoForCompany(companyName);
+                            {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
+                                <div className="winners-overlay">
+                                    
+                                    <div className='overlay-cards'>
+                                        {generatedName.map((name, index) => {
+                                            const companyName = name.split('(')[1]?.replace(')', '').trim();
+                                            const winnerName = name.split('(')[0].trim();
+                                              // Get the logo for the company or show mainlogo
+                                              const logoSrc = flippedLogos[index] ? getLogoForCompany(companyName) : mainlogo;  
 
-                                                return (
-                                                    <div 
-                                                        key={index} 
-                                                        className="winner-card"
-                                                        onClick={() => handleCardClick(index)}
-                                                    >
-                                                        <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                            <div className="card-face card-front">
-                                                                <img src={logoSrc} alt={`logo-${index}`} className="company-logo" />
-                                                            </div>
-                                                            <div className="card-face card-back">
-                                                                <p className="winner-header">Congratulations,</p>
-                                                                <p className="winner-name">{winnerName}</p>
-                                                                <p className="winner-company">{companyName}</p>
-                                                                {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
-                                                            </div>
+                                            return (
+                                                <div 
+                                                    key={index} 
+                                                    className="winner-card"
+                                                    onClick={() => handleCardClick(index)}
+                                                >
+                                                    <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                        <div className="card-face card-front">
+                                                            <img 
+                                                                src={isRolling ? mainlogo : logoSrc} 
+                                                                alt={`logo-${index}`} 
+                                                                className={`company-logo ${isRolling ? 'rolling' : ''}`}  // Apply rolling class during animation
+                                                            />
+                                                        </div>
+                                                        <div className="card-face card-back">
+                                                            <p className="winner-header">Congratulations,</p>
+                                                            <p className="winner-name">{winnerName}</p>
+                                                            <p className="winner-company">{companyName}</p>
+                                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
                                                         </div>
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                )}
-                          </div>
-                        </div>
+                                </div>
+                            )}
                         </>
                     )}
                     {showWinners && winners.length > 0 && (
