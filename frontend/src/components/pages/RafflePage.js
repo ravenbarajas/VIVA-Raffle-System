@@ -31,6 +31,8 @@ function RafflePage() {
 
   // Show mainLogo by default
   const [showDefaultLogo, setShowDefaultLogo] = useState(true);
+
+  const [isRedraw, setIsRedraw] = useState(false);
   
   const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
 
@@ -147,6 +149,9 @@ function RafflePage() {
       else if (event.data.type === 'WINNER_ADDED') {
         const { winner, isRedraw, waivedWinnerName, prize, flipDuration: receivedDuration } = event.data;
 
+        // Set the redraw state
+        setIsRedraw(isRedraw);
+
         setNewWinner(winner);
         setSelectedPrize(prize);
     
@@ -174,16 +179,14 @@ function RafflePage() {
     
         setFlippedCards(prevFlippedCards => {
             let updatedFlippedCards = Array.isArray(prevFlippedCards) ? [...prevFlippedCards] : [];
-    
+            
             if (isRedraw && waivedWinnerName) {
                 const indexToUpdate = updatedFlippedCards.findIndex((_, index) => 
                     generatedName[index] === waivedWinnerName
                 );
                 if (indexToUpdate !== -1) {
                     updatedFlippedCards[indexToUpdate] = false;  // Reset to unflipped
-                } else {
-                    updatedFlippedCards.push(false);  // Add new unflipped card if waived winner not found
-                }
+                } 
             } else {
                 // For normal draws, add a new unflipped card if it doesn't already exist
                 if (updatedFlippedCards.length < generatedName.length + 1) {
@@ -202,9 +205,27 @@ function RafflePage() {
             setFlipDuration(receivedDuration);
         }
 
-         setTimeout(() => {
-            triggerLogoFlip(receivedDuration);
-        }, 100);
+         // Skip the animation for redraws
+        if (!isRedraw) {
+            setTimeout(() => {
+                triggerLogoFlip(flipDuration);  // Pass the flipDuration only for normal draws
+            }, 100);  // Small delay to ensure state has updated
+        } else {
+            // Directly reveal logos without animation for redraws
+            generatedName.forEach((name, index) => {
+                setLogoSrcs(prevLogos => {
+                    const newLogos = [...prevLogos];
+                    const companyName = name.split('(')[1]?.replace(')', '').trim();
+                    newLogos[index] = getLogoForCompany(companyName);
+                    return newLogos;
+                });
+                setRevealedLogos(prev => {
+                    const newRevealed = [...prev];
+                    newRevealed[index] = true;  // Immediately reveal the logo
+                    return newRevealed;
+                });
+            });
+        }
       } // Restart draw (Not in use; Old feature)
       else if (event.data.type === 'RESTART_DRAW') {
         resetState();
@@ -288,7 +309,7 @@ function RafflePage() {
 
    // Reset flipped cards when a new draw starts
    useEffect(() => {
-    if (Array.isArray(generatedName) && generatedName.length > 0) {
+    if (Array.isArray(generatedName) && generatedName.length > 0 && !isRedraw) {
         setFlippedCards(new Array(generatedName.length).fill(false));
         setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
         setFlippedLogos(new Array(generatedName.length).fill(false));
@@ -298,7 +319,7 @@ function RafflePage() {
         triggerLogoFlip();
       }, 100); // Short delay to ensure state has updated
     }
-}, [generatedName]);
+}, [generatedName, isRedraw]);
 
   const handleNewWinner = (winner) => {
       setNewWinner(winner);
