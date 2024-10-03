@@ -211,12 +211,13 @@ function RaffleDashboard() {
     const [isDrawDisabled, setIsDrawDisabled] = useState(true);
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
 
-    // Function to handle dropdown selection for flip duration
-    const handleFlipDurationChange = (e) => {
-        const selectedDuration = parseInt(e.target.value, 10);
-        
-        // Post the message to RafflePage to update the flip duration
-        window.postMessage({ type: 'SET_FLIP_DURATION', duration: selectedDuration }, '*');
+    // State for flip duration
+    const [flipDuration, setFlipDuration] = useState(3000); // Default 3 seconds
+
+    // Function to handle duration change from dropdown
+    const handleDurationChange = (event) => {
+        const newDuration = Number(event.target.value);
+        setFlipDuration(newDuration);
     };
     
     const fetchPrizes = async () => {
@@ -409,7 +410,8 @@ function RaffleDashboard() {
             raffleTabRef.current.postMessage({ 
                 type: 'WINNER_ADDED', 
                 winner: { DRWNUM: index + 1, DRWNAME: winner, DRWPRICE: selectedPrize.RFLITEM },
-                isRedraw: false 
+                isRedraw: false ,
+                flipDuration: flipDuration 
             }, '*');
         });
 
@@ -736,12 +738,17 @@ function RaffleDashboard() {
                                         </p>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <label htmlFor="flip-duration">Animation Time:</label>
-                                            <select onChange={handleFlipDurationChange}>
-                                                <option value="2000">2 seconds</option>
-                                                <option value="3000">3 seconds</option>
-                                                <option value="5000">5 seconds</option>
-                                            </select>
+                                        <label htmlFor="duration-select">Set Flip Duration:</label>
+                                        <select
+                                            id="duration-select"
+                                            value={flipDuration}
+                                            onChange={handleDurationChange} // Update the flip duration
+                                            >
+                                            <option value={2000}>2 seconds</option>
+                                            <option value={3000}>3 seconds</option>
+                                            <option value={5000}>5 seconds</option>
+                                            <option value={10000}>10 seconds</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div className='body-wrapper-start'>

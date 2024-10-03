@@ -27,20 +27,19 @@ function RafflePage() {
   const [logoSrcs, setLogoSrcs] = useState([]);  // To track the logos (mainLogo or company logos)
   const [isRolling, setIsRolling] = useState(true);  // To track whether the rolling animation is ongoing
   const [revealedLogos, setRevealedLogos] = useState(Array(generatedName.length).fill(false));
-  const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
   const [flippedLogos, setFlippedLogos] = useState([]);
 
   // Show mainLogo by default
   const [showDefaultLogo, setShowDefaultLogo] = useState(true);
   
+  const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
+
    // Function to handle animation and reveal logos
    const triggerLogoFlip = () => {
     setIsRolling(true);
     setRevealedLogos(Array(generatedName.length).fill(false));
     
     setTimeout(() => {
-      setIsRolling(false);
-      
       generatedName.forEach((name, index) => {
         setTimeout(() => {
           setLogoSrcs(prevLogos => {
@@ -50,11 +49,12 @@ function RafflePage() {
             return newLogos;
           });
           setRevealedLogos(prev => {
+            setIsRolling(false);
             const newRevealed = [...prev];
             newRevealed[index] = true;
             return newRevealed;
           });
-        }, index * 100);
+        }, index * 500);
       });
     }, flipDuration);
   };
@@ -91,7 +91,7 @@ function RafflePage() {
         setTimeout(() => {
             setTriggerSpin(true);  // Trigger the slot machine spin
             setTriggerPull(false); // Reset the handle after pulling it down
-        }, 500); // Add a delay to simulate the lever pull before the slot machine starts spinning
+        }, 0); // Add a delay to simulate the lever pull before the slot machine starts spinning
 
         // Stop spin animation after a set time (e.g., 3 seconds)
         setTimeout(() => {
@@ -145,7 +145,7 @@ function RafflePage() {
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } // Add the winner to winners table and winner cards
       else if (event.data.type === 'WINNER_ADDED') {
-        const { winner, isRedraw, waivedWinnerName, prize } = event.data;
+        const { winner, isRedraw, waivedWinnerName, prize, flipDuration: receivedDuration } = event.data;
 
         setNewWinner(winner);
         setSelectedPrize(prize);
@@ -192,9 +192,19 @@ function RafflePage() {
             }
             return updatedFlippedCards;
         });
-        
+
         // Clear waived prize notice
         setWaivedPrize(null);
+         // Use the flipDuration for the animation
+
+         // Update the flipDuration with the received value
+        if (receivedDuration) {
+            setFlipDuration(receivedDuration);
+        }
+
+         setTimeout(() => {
+            triggerLogoFlip(receivedDuration);
+        }, 100);
       } // Restart draw (Not in use; Old feature)
       else if (event.data.type === 'RESTART_DRAW') {
         resetState();
@@ -272,16 +282,16 @@ function RafflePage() {
     setShowResult(true); // Show result immediately after spin completes
   };
 
-  const [flippedCards, setFlippedCards] = useState(new Array(generatedName.length).fill(false));
-
   const [newWinner, setNewWinner] = useState(null);
+
+  const [flippedCards, setFlippedCards] = useState(new Array(generatedName.length).fill(false));
 
    // Reset flipped cards when a new draw starts
    useEffect(() => {
     if (Array.isArray(generatedName) && generatedName.length > 0) {
         setFlippedCards(new Array(generatedName.length).fill(false));
-        setFlippedLogos(new Array(generatedName.length).fill(false));
         setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
+        setFlippedLogos(new Array(generatedName.length).fill(false));
         
     // Trigger the logo flip animation after a short delay
     setTimeout(() => {
