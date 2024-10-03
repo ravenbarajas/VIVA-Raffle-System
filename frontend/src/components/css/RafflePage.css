@@ -298,13 +298,6 @@
     color: white; /* Ensure both table headers and table data are white */
 }
 
-.winners-overlay {
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
-}
 .overlay-cards {
   position: fixed;
   top: 50%;
@@ -322,6 +315,13 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
+}
+.winners-overlay {
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .overlay-banner {
   color: #fff;
@@ -353,7 +353,6 @@
   90% { transform: translateY(-90%); }
   100% { transform: translateY(-100%); }
 }
-
 
 .winner-card {
   width: 280px; /* Adjusted width for rectangle shape */
@@ -412,6 +411,44 @@
 
 .card-back p {
   color: #000;
+}
+
+/* Make the card-back have relative positioning for overlay */
+.winner-card .card-back {
+  position: relative;
+  cursor: pointer;  /* Make it look like a button */
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+/* Overlay container for the card-back */
+.winner-card .card-back .waive-prize-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);  /* Semi-transparent dark overlay (only on the overlay) */
+  color: white;  /* Ensure text is visible over the dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;  /* Ensure it overlays the content on card-back */
+}
+/* Only the back of the card will be affected by hover */
+.winner-card .card-back:hover .waive-prize-overlay {
+  opacity: 1;  /* Show the overlay only when hovering over the back */
+}
+
+/* Optional: slightly darken the back of the card on hover */
+.winner-card .card-back:hover {
+  background-color: rgba(255, 255, 255, 0.3);  /* Subtle darkening of the card back on hover */
+}
+.waive-prize-overlay p {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .winner-name, .prize-won, 

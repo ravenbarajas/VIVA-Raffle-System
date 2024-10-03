@@ -345,8 +345,7 @@ function RafflePage() {
                         <>
                             {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
                                 <div className="winners-overlay">
-                                    
-                                    <div className='overlay-cards'>
+                                    <div className="overlay-cards" >
                                         {generatedName.map((name, index) => {
                                             const companyName = name.split('(')[1]?.replace(')', '').trim();
                                             const winnerName = name.split('(')[0].trim();
@@ -372,6 +371,11 @@ function RafflePage() {
                                                             <p className="winner-name">{winnerName}</p>
                                                             <p className="winner-company">{companyName}</p>
                                                             {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+
+                                                                {/* Add a transparent overlay */}
+                                                            <div className="waive-prize-overlay">
+                                                                <p>Waive Prize</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
