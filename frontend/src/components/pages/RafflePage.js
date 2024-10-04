@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { WAIVE_PRIZE_EVENT } from '../../constants/events.js';
 import '../css/RafflePage.css';
 import LogoSlotMachine from './LogoSlotMachine';
 import mainlogo from  '../assets/logo/mainlogo.png';
@@ -334,6 +335,17 @@ function RafflePage() {
     });
   };
 
+   // Function to send message to dashboard window
+   const handleWaivePrize = (selectedWinner) => {
+        const dashboardWindow = window.opener || window.parent;
+        if (dashboardWindow) {
+            dashboardWindow.postMessage({
+                type: WAIVE_PRIZE_EVENT,
+                winner: selectedWinner
+            }, '*');
+        }
+    };
+
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
@@ -373,7 +385,19 @@ function RafflePage() {
                                                             {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
 
                                                                 {/* Add a transparent overlay */}
-                                                            <div className="waive-prize-overlay">
+                                                            <div className="waive-prize-overlay" 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    // Just send the index or any unique identifier
+                                                                    const dashboardWindow = window.opener || window.parent;
+                                                                    if (dashboardWindow) {
+                                                                        dashboardWindow.postMessage({
+                                                                            type: WAIVE_PRIZE_EVENT,
+                                                                            index: index  // or any unique identifier you use
+                                                                        }, '*');
+                                                                    }
+                                                                }}
+                                                            >
                                                                 <p>Waive Prize</p>
                                                             </div>
                                                         </div>

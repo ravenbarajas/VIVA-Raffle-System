@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { WAIVE_PRIZE_EVENT } from '../../constants/events';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import axios from 'axios';
 import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
@@ -243,6 +244,7 @@ function RaffleDashboard() {
         fetchParticipants();
 
         const handleMessage = (event) => {
+            console.log('Message received:', event.data);  // Debug log
             if (event.data.type === 'NAME_GENERATED') {
                 setGeneratedName(event.data.name);
                 localStorage.setItem('generatedName', event.data.name);
@@ -256,13 +258,19 @@ function RaffleDashboard() {
             } else if (event.data.type === 'END_DRAW') {
                 setWinners(event.data.winners);
                 setIsEndDrawModalOpen(true); // Open the modal
+            } else if (event.data.type === WAIVE_PRIZE_EVENT) {
+                // Find the corresponding winner using the index
+                const winner = winners[event.data.index];
+                if (winner) {
+                    waivePrize(winner);
+                }
             }
         };
 
         window.addEventListener('message', handleMessage);
 
         return () => window.removeEventListener('message', handleMessage);
-    }, []); 
+    }, [winners]); 
 
     // Raffle Button Controls //
     const openRafflePage = () => {
@@ -955,7 +963,11 @@ function RaffleDashboard() {
                                             <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
                                             <td>{winner.DRWPRICE}</td>
                                             <td>
-                                                <button onClick={() => waivePrize(winner)}>Waive Prize</button>
+                                                <button 
+                                                    onClick={() => waivePrize(winner)}
+                                                >
+                                                    Waive Prize
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

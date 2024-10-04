@@ -1,0 +1,1 @@
+export const WAIVE_PRIZE_EVENT = 'WAIVE_PRIZE';
