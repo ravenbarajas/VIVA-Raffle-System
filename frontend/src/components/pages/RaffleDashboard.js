@@ -244,7 +244,6 @@ function RaffleDashboard() {
         fetchParticipants();
 
         const handleMessage = (event) => {
-            console.log('Message received:', event.data);  // Debug log
             if (event.data.type === 'NAME_GENERATED') {
                 setGeneratedName(event.data.name);
                 localStorage.setItem('generatedName', event.data.name);
@@ -258,12 +257,6 @@ function RaffleDashboard() {
             } else if (event.data.type === 'END_DRAW') {
                 setWinners(event.data.winners);
                 setIsEndDrawModalOpen(true); // Open the modal
-            } else if (event.data.type === WAIVE_PRIZE_EVENT) {
-                // Find the corresponding winner using the index
-                const winner = winners[event.data.index];
-                if (winner) {
-                    waivePrize(winner);
-                }
             }
         };
 
@@ -330,6 +323,49 @@ function RaffleDashboard() {
     useEffect(() => {
         fetchWinners();
     }, []);
+
+    // For drawing random winners
+    const randomParticipants = (participants, winners, waivedWinners) => {
+        // Step 1: Create a pool of participants excluding waived and already drawn winners
+        const filteredParticipants = participants.filter(
+            participant => 
+                !waivedWinners.some(waived => waived.DRWNAME === participant.EMPNAME) && 
+                !winners.some(winner => winner.DRWNAME === participant.EMPNAME)
+        );
+    
+        if (filteredParticipants.length === 0) {
+            console.error('No participants available for drawing');
+            return null; // No valid participants
+        }
+    
+        // Step 2: Create a weighted list based on past wins
+        const weightedParticipants = filteredParticipants.map(participant => {
+            const pastWins = winners.filter(winner => winner.DRWNAME === participant.EMPNAME).length;
+    
+            // Weight could be inversely proportional to the number of past wins
+            return {
+                participant,
+                weight: Math.max(1, 10 - pastWins) // Adjust the weights as needed
+            };
+        });
+    
+        // Step 3: Normalize weights for selection
+        const totalWeight = weightedParticipants.reduce((sum, wp) => sum + wp.weight, 0);
+        
+        // Generate a random number between 0 and total weight
+        const randomValue = Math.random() * totalWeight;
+    
+        // Step 4: Select participant based on weighted probability
+        let cumulativeWeight = 0;
+        for (const { participant, weight } of weightedParticipants) {
+            cumulativeWeight += weight;
+            if (randomValue <= cumulativeWeight) {
+                return participant; // Selected participant
+            }
+        }
+    
+        return null; // Fallback in case no participant is selected
+    };
 
      // Function to draw winners
     const drawPrize = async () => {
@@ -454,18 +490,8 @@ function RaffleDashboard() {
     
     const redrawPrize = async () => {
         try {
-            /// Exclude the waived winner from the list of participants
-            const filteredParticipants = participants.filter(
-                participant => !waivedWinners.some(waived => waived.DRWNAME === participant.EMPNAME)
-            );
-
-            if (filteredParticipants.length === 0) {
-                console.error('No participants available for drawing');
-                return;
-            }
-    
-             // Randomly select a new participant
-            const randomParticipant = filteredParticipants[Math.floor(Math.random() * filteredParticipants.length)];
+            const randomParticipant = randomParticipants(participants, winners, waivedWinners);
+           
             const newWinner = {
                 DRWNUM: winners.length + 1,
                 DRWNAME: `${randomParticipant.EMPNAME} (${randomParticipant.EMPCOMP})`,
