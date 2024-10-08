@@ -662,6 +662,15 @@ function RaffleDashboard() {
         setIsWaivePrizeModalOpen(true);
         // Enable the select buttons for new prizes
         setIsDrawDisabled(false);
+
+        // Send message to rafflePage to trigger hover effect
+        const dashboardWindow = window.opener || window.parent;
+            if (dashboardWindow) {
+                dashboardWindow.postMessage({
+                    type: 'PRIZE_WAIVED',
+                    waivedPrizeName: winner.DRWNAME, // Send winner's name
+                }, '*');
+            }
     };
     
     // End Draw Modal
@@ -990,7 +999,17 @@ function RaffleDashboard() {
                                             <td>{winner.DRWPRICE}</td>
                                             <td>
                                                 <button 
-                                                    onClick={() => waivePrize(winner)}
+                                                   onClick={() => {
+                                                        waivePrize(winner); // This will still waive the prize
+                                                        // Send a message to the rafflePage to trigger hover effect
+                                                        const dashboardWindow = window.opener || window.parent;
+                                                        if (dashboardWindow) {
+                                                            dashboardWindow.postMessage({
+                                                                type: 'TRIGGER_HOVER_EFFECT',
+                                                                winnerName: winner.DRWNAME // Assuming DRWID is a unique identifier for the winner
+                                                            }, '*');
+                                                        }
+                                                    }}
                                                 >
                                                     Waive Prize
                                                 </button>

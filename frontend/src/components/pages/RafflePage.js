@@ -250,12 +250,24 @@ function RafflePage() {
         const waivedWinnerIndex = generatedName.findIndex(name => name === waivedPrize.name);
     
         if (waivedWinnerIndex !== -1) {
-            // Flip only the card of the waived winner
-            setFlippedCards(prevState => {
-                const newState = [...prevState];
-                newState[waivedWinnerIndex] = false; // Reset the flip state for this card
-                return newState;
-            });
+            // Trigger hover effect
+            const cardBack = document.querySelectorAll('.winner-card .card-back')[waivedWinnerIndex];
+            if (cardBack) {
+                cardBack.classList.add('hover'); // Add hover class
+                setTimeout(() => {
+                    cardBack.classList.remove('hover'); // Remove hover class after a short delay
+                }, 1000); // Adjust duration as needed
+            }
+
+            // Introduce a delay for flipping the card so the hover effect is visible
+            setTimeout(() => {
+                // Flip only the card of the waived winner after hover
+                setFlippedCards(prevState => {
+                    const newState = [...prevState];
+                    newState[waivedWinnerIndex] = false; // Reset the flip state for this card
+                    return newState;
+                });
+            }, 300); // Delay the flip action to occur slightly after hover is removed
         } else {
             console.error('Waived winner not found in generatedName array');
         }
@@ -270,7 +282,7 @@ function RafflePage() {
                 newState[index] = true; // Flip only the specified card
                 return newState;
             });
-      }
+      } 
     };
 
     window.addEventListener('message', handleMessage);
@@ -386,17 +398,6 @@ function RafflePage() {
 
                                                                 {/* Add a transparent overlay */}
                                                             <div className="waive-prize-overlay" 
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    // Just send the index or any unique identifier
-                                                                    const dashboardWindow = window.opener || window.parent;
-                                                                    if (dashboardWindow) {
-                                                                        dashboardWindow.postMessage({
-                                                                            type: WAIVE_PRIZE_EVENT,
-                                                                            index: index,   // or any unique identifier you use
-                                                                        }, '*');
-                                                                    }
-                                                                }}
                                                             >
                                                                 <p>Waive Prize</p>
                                                             </div>
