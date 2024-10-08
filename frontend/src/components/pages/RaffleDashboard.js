@@ -8,7 +8,7 @@ import '../css/RaffleDashboard.css';
 import { FaGripLines, FaInfoCircle  } from 'react-icons/fa'; // Import a hamburger icon from react-icons (or use any other icon library)
 
 // Table Pages //
-function RaffleParticipants() {
+function Participants() {
     const [participants, setParticipants] = useState([]);
     const [uploadStatus, setUploadStatus] = useState('');
 
@@ -78,7 +78,7 @@ function RaffleParticipants() {
     );
 }
 
-function RaffleItems() {
+function Prizes() {
     const [prizes, setPrizes] = useState([]);
     const [uploadStatus, setUploadStatus] = useState('');
 
@@ -148,7 +148,7 @@ function RaffleItems() {
     );
 }
 
-function RaffleWinners() {
+function Winners() {
     const [winners, setWinners] = useState([]);
 
     // Fetch winners from the API
@@ -692,11 +692,11 @@ function RaffleDashboard() {
     const renderContent = () => {
         switch (currentPage) {
           case 'participants':
-            return <RaffleParticipants/>
+            return <Participants/>
           case 'items':
-            return <RaffleItems/>
+            return <Prizes/>
             case 'winners':
-            return <RaffleWinners/>
+            return <Winners/>
           default:
             return <p>Welcome</p>;
         }
@@ -728,356 +728,391 @@ function RaffleDashboard() {
         setPrizes(updatedPrizes); // Update the state with the new sequence
     };
 
+    // Page Rendering
+    const [activeTab, setActiveTab] = useState('ctrlGrid');
+
+    // Function to render content based on active tab
+    const renderActivePage = () => {
+        switch (activeTab) {
+            case 'ctrlGrid':
+                return (
+                    <div className="ctrl-grid-item">
+                        <div className='ctrl-grid-header'>
+                            <div className="winner-grid-item">
+                                <div className='winner-container'>
+                                    <div className='winner-container-header'>
+
+                                    </div>
+                                    <div className='winner-container-body'>
+                                        <ul>
+                                            {generatedName && (
+                                                Array.isArray(generatedName) ? 
+                                                generatedName.map((name, index) => (
+                                                    <li key={index}>{name}</li> // Display each name as a separate list item
+                                                )) : (
+                                                    <li>{generatedName}</li> // Display a single name if it's not an array
+                                                )
+                                            )}
+                                            
+                                        </ul>
+                                    </div>
+                                    <div className='winner-container-footer'>
+                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">{selectedPrize.RFLITEM}</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className='ctrl-grid-body'>
+                            <div className='raffle-ctrl-container'>
+                                <div className='ctrl-container'>
+                                    <div className='ctrl-container-header'>
+
+                                    </div>
+                                    <div className='ctrl-container-body'>
+                                        <div className='ctrl-body-start'>
+                                            <div className='button-info-wrapper'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
+                                                        &nbsp;To launch Raffle Page, click "Open Raffle"
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={openRafflePage}
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
+                                                        Open Raffle
+                                                    </button>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
+                                                        To start drawing winners, click "Start Draw"
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={startDraw}
+                                                        disabled={isStartDrawDisabled}
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
+                                                        Start Draw
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className='body-wrapper-start'>
+
+                                            </div>
+                                        </div>
+                                        <div className='ctrl-body-start'>
+                                            <div className='button-info-wrapper'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
+                                                        &nbsp;To adjust animation time, click "Animation Duration"
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <label htmlFor="duration-select">Set Flip Duration:</label>
+                                                    <select
+                                                        id="duration-select"
+                                                        value={flipDuration}
+                                                        onChange={handleDurationChange} // Update the flip duration
+                                                        >
+                                                        <option value={2000}>2 seconds</option>
+                                                        <option value={3000}>3 seconds</option>
+                                                        <option value={5000}>5 seconds</option>
+                                                        <option value={10000}>10 seconds</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className='body-wrapper-start'>
+
+                                            </div>
+                                        </div>
+                                        <div className='ctrl-body-mid'>
+                                            <div className='button-info-wrapper'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
+                                                        To draw a winner, click "Draw Winners"
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={() => drawPrize(winnerCount)} 
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
+                                                        Draw Winners
+                                                    </button>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
+                                                        To reveal all winner cards, click "Flip All"
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
+                                                        &nbsp;Flip All
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className='body-wrapper-mid'>
+                                            
+                                            </div>
+                                        </div>
+                                        <div className='ctrl-body-end'>
+                                            <div className='button-info-wrapper'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;To end the draw, click "End Draw"</p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={openEndDrawModal}
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        disabled={isEndDrawDisabled}>
+                                                        End Draw
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className='body-wrapper-end'>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='ctrl-container-footer'>
+                                        
+                                    </div>
+                                </div>
+                                <div className='prize-container'>
+                                    <div className='prize-container-header'>
+
+                                    </div>
+                                    <div className='prize-container-body'>
+                                        <div style={{ flexDirection: "column", border:"3px solid #000", padding: ".5rem"}}> 
+                                            <div className='button-info-wrapper'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
+                                                    <FaInfoCircle size={18}/>
+                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
+                                                        To add prize on the pool, fill out details below
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <input 
+                                                        style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem", padding: "0px"}}>
+
+                                                    </input>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <select 
+                                                        style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', padding: "0px"}}>
+
+                                                    </select>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={openEndDrawModal}
+                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem"}}
+                                                        disabled={isEndDrawDisabled}>
+                                                        Add Prize
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ border:"3px solid #000", padding:".5rem"}}> 
+                                            <DragDropContext onDragEnd={onDragEnd}>
+                                                <Droppable droppableId="prizeList">
+                                                    {(provided) => (
+                                                        <table className="prize-tbl" ref={provided.innerRef} {...provided.droppableProps}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th> {/* Empty header for drag handle */}
+                                                                    <th>Prize</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Select</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {prizes.map((prize, index) => (
+                                                                    <Draggable key={prize.RFLID} draggableId={prize.RFLID.toString()} index={index}>
+                                                                        {(provided) => (
+                                                                            <tr
+                                                                                ref={provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                            >
+                                                                                <td>
+                                                                                    <FaGripLines style={{ cursor: 'grab' }} />
+                                                                                </td>
+                                                                                <td>{prize.RFLITEM}</td>
+                                                                                <td>{prize.RFLITEMQTY}</td>
+                                                                                <td>
+                                                                                    <select 
+                                                                                        value={prize.winnersCount || 1} 
+                                                                                        onChange={(e) => updatePrizeWinnersCount(prize.RFLID, parseInt(e.target.value))}
+                                                                                        disabled={prize.RFLITEMQTY <= 0}
+                                                                                    >
+                                                                                        {[...Array(Math.min(prize.RFLITEMQTY, 10)).keys()].map(i => (
+                                                                                            <option key={i + 1} value={i + 1}>
+                                                                                                {i + 1}
+                                                                                            </option>
+                                                                                        ))}
+                                                                                    </select>
+                                                                                </td>
+                                                                            </tr>
+                                                                        )}
+                                                                    </Draggable>
+                                                                ))}
+                                                                {provided.placeholder}
+                                                            </tbody>
+                                                        </table>
+                                                    )}
+                                                </Droppable>
+                                            </DragDropContext>
+                                        </div>
+                                    </div>
+                                    <div className='prize-container-footer'>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="summary-grid-item">
+                                <div className='summary-container'>
+                                    <div className='summary-container-header'>
+                                        <h3>Winners</h3>
+                                    </div>
+                                    <div className='summary-container-body'>
+                                        <table className='summary-winner-tbl'>
+                                            <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Company</th>
+                                                <th>Prize</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {winners
+                                                    .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
+                                                    .map((winner, index) => (
+                                                        <tr key={index}>
+                                                            <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
+                                                            <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                                            <td>{winner.DRWPRICE}</td>
+                                                            <td>
+                                                                <button 
+                                                                onClick={() => {
+                                                                        waivePrize(winner); // This will still waive the prize
+                                                                        // Send a message to the rafflePage to trigger hover effect
+                                                                        const dashboardWindow = window.opener || window.parent;
+                                                                        if (dashboardWindow) {
+                                                                            dashboardWindow.postMessage({
+                                                                                type: 'TRIGGER_HOVER_EFFECT',
+                                                                                winnerName: winner.DRWNAME // Assuming DRWID is a unique identifier for the winner
+                                                                            }, '*');
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    Waive Prize
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+
+                                    <div className='summary-container-footer'>
+                                        
+                                    </div>
+                                    
+                                    <div className='summary-container-header'>
+                                        <h3>Waived Prizes</h3>
+                                    </div>
+                                    <div className='summary-container-body'>
+                                        <table className='summary-waived-winner-tbl'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Company</th>
+                                                    <th>Prize</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {waivedWinners.map((winner, index) => (
+                                                    <tr key={index}>
+                                                        <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
+                                                        <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                                        <td>{winner.DRWPRICE}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className='summary-container-footer'>
+                                        
+                                    </div>
+                                </div>
+                            </div>      
+                        </div>         
+                     </div>
+                );
+            case 'tblGrid':
+                return (
+                    <div className="tbl-grid-item">
+                        <div className='tbl-container'>
+                            <div className='tbl-container-header'>
+
+                            </div>
+                            <div className='tbl-container-body'>
+                                <div className="navigation-buttons">
+                                    <button onClick={() => setCurrentPage('participants')}>
+                                        Raffle Participants
+                                    </button>
+                                    <button onClick={() => setCurrentPage('items')}>
+                                        Raffle Items
+                                    </button>
+                                    <button onClick={() => setCurrentPage('winners')}>
+                                        Raffle Winners
+                                    </button>
+                                </div>
+                                {renderContent()}
+                            </div>
+                            <div className='tbl-container-footer'>
+                                
+                            </div>
+                        </div>
+                    </div>
+                );
+            default:
+                return <p>Welcome to the Raffle Dashboard</p>;
+        }
+    };
+
   return (
     <div className="raffleDashboard-container">
-        <div className='dashboard-section-top'>
-            <div className="ctrl-grid-item">
-                <div className='raffle-ctrl-container'>
-                    <div className='ctrl-container'>
-                        <div className='ctrl-container-header'>
 
-                        </div>
-                        <div className='ctrl-container-body'>
-                            <div className='ctrl-body-start'>
-                                <div className='button-info-wrapper'>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
-                                            &nbsp;To launch Raffle Page, click "Open Raffle"
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button 
-                                            onClick={openRafflePage}
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
-                                            Open Raffle
-                                        </button>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                            To start drawing winners, click "Start Draw"
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button 
-                                            onClick={startDraw}
-                                            disabled={isStartDrawDisabled}
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
-                                            Start Draw
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='body-wrapper-start'>
-
-                                </div>
-                            </div>
-                            <div className='ctrl-body-start'>
-                                <div className='button-info-wrapper'>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
-                                            &nbsp;To adjust animation time, click "Animation Duration"
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <label htmlFor="duration-select">Set Flip Duration:</label>
-                                        <select
-                                            id="duration-select"
-                                            value={flipDuration}
-                                            onChange={handleDurationChange} // Update the flip duration
-                                            >
-                                            <option value={2000}>2 seconds</option>
-                                            <option value={3000}>3 seconds</option>
-                                            <option value={5000}>5 seconds</option>
-                                            <option value={10000}>10 seconds</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className='body-wrapper-start'>
-
-                                </div>
-                            </div>
-                            <div className='ctrl-body-mid'>
-                                <div className='button-info-wrapper'>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                            To draw a winner, click "Draw Winners"
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button 
-                                            onClick={() => drawPrize(winnerCount)} 
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
-                                            disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
-                                            Draw Winners
-                                        </button>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                            To reveal all winner cards, click "Flip All"
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
-                                            onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
-                                            &nbsp;Flip All
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='body-wrapper-mid'>
-                                
-                                </div>
-                            </div>
-                            <div className='ctrl-body-end'>
-                                <div className='button-info-wrapper'>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;To end the draw, click "End Draw"</p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button 
-                                            onClick={openEndDrawModal}
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
-                                            disabled={isEndDrawDisabled}>
-                                            End Draw
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='body-wrapper-end'>
-                                
-                                </div>
-                            </div>
-                        </div>
-                        <div className='ctrl-container-footer'>
-                            
-                        </div>
-                    </div>
-                    <div className='prize-container'>
-                        <div className='prize-container-header'>
-
-                        </div>
-                        <div className='prize-container-body'>
-                            <div style={{ flexDirection: "column", border:"3px solid #000", padding: ".5rem"}}> 
-                                <div className='button-info-wrapper'>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                        <FaInfoCircle size={18}/>
-                                        <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                            To add prize on the pool, fill out details below
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <input 
-                                            style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem", padding: "0px"}}>
-
-                                        </input>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <select 
-                                            style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', padding: "0px"}}>
-
-                                        </select>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <button 
-                                            onClick={openEndDrawModal}
-                                            style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem"}}
-                                            disabled={isEndDrawDisabled}>
-                                            Add Prize
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{ border:"3px solid #000", padding:".5rem"}}> 
-                                <DragDropContext onDragEnd={onDragEnd}>
-                                    <Droppable droppableId="prizeList">
-                                        {(provided) => (
-                                            <table className="prize-tbl" ref={provided.innerRef} {...provided.droppableProps}>
-                                                <thead>
-                                                    <tr>
-                                                        <th></th> {/* Empty header for drag handle */}
-                                                        <th>Prize</th>
-                                                        <th>Quantity</th>
-                                                        <th>Select</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {prizes.map((prize, index) => (
-                                                        <Draggable key={prize.RFLID} draggableId={prize.RFLID.toString()} index={index}>
-                                                            {(provided) => (
-                                                                <tr
-                                                                    ref={provided.innerRef}
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
-                                                                >
-                                                                    <td>
-                                                                        <FaGripLines style={{ cursor: 'grab' }} />
-                                                                    </td>
-                                                                    <td>{prize.RFLITEM}</td>
-                                                                    <td>{prize.RFLITEMQTY}</td>
-                                                                    <td>
-                                                                        <select 
-                                                                            value={prize.winnersCount || 1} 
-                                                                            onChange={(e) => updatePrizeWinnersCount(prize.RFLID, parseInt(e.target.value))}
-                                                                            disabled={prize.RFLITEMQTY <= 0}
-                                                                        >
-                                                                            {[...Array(Math.min(prize.RFLITEMQTY, 10)).keys()].map(i => (
-                                                                                <option key={i + 1} value={i + 1}>
-                                                                                    {i + 1}
-                                                                                </option>
-                                                                            ))}
-                                                                        </select>
-                                                                    </td>
-                                                                </tr>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                </tbody>
-                                            </table>
-                                        )}
-                                    </Droppable>
-                                </DragDropContext>
-                            </div>
-                        </div>
-                        <div className='prize-container-footer'>
-                            
-                        </div>
-                    </div>
-                </div>
+         {/* Tabs at the top */}
+         <div className="tab-bar">
+                <button onClick={() => setActiveTab('ctrlGrid')} className={activeTab === 'ctrlGrid' ? 'active' : ''}>
+                    Control Panel
+                </button>
+                <button onClick={() => setActiveTab('tblGrid')} className={activeTab === 'tblGrid' ? 'active' : ''}>
+                    Table View
+                </button>
             </div>
-            <div className="winner-grid-item">
-                <div className='winner-container'>
-                    <div className='winner-container-header'>
 
-                    </div>
-                    <div className='winner-container-body'>
-                        <ul>
-                            {generatedName && (
-                                Array.isArray(generatedName) ? 
-                                generatedName.map((name, index) => (
-                                    <li key={index}>{name}</li> // Display each name as a separate list item
-                                )) : (
-                                    <li>{generatedName}</li> // Display a single name if it's not an array
-                                )
-                            )}
-                            
-                        </ul>
-                    </div>
-                    <div className='winner-container-footer'>
-                        {isPrizeRevealed && selectedPrize && <p className="prize-item">{selectedPrize.RFLITEM}</p>}
-                    </div>
-                </div>
+            {/* Content area based on active tab */}
+            <div className="content-area">
+                {renderActivePage()}
             </div>
-        </div>
-        <div className='dashboard-section-bottom'>
-            <div className="summary-grid-item">
-                <div className='summary-container'>
-                    <div className='summary-container-header'>
-                        <h3>Winners</h3>
-                    </div>
-                    <div className='summary-container-body'>
-                        <table className='summary-winner-tbl'>
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Company</th>
-                                <th>Prize</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {winners
-                                    .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
-                                    .map((winner, index) => (
-                                        <tr key={index}>
-                                            <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
-                                            <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                            <td>{winner.DRWPRICE}</td>
-                                            <td>
-                                                <button 
-                                                   onClick={() => {
-                                                        waivePrize(winner); // This will still waive the prize
-                                                        // Send a message to the rafflePage to trigger hover effect
-                                                        const dashboardWindow = window.opener || window.parent;
-                                                        if (dashboardWindow) {
-                                                            dashboardWindow.postMessage({
-                                                                type: 'TRIGGER_HOVER_EFFECT',
-                                                                winnerName: winner.DRWNAME // Assuming DRWID is a unique identifier for the winner
-                                                            }, '*');
-                                                        }
-                                                    }}
-                                                >
-                                                    Waive Prize
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-
-                        </table>
-                    </div>
-
-                    <div className='summary-container-footer'>
-                        
-                    </div>
-                    
-                    <div className='summary-container-header'>
-                        <h3>Waived Prizes</h3>
-                    </div>
-                    <div className='summary-container-body'>
-                        <table className='summary-waived-winner-tbl'>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Company</th>
-                                    <th>Prize</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {waivedWinners.map((winner, index) => (
-                                    <tr key={index}>
-                                        <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
-                                        <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                        <td>{winner.DRWPRICE}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className='summary-container-footer'>
-                        
-                    </div>
-                </div>
-            </div>
-            <div className="tbl-grid-item">
-                <div className='tbl-container'>
-                    <div className='tbl-container-header'>
-
-                    </div>
-                    <div className='tbl-container-body'>
-                        <div className="navigation-buttons">
-                            <button onClick={() => setCurrentPage('participants')}>
-                                Raffle Participants
-                            </button>
-                            <button onClick={() => setCurrentPage('items')}>
-                                Raffle Items
-                            </button>
-                            <button onClick={() => setCurrentPage('winners')}>
-                                Raffle Winners
-                            </button>
-                        </div>
-                        {renderContent()}
-                    </div>
-                    <div className='tbl-container-footer'>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
+            
         {isEndDrawModalOpen && (
                 <EndDrawModal
                     winners={winners}
@@ -1086,14 +1121,14 @@ function RaffleDashboard() {
                 />
             )}
             
-            <WaivePrizeModal
-                isOpen={isWaivePrizeModalOpen}
-                onClose={() => setIsWaivePrizeModalOpen(false)}
-                onWaive={handleWaive}
-                selectedPrize={selectedPrize}
-            />
-            </div>
-            );
-        }
+        <WaivePrizeModal
+            isOpen={isWaivePrizeModalOpen}
+            onClose={() => setIsWaivePrizeModalOpen(false)}
+            onWaive={handleWaive}
+            selectedPrize={selectedPrize}
+        />
+        </div>
+        );
+}
 
 export default RaffleDashboard;

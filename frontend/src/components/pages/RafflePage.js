@@ -384,17 +384,23 @@ function RafflePage() {
                                                 >
                                                     <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
                                                         <div className="card-face card-front">
-                                                            <img 
-                                                                src={logoSrc} 
-                                                                alt={`logo-${index}`} 
-                                                                className={`company-logo ${isRolling ? 'rolling' : ''}`}
-                                                            />
+                                                            <div className='card-front-container'>
+                                                                <img 
+                                                                    src={logoSrc} 
+                                                                    alt={`logo-${index}`} 
+                                                                    className={`company-logo ${isRolling ? 'rolling' : ''}`}
+                                                                />
+                                                            </div>
                                                         </div>
                                                         <div className="card-face card-back">
-                                                            <p className="winner-header">Congratulations,</p>
-                                                            <p className="winner-name">{winnerName}</p>
-                                                            <p className="winner-company">{companyName}</p>
-                                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}</p>}
+                                                            <div className='card-back-container'>
+                                                                <p className="winner-header">Congratulations,</p>
+                                                                <p className="winner-name">{winnerName}</p>
+                                                                
+                                                                <p className="winner-company">{companyName}</p>
+                                                                    {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}
+                                                                </p>}
+                                                            </div>
 
                                                                 {/* Add a transparent overlay */}
                                                             <div className="waive-prize-overlay" 

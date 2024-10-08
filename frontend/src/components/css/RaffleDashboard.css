@@ -3,17 +3,22 @@
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    gap: .25rem;
     overflow-y: hidden;
     overflow-x: hidden;
   }
-  .dashboard-section-top {
+  .content-area {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: hidden;
+    overflow-x: hidden;
   }
-  .dashboard-section-bottom {
+  .ctrl-grid-body {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
   }
   .summary-grid-item,  .winner-grid-item,  .tbl-grid-item,  .ctrl-grid-item    {
     padding: 1rem;
@@ -24,7 +29,6 @@
     justify-content: center;
     text-align: center;
     overflow: auto; /* Enable scrollbars when content overflows */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
   }
   .summary-winner-tbl td{
     text-align: start;
@@ -47,16 +51,20 @@
     padding: .5rem 1rem .5rem 1rem;
   }
   .ctrl-grid-item   {
-    width: 60vw; /* Example width */
-    height: 50vh; /* Example height */
+    display: flex;
+    flex-direction: column;
+    width: 100vw; /* Example width */
+    height: 100vh; /* Example height */
+    justify-content: start;
+    align-items: center;
   }
   .winner-grid-item   {
-    width: 40vw; /* Example width */
-    height: 50vh; /* Example height */
+    display: flex;
+    height: 15vh;
+    width: 100vw;
   }
   .summary-grid-item   {
-    width: 50vw; /* Example width */
-    height: 50vh; /* Example height */
+
   }
   .tbl-grid-item   {
     width: 50vw; /* Example width */
@@ -69,14 +77,14 @@
   }
   .ctrl-container-body {
     display: flex;
-    height: 100%;
+    height: auto;
     flex-direction: column;
     gap: .5rem;
     padding-right: 1rem ;
   }
   .prize-container-body {
     display: flex;
-    height: 100%;
+    height: auto;
     flex-direction: column;
     gap: .5rem;
     padding-right: 1rem ;
@@ -95,7 +103,7 @@
   .raffle-ctrl-container {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    height: auto;
   }
   .tbl-container {
     display: flex;

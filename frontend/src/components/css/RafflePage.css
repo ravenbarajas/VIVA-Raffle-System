@@ -436,15 +436,7 @@
   transition: opacity 0.3s ease;
   z-index: 2;  /* Ensure it overlays the content on card-back */
 }
-/* Only the back of the card will be affected by hover */
-.winner-card .card-back:hover .waive-prize-overlay {
-  opacity: 1;  /* Show the overlay only when hovering over the back */
-}
 
-/* Optional: slightly darken the back of the card on hover */
-.winner-card .card-back:hover {
-  background-color: rgba(255, 255, 255, 0.3);  /* Subtle darkening of the card back on hover */
-}
 .waive-prize-overlay p {
   font-size: 24px;
   font-weight: 700;
@@ -481,7 +473,25 @@
   width: 100%;
 }
 
+/* Adding bg/border for card-back */
+.card-back-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  
+}
 
+/* Adding bg/border for card-front */
+.card-front-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  
+}
 
 
 
