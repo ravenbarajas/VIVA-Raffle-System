@@ -263,7 +263,7 @@ function RaffleDashboard() {
         window.addEventListener('message', handleMessage);
 
         return () => window.removeEventListener('message', handleMessage);
-    }, [winners]); 
+    }, []); 
 
     // Raffle Button Controls //
     const openRafflePage = () => {
@@ -736,7 +736,7 @@ function RaffleDashboard() {
         switch (activeTab) {
             case 'ctrlGrid':
                 return (
-                    <div className="ctrl-grid-item">
+                    <div className="ctrl-grid-item" style={{ backgroundColor:'#D3D3D3'}}>
                         <div className='ctrl-grid-header'>
                             <div className="winner-grid-item">
                                 <div className='winner-container'>
@@ -771,53 +771,69 @@ function RaffleDashboard() {
                                     </div>
                                     <div className='ctrl-container-body'>
                                         <div className='ctrl-body-start'>
-                                            <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
-                                                        &nbsp;To launch Raffle Page, click "Open Raffle"
-                                                    </p>
-                                                </div>
+                                            <div className='button-wrapper'>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={openRafflePage}
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
                                                         Open Raffle
                                                     </button>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                                        To start drawing winners, click "Start Draw"
-                                                    </p>
                                                 </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={startDraw}
                                                         disabled={isStartDrawDisabled}
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
                                                         Start Draw
                                                     </button>
                                                 </div>
                                             </div>
                                             <div className='body-wrapper-start'>
+                                                    
+                                            </div>
+                                        </div>
+                                        <div style={{ flexDirection: "column", border:"3px solid #000", padding: "1rem"}}> 
+                                            <div className='prize-dropdown'>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
+                                                    <p
+                                                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px"}}
+                                                    >
+                                                        Prize:  
+                                                    </p>
+                                                    <p
+                                                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px"}}
+                                                    >Quantity:   
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
+                                                    <input 
+                                                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "0px"}}>
 
+                                                    </input>
+                                                    <input 
+                                                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "0px"}}>
+
+                                                    </input>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <button 
+                                                        onClick={openEndDrawModal}
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem"}}
+                                                        disabled={isEndDrawDisabled}>
+                                                        Add Prize
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className='ctrl-body-start'>
-                                            <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center'}}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>
-                                                        &nbsp;To adjust animation time, click "Animation Duration"
-                                                    </p>
-                                                </div>
+                                            <div className='button-wrapper'>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <label htmlFor="duration-select">Set Flip Duration:</label>
+                                                    <label htmlFor="duration-select">Set Flip Duration:&nbsp;</label>
                                                     <select
                                                         id="duration-select"
                                                         value={flipDuration}
                                                         onChange={handleDurationChange} // Update the flip duration
+                                                        style={{ width: '150px', height: "32px", display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
                                                         >
                                                         <option value={2000}>2 seconds</option>
                                                         <option value={3000}>3 seconds</option>
@@ -831,30 +847,18 @@ function RaffleDashboard() {
                                             </div>
                                         </div>
                                         <div className='ctrl-body-mid'>
-                                            <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                                        To draw a winner, click "Draw Winners"
-                                                    </p>
-                                                </div>
+                                            <div className='button-wrapper'>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={() => drawPrize(winnerCount)} 
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
                                                         disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
                                                         Draw Winners
                                                     </button>
                                                 </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                                        To reveal all winner cards, click "Flip All"
-                                                    </p>
-                                                </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
                                                         onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
                                                         &nbsp;Flip All
                                                     </button>
@@ -866,14 +870,10 @@ function RaffleDashboard() {
                                         </div>
                                         <div className='ctrl-body-end'>
                                             <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;To end the draw, click "End Draw"</p>
-                                                </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={openEndDrawModal}
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
                                                         disabled={isEndDrawDisabled}>
                                                         End Draw
                                                     </button>
@@ -893,36 +893,6 @@ function RaffleDashboard() {
 
                                     </div>
                                     <div className='prize-container-body'>
-                                        <div style={{ flexDirection: "column", border:"3px solid #000", padding: ".5rem"}}> 
-                                            <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center' }}>
-                                                    <FaInfoCircle size={18}/>
-                                                    <p style={{ margin: ".5rem 0rem", fontSize: "12px"}}>&nbsp;
-                                                        To add prize on the pool, fill out details below
-                                                    </p>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <input 
-                                                        style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem", padding: "0px"}}>
-
-                                                    </input>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <select 
-                                                        style={{ width: '198.5px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', padding: "0px"}}>
-
-                                                    </select>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <button 
-                                                        onClick={openEndDrawModal}
-                                                        style={{ width: '200px', height: "30px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem"}}
-                                                        disabled={isEndDrawDisabled}>
-                                                        Add Prize
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div style={{ border:"3px solid #000", padding:".5rem"}}> 
                                             <DragDropContext onDragEnd={onDragEnd}>
                                                 <Droppable droppableId="prizeList">

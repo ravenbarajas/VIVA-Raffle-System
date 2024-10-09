@@ -347,17 +347,6 @@ function RafflePage() {
     });
   };
 
-   // Function to send message to dashboard window
-   const handleWaivePrize = (selectedWinner) => {
-    const dashboardWindow = window.opener || window.parent;
-    if (dashboardWindow) {
-        dashboardWindow.postMessage({
-            type: WAIVE_PRIZE_EVENT,
-            winner: selectedWinner
-        }, '*');
-    }
-};
-
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>

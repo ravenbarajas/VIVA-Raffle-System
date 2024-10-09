@@ -19,16 +19,17 @@
   .ctrl-grid-body {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
   }
-  .summary-grid-item,  .winner-grid-item,  .tbl-grid-item,  .ctrl-grid-item    {
+  .summary-grid-item,  .winner-grid-item,  .tbl-grid-item  {
     padding: 1rem;
     background: #f0f0f0; /* Light background for items */
-    border: 1px solid #ddd; /* Border around items */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     overflow: auto; /* Enable scrollbars when content overflows */
+    border-radius: 1rem;
   }
   .summary-winner-tbl td{
     text-align: start;
@@ -57,18 +58,20 @@
     height: 100vh; /* Example height */
     justify-content: start;
     align-items: center;
+    gap: 1rem;
+    padding: 1rem;
   }
   .winner-grid-item   {
     display: flex;
-    height: 15vh;
-    width: 100vw;
+    background-color: #fff;
   }
   .summary-grid-item   {
-
+    display: flex;
+    background-color: #fff;
   }
   .tbl-grid-item   {
-    width: 50vw; /* Example width */
-    height: 50vh; /* Example height */
+    width: 100vw; /* Example width */
+    height: 100vh; /* Example height */
   }
   .navigation-buttons {
     display: flex;
@@ -93,7 +96,7 @@
     display: flex;
     flex-direction: column;
     border: 3px solid #000;
-    padding: .5rem;
+    padding: 1rem;
   }
   .ctrl-body-start button, .ctrl-body-mid button, .ctrl-body-end button {
     font-size: 16px;
@@ -103,7 +106,12 @@
   .raffle-ctrl-container {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: start;
     height: auto;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 1rem;
   }
   .tbl-container {
     display: flex;
@@ -124,6 +132,8 @@
 .prize-tbl td{
   text-align: start;
     padding: .5rem .5rem .5rem .5rem;
+    height: 32px;
+    
 }
 .winner-container-body ul {
   list-style-type: none; /* Remove bullets */
@@ -155,7 +165,13 @@
   display: flex;
   flex-direction: row;
 }
-.button-info-wrapper {
+.button-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: .5rem;
+  justify-content: center;
+}
+.prize-dropdown {
   display: flex;
   flex-direction: column;
 }
