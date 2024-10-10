@@ -195,21 +195,34 @@ function Winners() {
 function PrizeForm({ fetchPrizes }) {
     const [prizeName, setPrizeName] = React.useState('');
     const [prizeQty, setPrizeQty] = React.useState(0);
+    const [prizeOrder, setPrizeOrder] = React.useState(1);
 
     async function handleSavePrize() {
         try {
             // Fetch the highest RFLID and RFLNUM from the prize table
             const response = await axios.get('http://localhost:8000/api/prizes');
             const prizes = response.data;
+
+            // Adjust the order of the prizes if needed
+            const updatedPrizes = prizes.map(prize => {
+                if (prize.RFLNUM >= prizeOrder) {
+                    return {
+                        ...prize,
+                        RFLNUM: prize.RFLNUM + 1 // Shift the order of prizes with the same or higher order
+                    };
+                }
+                return prize;
+            });
+
+             // Update the existing prizes' RFLNUM in the database
+             for (const prize of updatedPrizes) {
+                await axios.patch(`http://localhost:8000/api/prizes/${prize.RFLID}`, { RFLNUM: prize.RFLNUM });
+            }
             
-            const highestPrize = prizes.reduce((max, prize) => prize.RFLID > max.RFLID ? prize : max, prizes[0]);
-            const newRFLID = highestPrize ? highestPrize.RFLID + 1 : 1;
-            const newRFLNUM = highestPrize ? highestPrize.RFLNUM + 1 : 1;
-            
-            // Prepare new prize data
+            // Prepare the new prize data
             const newPrize = {
-                RFLID: newRFLID,
-                RFLNUM: newRFLNUM,
+                RFLID: prizes.length > 0 ? Math.max(...prizes.map(prize => prize.RFLID)) + 1 : 1,
+                RFLNUM: prizeOrder, // Set the new prize order to the selected value
                 RFLITEM: prizeName,
                 RFLITEMQTY: prizeQty
             };
@@ -220,6 +233,7 @@ function PrizeForm({ fetchPrizes }) {
             // Clear form fields after successful save
             setPrizeName('');
             setPrizeQty(0);
+            setPrizeOrder(1); // Reset the prize order to default
 
             // Call fetchPrizes to update the prize table
             fetchPrizes();
@@ -235,13 +249,17 @@ function PrizeForm({ fetchPrizes }) {
             <div className='prize-dropdown'>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
                     <p
-                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"60%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >
                         Prize:  
                     </p>
                     <p
-                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"20%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >Quantity:   
+                    </p>
+                    <p
+                    style={{ width:"20%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    >Order:   
                     </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
@@ -250,14 +268,21 @@ function PrizeForm({ fetchPrizes }) {
                         placeholder="Prize Name"
                         value={prizeName}
                         onChange={(e) => setPrizeName(e.target.value)}
-                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"60%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Prize Quantity"
                         value={prizeQty}
                         onChange={(e) => setPrizeQty(parseInt(e.target.value, 10))}
-                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"20%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Order"
+                        value={prizeOrder}
+                        onChange={(e) => setPrizeOrder(parseInt(e.target.value, 10))}
+                        style={{ width:"20%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                 </div>
             </div>
@@ -272,7 +297,6 @@ function PrizeForm({ fetchPrizes }) {
         </div>
     );
 }
-
   
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('participants');
@@ -481,7 +505,7 @@ function RaffleDashboard() {
         }
     
         // Determine the number of winners to draw based on the selected prize or default to 1
-        const winnersCount = selectedPrize.winnersCount || 1;
+        const winnersCount = selectedPrize.RFLITEMQTY; 
         const winners = [];
         const usedParticipants = new Set();
     
@@ -549,13 +573,13 @@ function RaffleDashboard() {
 
         try {
             // Update the prize quantity in the database
-            const updatedPrize = { ...selectedPrize, RFLITEMQTY: selectedPrize.RFLITEMQTY - winnersCount };
+            const updatedPrize = { ...selectedPrize, RFLITEMQTY: 0 };
             const response = await axios.patch(`http://localhost:8000/api/prizes/${selectedPrize.RFLID}`, updatedPrize);
 
             if (response.status === 200) {
                 // Update prize quantity in state
                 const updatedPrizes = prizes.map(prize =>
-                    prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: prize.RFLITEMQTY - winnersCount } : prize
+                    prize.RFLID === selectedPrize.RFLID ? { ...prize, RFLITEMQTY: 0 } : prize
                 );
                 setPrizes(updatedPrizes);
                 setSelectedPrize(updatedPrizes.find(prize => prize.RFLID === selectedPrize.RFLID) || null);
