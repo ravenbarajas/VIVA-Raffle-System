@@ -387,6 +387,7 @@ tbody tr {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  gap: 1rem;
 }
 .winners-overlay {
   z-index: 1000;
@@ -411,6 +412,11 @@ tbody tr {
   transition: transform 1s ease-in-out; /* Smooth transition for any transformations */
 }
 
+.company-logo {
+  max-width: 150px;
+  max-height: 150px;
+}
+
 .company-logo.rolling {
   animation: slot-machine-roll .25s infinite;  /* Simple rolling animation */
 }
@@ -430,20 +436,21 @@ tbody tr {
 }
 
 .winner-card {
-  width: 280px; /* Adjusted width for rectangle shape */
-  height: 150px; /* Adjusted height for rectangle shape */
-  perspective: 1000px; /* Required for 3D flip effect */
+  background-color: transparent;
+  width: 280px;
+  height: 150px;
+  perspective: 1000px;
   cursor: pointer;
   margin: 1rem;
+  transform-style: preserve-3d;
 }
 
 .card {
-  width: 280px; /* Adjusted width for rectangle shape */
-  height: 150px; /* Adjusted height for rectangle shape */
-  position: absolute;
+  width: 100%;
+  height: 100%;
+  position: relative;
   transform-style: preserve-3d;
   transition: transform 0.6s;
-  transform-origin: center center;
 }
 
 .card.is-flipped {
@@ -452,40 +459,39 @@ tbody tr {
 
 .card-face {
   position: absolute;
-  width: 280px; /* Adjusted width for rectangle shape */
-  height: 150px; /* Adjusted height for rectangle shape */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   backface-visibility: hidden;
-  padding: .5rem;
   border-radius: .5rem;
   display: flex;
   flex-direction: column;
 }
 
 .card-front {
-  width: 280px; /* Adjusted width for rectangle shape */
-  height: 150px; /* Adjusted height for rectangle shape */
+  position: absolute;
+  width: 280px;
+  height: 150px;
   background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-.company-logo {
-  max-width: 150px;
-  max-height: 150px;
+  transform: rotateX(0deg);
 }
 
 .card-back {
-  width: 280px; /* Adjusted width for rectangle shape */
-  height: 150px; /* Adjusted height for rectangle shape */
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background-color: #f8f8f8;
   color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transform: rotateX(180deg); /* Hide back side initially */
+  transform: rotateX(180deg);
 }
 
 .card-back p {
@@ -494,10 +500,15 @@ tbody tr {
 
 /* Make the card-back have relative positioning for overlay */
 .winner-card .card-back {
-  position: relative;
-  cursor: pointer;  /* Make it look like a button */
+  width: 100%;
+  height: 100%;
+  position: absolute; /* Changed from relative */
+  cursor: pointer;
   transition: background-color 0.3s ease;
   z-index: 1;
+  transform: rotateX(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 /* Overlay container for the card-back */
 .winner-card .card-back .waive-prize-overlay {
@@ -514,12 +525,17 @@ tbody tr {
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 2;  /* Ensure it overlays the content on card-back */
+  padding: 1rem;
+  border-radius: .5rem;
 }
 
 .waive-prize-overlay p {
+  display: flex;
+  flex-wrap: wrap;
   font-size: 24px;
   font-weight: 700;
   color: #fff;
+  text-align: center;
 }
 
 /* Add a class for hover effect */
@@ -572,7 +588,8 @@ tbody tr {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 280px;
+  height: 150px;
 }
 .congrats-banner {
   text-align: center;
