@@ -294,12 +294,86 @@
   color: #fff; /* Make all headers white */
 }
 
-.winners-summary table {
-    color: white; /* Ensure the text inside the table is white */
+@keyframes credits-scroll {
+  0% {
+    top: 100%; /* Start from below the viewport */
+    opacity: 1;
+  }
+  90% {
+    top: -300%; /* Move upwards to above the viewport */
+    opacity: 1;
+  }
+  100% {
+    top: -500%; /* Fade out towards the end */
+    opacity: 0;
+  }
 }
 
-.winners-summary th, .winners-summary td {
-    color: white; /* Ensure both table headers and table data are white */
+.winners-summary {
+  position: relative;
+  overflow: hidden; /* Ensures only the visible content is shown */
+  height: 100vh; /* Full screen height for the scrolling area */
+  width: auto;
+  max-width: 80%; /* Limit table width to prevent overflow */
+  margin: 0 auto; /* Center the table */
+}
+
+.winner-credits {
+  position: absolute;
+  top: 100%; /* Start from the bottom */
+  left: 50%;
+  transform: translateX(-50%); /* Center the content horizontally */
+  width: 100%; /* Set width to match content */
+  font-family: 'Open Sans Condensed', sans-serif;
+  font-size: 20px;
+  color: white;
+  animation: credits-scroll 30s linear infinite; /* Continuous scroll animation */
+}
+
+.winner-row {
+  display: table-row;
+}
+
+.winner-summary-name,
+.winner-summary-company,
+.winner-summary-prize {
+  display: table-cell;
+  white-space: nowrap; /* Prevent text from wrapping */
+  padding: 10px 15px;
+}
+
+/* Adjust column widths */
+.winner-summary-name {
+  width: 30%; /* Name takes up 40% of the table width */
+  text-align: right; /* Align name to the right */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.winner-summary-company {
+  width: 30%; /* Company takes up 30% of the table width */
+  text-align: left; /* Align company to the left */
+  font-size: 18px;
+}
+
+.winner-summary-prize {
+  width: 20%; /* Prize takes up 30% of the table width */
+  text-align: left; /* Align prize to the left */
+  font-size: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-size: 20px;
+  padding-bottom: 10px;
+}
+
+tbody tr {
+  height: 40px; /* Row height */
 }
 
 .overlay-cards {
@@ -474,8 +548,12 @@
   font-weight: 400;
 }
 .winners-summary {
-  margin-top: 20px;
-  width: 100%;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Adding bg/border for card-back */

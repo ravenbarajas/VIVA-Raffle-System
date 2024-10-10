@@ -413,27 +413,33 @@ function RafflePage() {
                         </>
                     )}
                     {showWinners && winners.length > 0 && (
-                        <div className="winners-summary">
-                            <h3>All Winners</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Company</th>
-                                        <th>Prize</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                  {winners.filter(winner => winner.DRWNUM === 1).map((winner, index) => (
-                                      <tr key={index}>
-                                          <td>{winner.DRWNAME}</td>
-                                          <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                          <td>{winner.DRWPRICE}</td>
-                                      </tr>
-                                  ))}
-                              </tbody>
-                            </table>
+                        <div style={{ display: "flex", justifyContent: 'center', alignItems: 'center', flexDirection: "column", color: "white", height: "100vh" }}>
+                            <div className="winners-summary">
+                                <div className="winner-credits">
+                                    <h1 style={{ display: "flex", width: "100%", textAlign: "center", justifyContent: "center", alignItems: "center", marginBottom: "2rem" }}>
+                                        Congratulations!
+                                    </h1>
+                        
+                                    <table>
+                                        <tbody>
+                                            {winners.map((winner, index) => {
+                                                const winnerName = winner.DRWNAME.split('(')[0].trim();
+                                                const companyName = winner.DRWNAME.split('(')[1]?.replace(')', '').trim();
+                        
+                                                return (
+                                                    <tr key={index} className="winner-row">
+                                                        <td className="winner-summary-name">{winnerName}</td>
+                                                        <td className="winner-summary-company">{companyName}</td>
+                                                        <td className="winner-summary-prize">{winner.DRWPRICE}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
+                    
                     )}
                 </>
             )}

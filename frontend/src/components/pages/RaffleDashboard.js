@@ -213,7 +213,7 @@ function PrizeForm({ fetchPrizes }) {
                 }
                 return prize;
             });
-
+            
              // Update the existing prizes' RFLNUM in the database
              for (const prize of updatedPrizes) {
                 await axios.patch(`http://localhost:8000/api/prizes/${prize.RFLID}`, { RFLNUM: prize.RFLNUM });
@@ -249,16 +249,16 @@ function PrizeForm({ fetchPrizes }) {
             <div className='prize-dropdown'>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
                     <p
-                    style={{ width:"60%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >
                         Prize:  
                     </p>
                     <p
-                    style={{ width:"20%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"25%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >Quantity:   
                     </p>
                     <p
-                    style={{ width:"20%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"25%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >Order:   
                     </p>
                 </div>
@@ -268,21 +268,21 @@ function PrizeForm({ fetchPrizes }) {
                         placeholder="Prize Name"
                         value={prizeName}
                         onChange={(e) => setPrizeName(e.target.value)}
-                        style={{ width:"60%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Prize Quantity"
                         value={prizeQty}
                         onChange={(e) => setPrizeQty(parseInt(e.target.value, 10))}
-                        style={{ width:"20%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"25%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Order"
                         value={prizeOrder}
                         onChange={(e) => setPrizeOrder(parseInt(e.target.value, 10))}
-                        style={{ width:"20%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"25%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                 </div>
             </div>
@@ -677,7 +677,7 @@ function RaffleDashboard() {
     
     const endDraw = () => {
         // Filter out winners with DRWNUM = 0
-        const validWinners = winners.filter(winner => winner.DRWNUM === 1);
+        const validWinners = winners.filter(winner => winner.DRWNUM !== 0);
 
         // Clear local storage and current state
         localStorage.removeItem('winners');
