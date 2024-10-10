@@ -4,6 +4,7 @@
     background-color: black;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
     justify-content: center;
     align-items: center;
   }
@@ -13,6 +14,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
   }
   .rafflePage-slotmachine {
     display: flex;
@@ -299,29 +303,26 @@
 }
 
 .overlay-cards {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 1000;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
-  padding: 20px;
   border-radius: 10px;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .winners-overlay {
   z-index: 1000;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: start;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
 }
 .overlay-banner {
   color: #fff;
@@ -359,15 +360,16 @@
   height: 150px; /* Adjusted height for rectangle shape */
   perspective: 1000px; /* Required for 3D flip effect */
   cursor: pointer;
-  padding: 1rem;
+  margin: 1rem;
 }
 
 .card {
-  width: 100%;
-  height: 100%;
-  position: relative;
+  width: 280px; /* Adjusted width for rectangle shape */
+  height: 150px; /* Adjusted height for rectangle shape */
+  position: absolute;
   transform-style: preserve-3d;
   transition: transform 0.6s;
+  transform-origin: center center;
 }
 
 .card.is-flipped {
@@ -376,8 +378,8 @@
 
 .card-face {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 280px; /* Adjusted width for rectangle shape */
+  height: 150px; /* Adjusted height for rectangle shape */
   backface-visibility: hidden;
   padding: .5rem;
   border-radius: .5rem;
@@ -386,6 +388,8 @@
 }
 
 .card-front {
+  width: 280px; /* Adjusted width for rectangle shape */
+  height: 150px; /* Adjusted height for rectangle shape */
   background-color: #fff;
   display: flex;
   align-items: center;
@@ -399,6 +403,8 @@
 }
 
 .card-back {
+  width: 280px; /* Adjusted width for rectangle shape */
+  height: 150px; /* Adjusted height for rectangle shape */
   background-color: #f8f8f8;
   color: #333;
   display: flex;
@@ -406,7 +412,6 @@
   align-items: center;
   justify-content: center;
   transform: rotateX(180deg); /* Hide back side initially */
-  padding: 1rem;
 }
 
 .card-back p {
@@ -490,9 +495,23 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  
 }
-
+.congrats-banner {
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  color: white;
+  font-size: 2em;
+  font-weight: bold;
+}
+.winners-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  overflow: hidden;
+}
 
 
 

@@ -32,6 +32,7 @@ Route::get('/prizes', [PrizeController::class, 'index']);
 Route::patch('/prizes/{id}', [PrizeController::class, 'update']);
 Route::post('/prizes/upload', [PrizeController::class, 'upload']);
 Route::get('prizes/draw', [PrizesController::class, 'getPrizesForDraw']);
+Route::post('/prizes', [PrizeController::class, 'store']);
 
 // Winners
 Route::get('/winners', [WinnerController::class, 'index']);

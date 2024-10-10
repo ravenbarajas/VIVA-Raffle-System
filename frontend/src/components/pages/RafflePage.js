@@ -358,49 +358,55 @@ function RafflePage() {
                         <>
                             {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
                                 <div className="winners-overlay">
-                                    <div className="overlay-cards" >
-                                        {generatedName.map((name, index) => {
-                                            const companyName = name.split('(')[1]?.replace(')', '').trim();
-                                            const winnerName = name.split('(')[0].trim();
-                                            // Get the logo for the company or show mainlogo
-                                            const logoSrc = isRolling || !revealedLogos[index] ? mainlogo : logoSrcs[index];
+                                    <div className='winners-body'>
+                                        <div className="congrats-banner">
+                                            <h2>🎉 Congratulations to Our Winners! 🎉</h2>
+                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}
+                                            </p>}
+                                        </div>
+                                        <div className="overlay-cards" >
+                                            {generatedName.map((name, index) => {
+                                                const companyName = name.split('(')[1]?.replace(')', '').trim();
+                                                const winnerName = name.split('(')[0].trim();
+                                                // Get the logo for the company or show mainlogo
+                                                const logoSrc = isRolling || !revealedLogos[index] ? mainlogo : logoSrcs[index];
 
-                                            return (
-                                                <div 
-                                                    key={index} 
-                                                    className="winner-card"
-                                                    onClick={() => handleCardClick(index)}
-                                                >
-                                                    <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                        <div className="card-face card-front">
-                                                            <div className='card-front-container'>
-                                                                <img 
-                                                                    src={logoSrc} 
-                                                                    alt={`logo-${index}`} 
-                                                                    className={`company-logo ${isRolling ? 'rolling' : ''}`}
-                                                                />
+                                                return (
+                                                    <div 
+                                                        key={index} 
+                                                        className="winner-card"
+                                                        onClick={() => handleCardClick(index)}
+                                                    >
+                                                        <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                            <div className="card-face card-front">
+                                                                <div className='card-front-container'>
+                                                                    <img 
+                                                                        src={logoSrc} 
+                                                                        alt={`logo-${index}`} 
+                                                                        className={`company-logo ${isRolling ? 'rolling' : ''}`}
+                                                                    />
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <div className="card-face card-back">
-                                                            <div className='card-back-container'>
-                                                                <p className="winner-header">Congratulations,</p>
-                                                                <p className="winner-name">{winnerName}</p>
-                                                                
-                                                                <p className="winner-company">{companyName}</p>
-                                                                    {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}
-                                                                </p>}
-                                                            </div>
+                                                            <div className="card-face card-back">
+                                                                <div className='card-back-container'>
+                                                                    <p className="winner-name"
+                                                                    style={{ fontSize:"24px"}}>
+                                                                        {winnerName}
+                                                                    </p>
+                                                                    <p className="winner-company">{companyName}</p>
+                                                                </div>
 
-                                                                {/* Add a transparent overlay */}
-                                                            <div className="waive-prize-overlay" 
-                                                            >
-                                                                <p>Waive Prize</p>
+                                                                    {/* Add a transparent overlay */}
+                                                                <div className="waive-prize-overlay" 
+                                                                >
+                                                                    <p>Waive Prize</p>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             )}

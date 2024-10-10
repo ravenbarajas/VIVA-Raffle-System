@@ -18,8 +18,9 @@
   }
   .ctrl-grid-body {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
+    height: 100%;
   }
   .summary-grid-item,  .winner-grid-item,  .tbl-grid-item  {
     padding: 1rem;
@@ -68,6 +69,14 @@
   .summary-grid-item   {
     display: flex;
     background-color: #fff;
+    overflow-y: auto;
+  }
+  .summary-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: auto;
+    gap: 1rem;
   }
   .tbl-grid-item   {
     width: 100vw; /* Example width */
@@ -80,19 +89,21 @@
   }
   .ctrl-container-body {
     display: flex;
-    height: auto;
+    height: 100%;
     flex-direction: column;
     gap: .5rem;
-    padding-right: 1rem ;
+  }
+  .prize-container {
+    display: flex;
+    width: 100%;
   }
   .prize-container-body {
     display: flex;
-    height: auto;
+    width: 100%;
     flex-direction: column;
     gap: .5rem;
-    padding-right: 1rem ;
   }
-  .ctrl-body-start, .ctrl-body-mid, .ctrl-body-end {
+  .ctrl-body-start, .ctrl-body-mid, .ctrl-body-end, .summary-container-body {
     display: flex;
     flex-direction: column;
     border: 3px solid #000;
@@ -105,20 +116,16 @@
   }
   .raffle-ctrl-container {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: start;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
     height: auto;
     padding: 1rem;
     background-color: #fff;
     border-radius: 1rem;
+    gap: 1rem;
   }
   .tbl-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .summary-container {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -176,7 +183,6 @@
   flex-direction: column;
 }
 
-  
   
   
   

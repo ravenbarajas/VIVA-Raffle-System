@@ -54,5 +54,18 @@ class PrizeController extends Controller
         $prizes->update($request->all());
         return response()->json($prizes, 200);
     }
+
+    // Store a new prize
+    public function store(Request $request)
+    {
+        $prizes = new Prizes();
+        $prizes->RFLID = $request->RFLID;
+        $prizes->RFLNUM = $request->RFLNUM;
+        $prizes->RFLITEM = $request->RFLITEM;
+        $prizes->RFLITEMQTY = $request->RFLITEMQTY;
+        $prizes->save();
+
+        return response()->json(['message' => 'Prize added successfully'], 201);
+    }
 }
 

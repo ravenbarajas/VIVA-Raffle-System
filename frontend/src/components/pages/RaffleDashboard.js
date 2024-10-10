@@ -191,6 +191,88 @@ function Winners() {
         </div>
     );
 }
+
+function PrizeForm({ fetchPrizes }) {
+    const [prizeName, setPrizeName] = React.useState('');
+    const [prizeQty, setPrizeQty] = React.useState(0);
+
+    async function handleSavePrize() {
+        try {
+            // Fetch the highest RFLID and RFLNUM from the prize table
+            const response = await axios.get('http://localhost:8000/api/prizes');
+            const prizes = response.data;
+            
+            const highestPrize = prizes.reduce((max, prize) => prize.RFLID > max.RFLID ? prize : max, prizes[0]);
+            const newRFLID = highestPrize ? highestPrize.RFLID + 1 : 1;
+            const newRFLNUM = highestPrize ? highestPrize.RFLNUM + 1 : 1;
+            
+            // Prepare new prize data
+            const newPrize = {
+                RFLID: newRFLID,
+                RFLNUM: newRFLNUM,
+                RFLITEM: prizeName,
+                RFLITEMQTY: prizeQty
+            };
+
+            // Save the new prize to the database
+            await axios.post('http://localhost:8000/api/prizes', newPrize);
+
+            // Clear form fields after successful save
+            setPrizeName('');
+            setPrizeQty(0);
+
+            // Call fetchPrizes to update the prize table
+            fetchPrizes();
+
+            console.log("Prize added successfully");
+        } catch (error) {
+            console.error('Error adding prize:', error);
+        }
+    }
+
+    return (
+        <div>
+            <div className='prize-dropdown'>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
+                    <p
+                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    >
+                        Prize:  
+                    </p>
+                    <p
+                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    >Quantity:   
+                    </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
+                    <input
+                        type="text"
+                        placeholder="Prize Name"
+                        value={prizeName}
+                        onChange={(e) => setPrizeName(e.target.value)}
+                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Prize Quantity"
+                        value={prizeQty}
+                        onChange={(e) => setPrizeQty(parseInt(e.target.value, 10))}
+                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                    />
+                </div>
+            </div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <button 
+                        onClick={handleSavePrize}
+                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem", fontSize:"16px", fontWeight:"700"}}
+                        >
+                        Add prize
+                    </button>
+                </div>
+        </div>
+    );
+}
+
   
 function RaffleDashboard() {
     const [currentPage, setCurrentPage] = useState('participants');
@@ -229,6 +311,12 @@ function RaffleDashboard() {
             console.error('Failed to fetch prizes:', error);
         }
     };
+
+    React.useEffect(() => {
+        // Initial fetch for prizes when the component mounts
+        fetchPrizes();
+    }, []);
+    
     const fetchParticipants = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/participants');
@@ -737,38 +825,9 @@ function RaffleDashboard() {
             case 'ctrlGrid':
                 return (
                     <div className="ctrl-grid-item" style={{ backgroundColor:'#D3D3D3'}}>
-                        <div className='ctrl-grid-header'>
-                            <div className="winner-grid-item">
-                                <div className='winner-container'>
-                                    <div className='winner-container-header'>
-
-                                    </div>
-                                    <div className='winner-container-body'>
-                                        <ul>
-                                            {generatedName && (
-                                                Array.isArray(generatedName) ? 
-                                                generatedName.map((name, index) => (
-                                                    <li key={index}>{name}</li> // Display each name as a separate list item
-                                                )) : (
-                                                    <li>{generatedName}</li> // Display a single name if it's not an array
-                                                )
-                                            )}
-                                            
-                                        </ul>
-                                    </div>
-                                    <div className='winner-container-footer'>
-                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">{selectedPrize.RFLITEM}</p>}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div className='ctrl-grid-body'>
                             <div className='raffle-ctrl-container'>
                                 <div className='ctrl-container'>
-                                    <div className='ctrl-container-header'>
-
-                                    </div>
                                     <div className='ctrl-container-body'>
                                         <div className='ctrl-body-start'>
                                             <div className='button-wrapper'>
@@ -794,35 +853,7 @@ function RaffleDashboard() {
                                         </div>
                                         <div style={{ flexDirection: "column", border:"3px solid #000", padding: "1rem"}}> 
                                             <div className='prize-dropdown'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
-                                                    <p
-                                                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px"}}
-                                                    >
-                                                        Prize:  
-                                                    </p>
-                                                    <p
-                                                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px"}}
-                                                    >Quantity:   
-                                                    </p>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
-                                                    <input 
-                                                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "0px"}}>
-
-                                                    </input>
-                                                    <input 
-                                                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "0px"}}>
-
-                                                    </input>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <button 
-                                                        onClick={openEndDrawModal}
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem"}}
-                                                        disabled={isEndDrawDisabled}>
-                                                        Add Prize
-                                                    </button>
-                                                </div>
+                                                <PrizeForm fetchPrizes={fetchPrizes} />
                                             </div>
                                         </div>
                                         <div className='ctrl-body-start'>
@@ -904,6 +935,7 @@ function RaffleDashboard() {
                                                                     <th>Prize</th>
                                                                     <th>Quantity</th>
                                                                     <th>Select</th>
+                                                                    <th>Order</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -933,6 +965,7 @@ function RaffleDashboard() {
                                                                                         ))}
                                                                                     </select>
                                                                                 </td>
+                                                                                <td>{prize.RFLNUM}</td>
                                                                             </tr>
                                                                         )}
                                                                     </Draggable>
@@ -953,10 +986,11 @@ function RaffleDashboard() {
 
                             <div className="summary-grid-item">
                                 <div className='summary-container'>
-                                    <div className='summary-container-header'>
-                                        <h3>Winners</h3>
-                                    </div>
+                                    
                                     <div className='summary-container-body'>
+                                        <div className='summary-container-header'>
+                                            <h3>Winners</h3>
+                                        </div>
                                         <table className='summary-winner-tbl'>
                                             <thead>
                                             <tr>
@@ -997,15 +1031,11 @@ function RaffleDashboard() {
 
                                         </table>
                                     </div>
-
-                                    <div className='summary-container-footer'>
-                                        
-                                    </div>
                                     
-                                    <div className='summary-container-header'>
-                                        <h3>Waived Prizes</h3>
-                                    </div>
                                     <div className='summary-container-body'>
+                                        <div className='summary-container-header'>
+                                            <h3>Waived Prizes</h3>
+                                        </div>
                                         <table className='summary-waived-winner-tbl'>
                                             <thead>
                                                 <tr>
@@ -1025,9 +1055,7 @@ function RaffleDashboard() {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div className='summary-container-footer'>
-                                        
-                                    </div>
+
                                 </div>
                             </div>      
                         </div>         
@@ -1036,6 +1064,29 @@ function RaffleDashboard() {
             case 'tblGrid':
                 return (
                     <div className="tbl-grid-item">
+                        <div className="winner-grid-item">
+                                <div className='winner-container'>
+                                    <div className='winner-container-header'>
+
+                                    </div>
+                                    <div className='winner-container-body'>
+                                        <ul>
+                                            {generatedName && (
+                                                Array.isArray(generatedName) ? 
+                                                generatedName.map((name, index) => (
+                                                    <li key={index}>{name}</li> // Display each name as a separate list item
+                                                )) : (
+                                                    <li>{generatedName}</li> // Display a single name if it's not an array
+                                                )
+                                            )}
+                                            
+                                        </ul>
+                                    </div>
+                                    <div className='winner-container-footer'>
+                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">{selectedPrize.RFLITEM}</p>}
+                                    </div>
+                                </div>
+                        </div>
                         <div className='tbl-container'>
                             <div className='tbl-container-header'>
 
