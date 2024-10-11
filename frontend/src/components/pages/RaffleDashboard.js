@@ -201,7 +201,7 @@ function PrizeForm({ fetchPrizes }) {
         try {
             // Fetch the highest RFLID and RFLNUM from the prize table
             const response = await axios.get('http://localhost:8000/api/prizes');
-            const prizes = response.data;
+            let prizes = response.data;
 
             // Adjust the order of the prizes if needed
             const updatedPrizes = prizes.map(prize => {
@@ -215,7 +215,7 @@ function PrizeForm({ fetchPrizes }) {
             });
             
              // Update the existing prizes' RFLNUM in the database
-             for (const prize of updatedPrizes) {
+            for (const prize of updatedPrizes) {
                 await axios.patch(`http://localhost:8000/api/prizes/${prize.RFLID}`, { RFLNUM: prize.RFLNUM });
             }
             
@@ -230,13 +230,20 @@ function PrizeForm({ fetchPrizes }) {
             // Save the new prize to the database
             await axios.post('http://localhost:8000/api/prizes', newPrize);
 
+            // Re-fetch prizes to include the newly added prize
+            const updatedResponse = await axios.get('http://localhost:8000/api/prizes');
+            let refreshedPrizes = updatedResponse.data;
+
+            // Sort the prizes by RFLNUM in descending order (lowest RFLNUM at the bottom)
+            refreshedPrizes.sort((a, b) => b.RFLNUM - a.RFLNUM);
+
             // Clear form fields after successful save
             setPrizeName('');
             setPrizeQty(0);
             setPrizeOrder(1); // Reset the prize order to default
 
             // Call fetchPrizes to update the prize table
-            fetchPrizes();
+            fetchPrizes(refreshedPrizes);
 
             console.log("Prize added successfully");
         } catch (error) {
@@ -249,16 +256,16 @@ function PrizeForm({ fetchPrizes }) {
             <div className='prize-dropdown'>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
                     <p
-                    style={{ width:"50%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"50%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >
                         Prize:  
                     </p>
                     <p
-                    style={{ width:"25%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"25%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >Quantity:   
                     </p>
                     <p
-                    style={{ width:"25%", height: "32px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
+                    style={{ width:"25%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
                     >Order:   
                     </p>
                 </div>
@@ -268,21 +275,21 @@ function PrizeForm({ fetchPrizes }) {
                         placeholder="Prize Name"
                         value={prizeName}
                         onChange={(e) => setPrizeName(e.target.value)}
-                        style={{ width:"50%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"50%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Prize Quantity"
                         value={prizeQty}
                         onChange={(e) => setPrizeQty(parseInt(e.target.value, 10))}
-                        style={{ width:"25%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"25%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Order"
                         value={prizeOrder}
                         onChange={(e) => setPrizeOrder(parseInt(e.target.value, 10))}
-                        style={{ width:"25%" , height: "32px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"25%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                 </div>
             </div>
@@ -330,7 +337,10 @@ function RaffleDashboard() {
     const fetchPrizes = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/prizes');
-            setPrizes(response.data); // Update state with fetched prizes
+            // Sort the prizes based on RFLNUM in ascending order
+            const sortedPrizes = response.data.sort((a, b) => a.RFLNUM - b.RFLNUM);
+
+            setPrizes(sortedPrizes); // Update state with sorted prizes
         } catch (error) {
             console.error('Failed to fetch prizes:', error);
         }
@@ -840,6 +850,39 @@ function RaffleDashboard() {
         setPrizes(updatedPrizes); // Update the state with the new sequence
     };
 
+    const handleDeletePrize = async (RFLID, RFLNUM) => {
+        try {
+            // Delete the selected prize
+            await axios.delete(`http://localhost:8000/api/prizes/${RFLID}`);
+    
+            // Fetch the remaining prizes and reorder them
+            const response = await axios.get('http://localhost:8000/api/prizes');
+            let updatedPrizes = response.data;
+    
+            // Reorder prizes by decrementing RFLNUM for those that have RFLNUM > the deleted prize's RFLNUM
+            updatedPrizes = updatedPrizes.map(prize => {
+                if (prize.RFLNUM > RFLNUM) {
+                    return {
+                        ...prize,
+                        RFLNUM: prize.RFLNUM - 1
+                    };
+                }
+                return prize;
+            });
+    
+            // Update the RFLNUM of remaining prizes in the database
+            for (const prize of updatedPrizes) {
+                await axios.patch(`http://localhost:8000/api/prizes/${prize.RFLID}`, { RFLNUM: prize.RFLNUM });
+            }
+    
+            // Update the state to reflect the changes in the UI
+            fetchPrizes(); // Re-fetch the updated prizes and update the state
+            console.log("Prize deleted and order updated successfully");
+        } catch (error) {
+            console.error('Error deleting prize:', error);
+        }
+    };    
+
     // Page Rendering
     const [activeTab, setActiveTab] = useState('ctrlGrid');
 
@@ -870,72 +913,55 @@ function RaffleDashboard() {
                                                         Start Draw
                                                     </button>
                                                 </div>
+                                                
                                             </div>
-                                            <div className='body-wrapper-start'>
-                                                    
-                                            </div>
-                                        </div>
-                                        <div style={{ flexDirection: "column", border:"3px solid #000", padding: "1rem"}}> 
-                                            <div className='prize-dropdown'>
-                                                <PrizeForm fetchPrizes={fetchPrizes} />
-                                            </div>
-                                        </div>
-                                        <div className='ctrl-body-start'>
                                             <div className='button-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <label htmlFor="duration-select">Set Flip Duration:&nbsp;</label>
-                                                    <select
-                                                        id="duration-select"
-                                                        value={flipDuration}
-                                                        onChange={handleDurationChange} // Update the flip duration
-                                                        style={{ width: '150px', height: "32px", display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
-                                                        >
-                                                        <option value={2000}>2 seconds</option>
-                                                        <option value={3000}>3 seconds</option>
-                                                        <option value={5000}>5 seconds</option>
-                                                        <option value={10000}>10 seconds</option>
-                                                    </select>
+                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width:"100%" }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <label htmlFor="duration-select"
+                                                            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: "24px" }}>Set Flip Duration:&nbsp;</label>
+                                                        <select
+                                                            id="duration-select"
+                                                            value={flipDuration}
+                                                            onChange={handleDurationChange} // Update the flip duration
+                                                            style={{ width: '150px', height: "24px", display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                                                            >
+                                                            <option value={2000}>2 seconds</option>
+                                                            <option value={3000}>3 seconds</option>
+                                                            <option value={5000}>5 seconds</option>
+                                                            <option value={10000}>10 seconds</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className='body-wrapper-start'>
-
-                                            </div>
-                                        </div>
-                                        <div className='ctrl-body-mid'>
                                             <div className='button-wrapper'>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={() => drawPrize(winnerCount)} 
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "64px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
                                                         disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
                                                         Draw Winners
                                                     </button>
                                                 </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "64px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
                                                         onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
                                                         &nbsp;Flip All
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div className='body-wrapper-mid'>
-                                            
-                                            </div>
-                                        </div>
-                                        <div className='ctrl-body-end'>
-                                            <div className='button-info-wrapper'>
-                                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <button 
-                                                        onClick={openEndDrawModal}
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
-                                                        disabled={isEndDrawDisabled}>
-                                                        End Draw
-                                                    </button>
+                                            <div className='button-wrapper'>
+                                                <div className='button-info-wrapper'>
+                                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <button 
+                                                            onClick={openEndDrawModal}
+                                                            style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                            disabled={isEndDrawDisabled}>
+                                                            End Draw
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className='body-wrapper-end'>
-                                            
                                             </div>
                                         </div>
                                     </div>
@@ -949,57 +975,30 @@ function RaffleDashboard() {
                                     </div>
                                     <div className='prize-container-body'>
                                         <div style={{ border:"3px solid #000", padding:".5rem"}}> 
-                                            <DragDropContext onDragEnd={onDragEnd}>
-                                                <Droppable droppableId="prizeList">
-                                                    {(provided) => (
-                                                        <table className="prize-tbl" ref={provided.innerRef} {...provided.droppableProps}>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th></th> {/* Empty header for drag handle */}
-                                                                    <th>Prize</th>
-                                                                    <th>Quantity</th>
-                                                                    <th>Select</th>
-                                                                    <th>Order</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {prizes.map((prize, index) => (
-                                                                    <Draggable key={prize.RFLID} draggableId={prize.RFLID.toString()} index={index}>
-                                                                        {(provided) => (
-                                                                            <tr
-                                                                                ref={provided.innerRef}
-                                                                                {...provided.draggableProps}
-                                                                                {...provided.dragHandleProps}
-                                                                            >
-                                                                                <td>
-                                                                                    <FaGripLines style={{ cursor: 'grab' }} />
-                                                                                </td>
-                                                                                <td>{prize.RFLITEM}</td>
-                                                                                <td>{prize.RFLITEMQTY}</td>
-                                                                                <td>
-                                                                                    <select 
-                                                                                        value={prize.winnersCount || 1} 
-                                                                                        onChange={(e) => updatePrizeWinnersCount(prize.RFLID, parseInt(e.target.value))}
-                                                                                        disabled={prize.RFLITEMQTY <= 0}
-                                                                                    >
-                                                                                        {[...Array(Math.min(prize.RFLITEMQTY, 10)).keys()].map(i => (
-                                                                                            <option key={i + 1} value={i + 1}>
-                                                                                                {i + 1}
-                                                                                            </option>
-                                                                                        ))}
-                                                                                    </select>
-                                                                                </td>
-                                                                                <td>{prize.RFLNUM}</td>
-                                                                            </tr>
-                                                                        )}
-                                                                    </Draggable>
-                                                                ))}
-                                                                {provided.placeholder}
-                                                            </tbody>
-                                                        </table>
-                                                    )}
-                                                </Droppable>
-                                            </DragDropContext>
+                                            <table className="prize-tbl">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Prize</th>
+                                                        <th>QTY</th>
+                                                        <th>Order</th>
+                                                        <th>Action</th> {/* Column for Delete button */}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {prizes.map((prize, index) => (
+                                                        <tr key={index}>
+                                                            <td>{prize.RFLITEM}</td>
+                                                            <td>{prize.RFLITEMQTY}</td>
+                                                            <td>{prize.RFLNUM}</td>
+                                                            <td>
+                                                                <button onClick={() => handleDeletePrize(prize.RFLID, prize.RFLNUM)}>
+                                                                    Delete
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                     <div className='prize-container-footer'>
@@ -1018,10 +1017,10 @@ function RaffleDashboard() {
                                         <table className='summary-winner-tbl'>
                                             <thead>
                                             <tr>
+                                                <th>Actions</th>
                                                 <th>Name</th>
                                                 <th>Company</th>
                                                 <th>Prize</th>
-                                                <th>Actions</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -1029,11 +1028,9 @@ function RaffleDashboard() {
                                                     .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
                                                     .map((winner, index) => (
                                                         <tr key={index}>
-                                                            <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
-                                                            <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                                            <td>{winner.DRWPRICE}</td>
                                                             <td>
                                                                 <button 
+                                                                style={{ padding:".25rem"}}
                                                                 onClick={() => {
                                                                         waivePrize(winner); // This will still waive the prize
                                                                         // Send a message to the rafflePage to trigger hover effect
@@ -1049,6 +1046,10 @@ function RaffleDashboard() {
                                                                     Waive Prize
                                                                 </button>
                                                             </td>
+                                                            <td style={{ padding:".25rem .5rem"}}>{winner.DRWNAME.split('(')[0].trim()}</td> 
+                                                            <td style={{ padding:".25rem .5rem", maxWidth: "150px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "start" }}>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                                            <td style={{ padding:".25rem .5rem"}}>{winner.DRWPRICE}</td>
+                                                            
                                                         </tr>
                                                     ))}
                                             </tbody>

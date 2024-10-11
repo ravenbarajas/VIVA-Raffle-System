@@ -33,6 +33,8 @@ Route::patch('/prizes/{id}', [PrizeController::class, 'update']);
 Route::post('/prizes/upload', [PrizeController::class, 'upload']);
 Route::get('prizes/draw', [PrizesController::class, 'getPrizesForDraw']);
 Route::post('/prizes', [PrizeController::class, 'store']);
+Route::delete('/prizes/{id}', [PrizeController::class, 'destroy']);
+
 
 // Winners
 Route::get('/winners', [WinnerController::class, 'index']);

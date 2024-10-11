@@ -389,11 +389,12 @@ function RafflePage() {
                                                             </div>
                                                             <div className="card-face card-back">
                                                                 <div className='card-back-container'>
-                                                                    <p className="winner-name"
-                                                                    style={{ fontSize:"24px"}}>
+                                                                    <p className="winner-name">
                                                                         {winnerName}
                                                                     </p>
-                                                                    <p className="winner-company">{companyName}</p>
+                                                                    <p className="winner-company">
+                                                                        {companyName}
+                                                                    </p>
                                                                 </div>
 
                                                                     {/* Add a transparent overlay */}

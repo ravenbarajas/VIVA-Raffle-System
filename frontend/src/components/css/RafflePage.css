@@ -437,11 +437,10 @@ tbody tr {
 
 .winner-card {
   background-color: transparent;
-  width: 280px;
+  width: 300px;
   height: 150px;
   perspective: 1000px;
   cursor: pointer;
-  margin: 1rem;
   transform-style: preserve-3d;
 }
 
@@ -471,7 +470,7 @@ tbody tr {
 
 .card-front {
   position: absolute;
-  width: 280px;
+  width: 300px;
   height: 150px;
   background-color: #fff;
   display: flex;
@@ -509,6 +508,7 @@ tbody tr {
   transform: rotateX(180deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  overflow: hidden;
 }
 /* Overlay container for the card-back */
 .winner-card .card-back .waive-prize-overlay {
@@ -543,9 +543,12 @@ tbody tr {
   opacity: 1;  /* Show overlay when hover class is added */
 }
 
-.winner-name, .prize-won, 
+.prize-won, 
 .winner-header, .winner-company  {
   display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
   margin: 0rem;
   text-align: center;
 }
@@ -555,13 +558,22 @@ tbody tr {
   margin: 1rem 0rem 1rem 0rem;
 }
 .winner-name {
-  font-size: 18px;
+  text-align: center;
+  width: 100%;
+  font-size: 24px;
   font-weight: 700;
   margin: .25rem 0rem .25rem 0rem;
+  white-space: normal; /* Allows the text to wrap to the next line */
+  overflow-wrap: break-word; /* Breaks long words if necessary */
+  word-break: break-word; /* Ensures long words are broken correctly */
+  
 }
 .winner-company {
   font-size: 16px;
   font-weight: 400;
+}
+.prize-won {
+  font-size: 32px;
 }
 .winners-summary {
   width: 100vw;
@@ -579,7 +591,7 @@ tbody tr {
   justify-content: center;
   align-items: center;
   width: 100%;
-  
+  overflow: hidden;
 }
 
 /* Adding bg/border for card-front */

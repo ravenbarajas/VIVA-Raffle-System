@@ -67,5 +67,19 @@ class PrizeController extends Controller
 
         return response()->json(['message' => 'Prize added successfully'], 201);
     }
+    public function destroy($id)
+{
+    // Find the prize by ID
+    $prizes = Prizes::find($id);
+
+    if (!$prizes) {
+        return response()->json(['message' => 'Prize not found'], 404);
+    }
+
+    // Delete the prize
+    $prizes->delete();
+
+    return response()->json(['message' => 'Prize deleted successfully']);
+}
 }
 
