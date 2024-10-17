@@ -258,15 +258,15 @@ function PrizeForm({ fetchPrizes }) {
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px", gap:'.5rem'  }}>
                     <p
                         style={{ width:"150px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
-                        <h4>Prize</h4>
+                        Prize
                     </p>
                     <p
                         style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
-                        <h4>QTY</h4>  
+                        QTY
                     </p>
                     <p
                         style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
-                        <h4>Order</h4>
+                        Order
                     </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
@@ -296,9 +296,9 @@ function PrizeForm({ fetchPrizes }) {
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                     <button 
                         onClick={handleSavePrize}
-                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem", fontSize:"16px", fontWeight:"700", border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
+                        style={{ width: '150px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem", fontSize:"16px", fontWeight:"700", border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
                         >
-                        Add prize
+                        Add
                     </button>
                 </div>
         </div>
@@ -901,7 +901,7 @@ function RaffleDashboard() {
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={openRafflePage}
-                                                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
+                                                        style={{ width: '150px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
                                                         Open
                                                     </button>
                                                 </div>
@@ -909,7 +909,7 @@ function RaffleDashboard() {
                                                     <button 
                                                         onClick={startDraw}
                                                         disabled={isStartDrawDisabled}
-                                                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
+                                                        style={{ width: '150px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
                                                         Start
                                                     </button>
                                                 </div>
@@ -956,7 +956,7 @@ function RaffleDashboard() {
                                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                         <button 
                                                             onClick={openEndDrawModal}
-                                                            style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
+                                                            style={{ width: '150px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
                                                             disabled={isEndDrawDisabled}>
                                                             End
                                                         </button>
@@ -968,20 +968,20 @@ function RaffleDashboard() {
                                 </div>
                                 <div className='addprize-container'>
                                     <div className='addprize-container-body'>
-                                        <PrizeForm fetchPrizes={fetchPrizes}/>
+                                        <div className='ctrl-body-start'>
+                                            <PrizeForm fetchPrizes={fetchPrizes}/>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className='prize-container'>
                                     <div className='prize-container-body'>
-                                        <div> 
+                                        <div className='scrollable-table'> 
                                             <table className="prize-tbl">
                                                 <thead>
-                                                    <tr>
-                                                        <th><h4>Prize</h4></th>
-                                                        <th><h4>QTY</h4></th>
-                                                        <th><h4>Order</h4></th>
-                                                        <th><h4>Action</h4></th> {/* Column for Delete button */}
-                                                    </tr>
+                                                    <th>Prize</th>
+                                                    <th>QTY</th>
+                                                    <th>Order</th>
+                                                    <th>Action</th> {/* Column for Delete button */}
                                                 </thead>
                                                 <tbody>
                                                     {prizes.map((prize, index) => (
@@ -1016,47 +1016,49 @@ function RaffleDashboard() {
                                         <div className='summary-container-header'>
                                             <h4>Winners</h4>
                                         </div>
-                                        <table className='summary-winner-tbl'>
-                                            <thead>
-                                            <tr>
-                                                <th>Actions</th>
-                                                <th>Name</th>
-                                                <th>Company</th>
-                                                <th>Prize</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                                {winners
-                                                    .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
-                                                    .map((winner, index) => (
-                                                        <tr key={index}>
-                                                            <td>
-                                                                <button 
-                                                                style={{ padding:".25rem"}}
-                                                                onClick={() => {
-                                                                        waivePrize(winner); // This will still waive the prize
-                                                                        // Send a message to the rafflePage to trigger hover effect
-                                                                        const dashboardWindow = window.opener || window.parent;
-                                                                        if (dashboardWindow) {
-                                                                            dashboardWindow.postMessage({
-                                                                                type: 'TRIGGER_HOVER_EFFECT',
-                                                                                winnerName: winner.DRWNAME // Assuming DRWID is a unique identifier for the winner
-                                                                            }, '*');
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    Waive Prize
-                                                                </button>
-                                                            </td>
-                                                            <td style={{ padding:".25rem .5rem"}}>{winner.DRWNAME.split('(')[0].trim()}</td> 
-                                                            <td style={{ padding:".25rem .5rem", maxWidth: "150px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "start" }}>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                                            <td style={{ padding:".25rem .5rem"}}>{winner.DRWPRICE}</td>
-                                                            
-                                                        </tr>
-                                                    ))}
-                                            </tbody>
+                                        <div className='scrollable-table'>
+                                            <table className='summary-winner-tbl'>
+                                                <thead>
+                                                <tr>
+                                                    <th>Actions</th>
+                                                    <th>Name</th>
+                                                    <th>Company</th>
+                                                    <th>Prize</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {winners
+                                                        .filter(winner => winner.DRWNUM !== 0) // Filter out winners with DRWNUM = 0
+                                                        .map((winner, index) => (
+                                                            <tr key={index}>
+                                                                <td style={{ width:"100px"}}>
+                                                                    <button 
+                                                                    style={{ padding:".25rem .75rem .25rem .75rem", height:"36px", border:'0px', backgroundColor:'#B0C5DB', fontSize:'16px'}}
+                                                                    onClick={() => {
+                                                                            waivePrize(winner); // This will still waive the prize
+                                                                            // Send a message to the rafflePage to trigger hover effect
+                                                                            const dashboardWindow = window.opener || window.parent;
+                                                                            if (dashboardWindow) {
+                                                                                dashboardWindow.postMessage({
+                                                                                    type: 'TRIGGER_HOVER_EFFECT',
+                                                                                    winnerName: winner.DRWNAME // Assuming DRWID is a unique identifier for the winner
+                                                                                }, '*');
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Waive
+                                                                    </button>
+                                                                </td>
+                                                                <td style={{ padding:".25rem .5rem"}}>{winner.DRWNAME.split('(')[0].trim()}</td> 
+                                                                <td style={{ padding:".25rem .5rem", maxWidth: "150px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "start" }}>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                                                <td style={{ padding:".25rem .5rem"}}>{winner.DRWPRICE}</td>
+                                                                
+                                                            </tr>
+                                                        ))}
+                                                </tbody>
 
-                                        </table>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div> 
@@ -1066,24 +1068,27 @@ function RaffleDashboard() {
                                         <div className='summary-container-header'>
                                             <h4>Waived Prizes</h4>
                                         </div>
-                                        <table className='summary-waived-winner-tbl'>
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Company</th>
-                                                    <th>Prize</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {waivedWinners.map((winner, index) => (
-                                                    <tr key={index}>
-                                                        <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
-                                                        <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
-                                                        <td>{winner.DRWPRICE}</td>
+                                        <div className='scrollable-table'>
+                                            <table className='summary-waived-winner-tbl'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Company</th>
+                                                        <th>Prize</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {winners.filter(winner => winner.DRWNUM == 0)
+                                                        .map((winner, index) => (
+                                                        <tr key={index}>
+                                                            <td>{winner.DRWNAME.split('(')[0].trim()}</td> 
+                                                            <td>{winner.DRWNAME.split('(')[1].split(')')[0]}</td>
+                                                            <td>{winner.DRWPRICE}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div> 

@@ -19,11 +19,11 @@
   .ctrl-grid-body {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: .75rem;
     height: 100%;
   }
   .summary-grid-item,  .winner-grid-item,  .tbl-grid-item  {
-    padding: 1rem;
+    padding: .75rem;
     background: #f0f0f0; /* Light background for items */
     display: flex;
     align-items: center;
@@ -33,11 +33,35 @@
     border-radius: 1rem;
     height: fit-content;
   }
+  .summary-winner-tbl {
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    max-height: 750px;
+    padding: .5rem;
+    width: 100%;
+  }
   .summary-winner-tbl td{
-    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Adjust max width as needed */
+    padding: .25rem .5rem .25rem .5rem;
+  }
+  .summary-waived-winner-tbl {
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    max-height: 750px;
+    padding: .5rem;
+    width: 100%;
   }
   .summary-waived-winner-tbl td{
-    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Adjust max width as needed */
+    padding: .25rem .5rem .25rem .5rem;
   }
   .raffle-participants-tbl td {
     text-align: start;
@@ -115,10 +139,10 @@
     justify-content: start;
     align-items: center;
     height: auto;
-    padding: 1rem;
+    padding: .75rem;
     background-color: #2E5A88;
     border-radius: 1rem;
-    gap: 1rem;
+    gap: .5rem;
     height: fit-content;
   }
   .tbl-container {
@@ -126,12 +150,16 @@
     flex-direction: column;
     height: 100%;
   }
-  
+  .prize-tbl {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    padding: .5rem;
+  }
 .prize-tbl td, th{
   width: 100%;
   height: 28px;
   border-collapse: collapse;
-  font-weight: 700;
   text-align: start;
   padding: .25rem .5rem .25rem .5rem;
 }
@@ -204,6 +232,10 @@
 .delete-btn:hover {
   color: darkred;
 }
-  
+
+.scrollable-table {
+  overflow: auto;
+  overflow-y: scroll;
+}
   
   
