@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { WAIVE_PRIZE_EVENT } from '../../constants/events.js';
 import '../css/RafflePage.css';

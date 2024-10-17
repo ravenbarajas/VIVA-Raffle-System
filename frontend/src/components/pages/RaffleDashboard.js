@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { WAIVE_PRIZE_EVENT } from '../../constants/events';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -1146,18 +1147,18 @@ function RaffleDashboard() {
 
          {/* Tabs at the top */}
          <div className="tab-bar">
-                <button onClick={() => setActiveTab('ctrlGrid')} className={activeTab === 'ctrlGrid' ? 'active' : ''}>
-                    Control Panel
-                </button>
-                <button onClick={() => setActiveTab('tblGrid')} className={activeTab === 'tblGrid' ? 'active' : ''}>
-                    Table View
-                </button>
-            </div>
+            <button onClick={() => setActiveTab('ctrlGrid')} className={activeTab === 'ctrlGrid' ? 'active' : ''}>
+                Control Panel
+            </button>
+            <button onClick={() => setActiveTab('tblGrid')} className={activeTab === 'tblGrid' ? 'active' : ''}>
+                Table View
+            </button>
+        </div>
 
-            {/* Content area based on active tab */}
-            <div className="content-area">
-                {renderActivePage()}
-            </div>
+        {/* Content area based on active tab */}
+        <div className="content-area">
+            {renderActivePage()}
+        </div>
             
         {isEndDrawModalOpen && (
                 <EndDrawModal
