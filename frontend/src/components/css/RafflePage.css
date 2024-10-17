@@ -362,17 +362,16 @@
   font-size: 18px;
 }
 
-table {
-  width: 100%;
+.enddraw-list {
+   width: 100%;
   border-collapse: collapse;
 }
 
-thead th {
+.enddraw-list th {
   font-size: 20px;
   padding-bottom: 10px;
 }
-
-tbody tr {
+.enddraw-list tr {
   height: 40px; /* Row height */
 }
 

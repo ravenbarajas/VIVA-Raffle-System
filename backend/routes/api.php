@@ -35,7 +35,6 @@ Route::get('prizes/draw', [PrizesController::class, 'getPrizesForDraw']);
 Route::post('/prizes', [PrizeController::class, 'store']);
 Route::delete('/prizes/{id}', [PrizeController::class, 'destroy']);
 
-
 // Winners
 Route::get('/winners', [WinnerController::class, 'index']);
 Route::post('/winners', [WinnerController::class, 'store']);

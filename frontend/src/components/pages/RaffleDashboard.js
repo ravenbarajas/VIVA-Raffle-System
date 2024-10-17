@@ -6,7 +6,7 @@ import axios from 'axios';
 import EndDrawModal from '../modals/EndDrawModal.js'; // Import the modal
 import WaivePrizeModal from '../modals/WaivePrizeModal.js';
 import '../css/RaffleDashboard.css';
-import { FaGripLines, FaInfoCircle  } from 'react-icons/fa'; // Import a hamburger icon from react-icons (or use any other icon library)
+import { FaGripLines, FaInfoCircle, FaTrash   } from 'react-icons/fa'; // Import a hamburger icon from react-icons (or use any other icon library)
 
 // Table Pages //
 function Participants() {
@@ -255,19 +255,18 @@ function PrizeForm({ fetchPrizes }) {
     return (
         <div>
             <div className='prize-dropdown'>
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px" }}>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", marginBottom:"8px", gap:'.5rem'  }}>
                     <p
-                    style={{ width:"50%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
-                    >
-                        Prize:  
+                        style={{ width:"150px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
+                        <h4>Prize</h4>
                     </p>
                     <p
-                    style={{ width:"25%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
-                    >Quantity:   
+                        style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
+                        <h4>QTY</h4>  
                     </p>
                     <p
-                    style={{ width:"25%", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}
-                    >Order:   
+                        style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'start', alignItems: 'center', padding: "0px", margin:"0px", fontWeight:"700"}}>
+                        <h4>Order</h4>
                     </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', width:"100%", gap:'.5rem' }}>
@@ -276,28 +275,28 @@ function PrizeForm({ fetchPrizes }) {
                         placeholder="Prize Name"
                         value={prizeName}
                         onChange={(e) => setPrizeName(e.target.value)}
-                        style={{ width:"50%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"150px" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Prize Quantity"
                         value={prizeQty}
                         onChange={(e) => setPrizeQty(parseInt(e.target.value, 10))}
-                        style={{ width:"25%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                     <input
                         type="number"
                         placeholder="Order"
                         value={prizeOrder}
                         onChange={(e) => setPrizeOrder(parseInt(e.target.value, 10))}
-                        style={{ width:"25%" , height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
+                        style={{ width:"75px", height: "24px", display: "flex", justifyContent: 'end', alignItems: 'center', padding: "2px"}}
                     />
                 </div>
             </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                     <button 
                         onClick={handleSavePrize}
-                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem", fontSize:"16px", fontWeight:"700"}}
+                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', margin:".5rem 0rem 0rem 0rem", fontSize:"16px", fontWeight:"700", border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
                         >
                         Add prize
                     </button>
@@ -902,16 +901,16 @@ function RaffleDashboard() {
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={openRafflePage}
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
-                                                        Open Raffle
+                                                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
+                                                        Open
                                                     </button>
                                                 </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={startDraw}
                                                         disabled={isStartDrawDisabled}
-                                                        style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}>
-                                                        Start Draw
+                                                        style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}>
+                                                        Start
                                                     </button>
                                                 </div>
                                                 
@@ -920,12 +919,12 @@ function RaffleDashboard() {
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width:"100%" }}>
                                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                         <label htmlFor="duration-select"
-                                                            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: "24px" }}>Set Flip Duration:&nbsp;</label>
+                                                            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '150px', height: "24px" }}>Set Flip Duration:&nbsp;</label>
                                                         <select
                                                             id="duration-select"
                                                             value={flipDuration}
                                                             onChange={handleDurationChange} // Update the flip duration
-                                                            style={{ width: '150px', height: "24px", display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                                                            style={{ width: '150px', height: "36px", display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
                                                             >
                                                             <option value={2000}>2 seconds</option>
                                                             <option value={3000}>3 seconds</option>
@@ -939,16 +938,16 @@ function RaffleDashboard() {
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button 
                                                         onClick={() => drawPrize(winnerCount)} 
-                                                        style={{ width: '150px', height: "64px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "72px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'24px'}}
                                                         disabled={!prizes.some(prize => prize.RFLITEMQTY > 0)}>
-                                                        Draw Winners
+                                                        Draw
                                                     </button>
                                                 </div>
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button
-                                                        style={{ width: '150px', height: "64px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                        style={{ width: '150px', height: "72px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'24px'}}
                                                         onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
-                                                        &nbsp;Flip All
+                                                        &nbsp;Flip
                                                     </button>
                                                 </div>
                                             </div>
@@ -957,43 +956,49 @@ function RaffleDashboard() {
                                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                         <button 
                                                             onClick={openEndDrawModal}
-                                                            style={{ width: '150px', height: "32px", display: "flex", justifyContent: 'center', alignItems: 'center'}}
+                                                            style={{ width: '150px', height: "48px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
                                                             disabled={isEndDrawDisabled}>
-                                                            End Draw
+                                                            End
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='ctrl-container-footer'>
-                                        
+                                </div>
+                                <div className='addprize-container'>
+                                    <div className='addprize-container-body'>
+                                        <PrizeForm fetchPrizes={fetchPrizes}/>
                                     </div>
                                 </div>
                                 <div className='prize-container'>
-                                    <div className='prize-container-header'>
-
-                                    </div>
                                     <div className='prize-container-body'>
-                                        <div style={{ border:"3px solid #000", padding:".5rem"}}> 
+                                        <div> 
                                             <table className="prize-tbl">
                                                 <thead>
                                                     <tr>
-                                                        <th>Prize</th>
-                                                        <th>QTY</th>
-                                                        <th>Order</th>
-                                                        <th>Action</th> {/* Column for Delete button */}
+                                                        <th><h4>Prize</h4></th>
+                                                        <th><h4>QTY</h4></th>
+                                                        <th><h4>Order</h4></th>
+                                                        <th><h4>Action</h4></th> {/* Column for Delete button */}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {prizes.map((prize, index) => (
                                                         <tr key={index}>
                                                             <td>{prize.RFLITEM}</td>
-                                                            <td>{prize.RFLITEMQTY}</td>
-                                                            <td>{prize.RFLNUM}</td>
-                                                            <td>
-                                                                <button onClick={() => handleDeletePrize(prize.RFLID, prize.RFLNUM)}>
-                                                                    Delete
+                                                            <td 
+                                                                style={{ textAlign:'center'}}>
+                                                                    {prize.RFLITEMQTY}</td>
+                                                            <td 
+                                                                style={{ textAlign:'center'}}>
+                                                                    {prize.RFLNUM}</td>
+                                                            <td 
+                                                                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}> 
+                                                                <button 
+                                                                    className="delete-btn" 
+                                                                    onClick={() => handleDeletePrize(prize.RFLID, prize.RFLNUM)}>
+                                                                    <FaTrash />
                                                                 </button>
                                                             </td>
                                                         </tr>
@@ -1002,18 +1007,14 @@ function RaffleDashboard() {
                                             </table>
                                         </div>
                                     </div>
-                                    <div className='prize-container-footer'>
-                                        
-                                    </div>
                                 </div>
                             </div>
 
                             <div className="summary-grid-item">
                                 <div className='summary-container'>
-                                    
                                     <div className='summary-container-body'>
                                         <div className='summary-container-header'>
-                                            <h3>Winners</h3>
+                                            <h4>Winners</h4>
                                         </div>
                                         <table className='summary-winner-tbl'>
                                             <thead>
@@ -1057,10 +1058,13 @@ function RaffleDashboard() {
 
                                         </table>
                                     </div>
-                                    
+                                </div>
+                            </div> 
+                            <div className="summary-grid-item">
+                                <div className='summary-container'>
                                     <div className='summary-container-body'>
                                         <div className='summary-container-header'>
-                                            <h3>Waived Prizes</h3>
+                                            <h4>Waived Prizes</h4>
                                         </div>
                                         <table className='summary-waived-winner-tbl'>
                                             <thead>
@@ -1081,9 +1085,9 @@ function RaffleDashboard() {
                                             </tbody>
                                         </table>
                                     </div>
-
                                 </div>
-                            </div>      
+                            </div> 
+
                         </div>         
                      </div>
                 );

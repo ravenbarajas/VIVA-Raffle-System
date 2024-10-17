@@ -422,7 +422,7 @@ function RafflePage() {
                                         Congratulations!
                                     </h1>
                         
-                                    <table>
+                                    <table className='enddraw-list'>
                                         <tbody>
                                             {winners.map((winner, index) => {
                                                 const winnerName = winner.DRWNAME.split('(')[0].trim();
