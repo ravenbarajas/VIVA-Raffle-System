@@ -55,26 +55,28 @@ function Participants() {
             <h2>Raffle Participants</h2>
             <input type="file" onChange={handleFileUpload} />
             <p>{uploadStatus}</p>
-            <table className='raffle-participants-tbl'>
-                <thead>
-                    <tr>
-                        <th>EMPID</th>
-                        <th>EMPNAME</th>
-                        <th>EMPCOMP</th>
-                        <th>EMPCOMPID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {participants.map((participant) => (
-                        <tr key={participant.EMPID}>
-                            <td>{participant.EMPID}</td>
-                            <td>{participant.EMPNAME}</td>
-                            <td>{participant.EMPCOMP}</td>
-                            <td>{participant.EMPCOMPID}</td>
+            <div className='scrollable-table'>
+                <table className='raffle-participants-tbl'>
+                    <thead>
+                        <tr>
+                            <th>EMPID</th>
+                            <th>EMPNAME</th>
+                            <th>EMPCOMP</th>
+                            <th>EMPCOMPID</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {participants.map((participant) => (
+                            <tr key={participant.EMPID}>
+                                <td>{participant.EMPID}</td>
+                                <td>{participant.EMPNAME}</td>
+                                <td>{participant.EMPCOMP}</td>
+                                <td>{participant.EMPCOMPID}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -125,26 +127,28 @@ function Prizes() {
             <h2>Raffle Items</h2>
             <input type="file" onChange={handleFileUpload} />
             <p>{uploadStatus}</p>
-            <table className='raffle-items-tbl'>
-                <thead>
-                    <tr>
-                        <th>RFLID</th>
-                        <th>RFLNUM</th>
-                        <th>RFLITEM</th>
-                        <th>RFLITEMQTY</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {prizes.map((prize) => (
-                        <tr key={prize.RFLID}>
-                            <td>{prize.RFLID}</td>
-                            <td>{prize.RFLNUM}</td>
-                            <td>{prize.RFLITEM}</td>
-                            <td>{prize.RFLITEMQTY}</td>
+            <div className='scrollable-table'>
+                <table className='raffle-items-tbl'>
+                    <thead>
+                        <tr>
+                            <th>RFLID</th>
+                            <th>RFLNUM</th>
+                            <th>RFLITEM</th>
+                            <th>RFLITEMQTY</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {prizes.map((prize) => (
+                            <tr key={prize.RFLID}>
+                                <td>{prize.RFLID}</td>
+                                <td>{prize.RFLNUM}</td>
+                                <td>{prize.RFLITEM}</td>
+                                <td>{prize.RFLITEMQTY}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -169,26 +173,28 @@ function Winners() {
     return (
         <div>
             <h2>Raffle Winners</h2>
-            <table className='raffle-winners-tbl'>
-                <thead>
-                    <tr>
-                        <th>DRWID</th>
-                        <th>DRWNUM</th>
-                        <th>DRWNAME</th>
-                        <th>DRWPRICE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {winners.map((winner) => (
-                        <tr key={winner.DRWID}>
-                            <td>{winner.DRWID}</td>
-                            <td>{winner.DRWNUM}</td>
-                            <td>{winner.DRWNAME}</td>
-                            <td>{winner.DRWPRICE}</td>
+            <div className='scrollable-table'>
+                <table className='raffle-winners-tbl'>
+                    <thead>
+                        <tr>
+                            <th>DRWID</th>
+                            <th>DRWNUM</th>
+                            <th>DRWNAME</th>
+                            <th>DRWPRICE</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {winners.map((winner) => (
+                            <tr key={winner.DRWID}>
+                                <td>{winner.DRWID}</td>
+                                <td>{winner.DRWNUM}</td>
+                                <td>{winner.DRWNAME}</td>
+                                <td>{winner.DRWPRICE}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -891,7 +897,7 @@ function RaffleDashboard() {
         switch (activeTab) {
             case 'ctrlGrid':
                 return (
-                    <div className="ctrl-grid-item" style={{ backgroundColor:'#D3D3D3'}}>
+                    <div className="ctrl-grid-item">
                         <div className='ctrl-grid-body'>
                             <div className='raffle-ctrl-container'>
                                 <div className='ctrl-container'>
@@ -975,6 +981,9 @@ function RaffleDashboard() {
                                 </div>
                                 <div className='prize-container'>
                                     <div className='prize-container-body'>
+                                        <div style={{ textAlign:"center" }}>
+                                            <h4>Prizes</h4>
+                                        </div>
                                         <div className='scrollable-table'> 
                                             <table className="prize-tbl">
                                                 <thead>
@@ -1060,19 +1069,7 @@ function RaffleDashboard() {
                                         </div>
                                     </div>
                                 </div>
-                            </div> 
-
-                        </div>         
-                     </div>
-                );
-            case 'tblGrid':
-                return (
-                    <div className="tbl-grid-item">
-                        <div className="winner-grid-item">
                                 <div className='winner-container'>
-                                    <div className='winner-container-header'>
-
-                                    </div>
                                     <div className='winner-container-body'>
                                         <ul>
                                             {generatedName && (
@@ -1087,10 +1084,16 @@ function RaffleDashboard() {
                                         </ul>
                                     </div>
                                     <div className='winner-container-footer'>
-                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">{selectedPrize.RFLITEM}</p>}
+                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">Current Draw Prize: {selectedPrize.RFLITEM}</p>}
                                     </div>
                                 </div>
-                        </div>
+                            </div> 
+                        </div>         
+                     </div>
+                );
+            case 'tblGrid':
+                return (
+                    <div className="tbl-grid-item">
                         <div className='tbl-container'>
                             <div className='tbl-container-header'>
 
@@ -1107,7 +1110,9 @@ function RaffleDashboard() {
                                         Raffle Winners
                                     </button>
                                 </div>
-                                {renderContent()}
+                                
+                                    {renderContent()}
+
                             </div>
                             <div className='tbl-container-footer'>
                                 
