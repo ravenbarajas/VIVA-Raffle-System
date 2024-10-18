@@ -33,36 +33,6 @@
     border-radius: 1rem;
     height: fit-content;
   }
-  .summary-winner-tbl {
-    display: flex;
-    flex-direction: column;
-    min-height: 250px;
-    max-height: 750px;
-    padding: .5rem;
-    width: 100%;
-  }
-  .summary-winner-tbl td{
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px; /* Adjust max width as needed */
-    padding: .25rem .5rem .25rem .5rem;
-  }
-  .summary-waived-winner-tbl {
-    display: flex;
-    flex-direction: column;
-    min-height: 250px;
-    max-height: 750px;
-    padding: .5rem;
-    width: 100%;
-  }
-  .summary-waived-winner-tbl td{
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px; /* Adjust max width as needed */
-    padding: .25rem .5rem .25rem .5rem;
-  }
   .raffle-participants-tbl td {
     text-align: start;
     padding: .5rem 1rem .5rem 1rem;
@@ -156,8 +126,7 @@
     height: 400px;
     padding: .5rem;
   }
-.prize-tbl td, th{
-  width: 100%;
+.prize-tbl td{
   height: 28px;
   border-collapse: collapse;
   text-align: start;
@@ -170,6 +139,56 @@
   background-color: #f9f9f9; /* Light gray for odd rows */
 }
 .prize-tbl tr:nth-child(even) {
+  background-color: #B0C5DB; /* Light blue for even rows */
+}
+.summary-winner-tbl {
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  max-height: 750px;
+  padding: .5rem;
+}
+.summary-winner-tbl td{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: .25rem .5rem .25rem .5rem;
+  text-align: start;
+}
+.summary-winner-tbl th {
+  text-align: start;
+}
+.summary-winner-tbl tr:hover {
+  background-color: #e5e5e5 !important; /* Light red background */
+}
+.summary-winner-tbl tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Light gray for odd rows */
+}
+.summary-winner-tbl tr:nth-child(even) {
+  background-color: #B0C5DB; /* Light blue for even rows */
+}
+.summary-waived-winner-tbl {
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  max-height: 750px;
+  padding: .5rem;
+  width: 100%;
+}
+.summary-waived-winner-tbl td{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Adjust max width as needed */
+  padding: .25rem .5rem .25rem .5rem;
+}
+.summary-waived-winner-tbl tr:hover {
+  background-color: #e5e5e5 !important; /* Light red background */
+}
+.summary-waived-winner-tbl tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Light gray for odd rows */
+}
+.summary-waived-winner-tbl tr:nth-child(even) {
   background-color: #B0C5DB; /* Light blue for even rows */
 }
 .winner-container-body ul {
@@ -217,7 +236,31 @@
   display: flex;
   flex-direction: row;
   height: 64px;
+  justify-content: center;
 }
+/* Base button style */
+.tab-button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  transition: background-color 0.3s ease;
+  min-width: 160px;
+  max-width: 200px;
+}
+/* Button hover effect */
+.tab-button:hover {
+  background-color: #e0e0e0;
+}
+/* Active button style */
+.tab-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
 .delete-btn {
   background-color: transparent;
   border: none;
@@ -226,10 +269,23 @@
   align-items: center;
   justify-content: center;
   transition: color 0.3s ease;
-  padding: .25rem .5rem .25rem .5rem;
 }
 
 .delete-btn:hover {
+  color: darkred;
+}
+
+.waive-btn {
+  background-color: transparent;
+  border: none;
+  color: red;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.waive-btn:hover {
   color: darkred;
 }
 
