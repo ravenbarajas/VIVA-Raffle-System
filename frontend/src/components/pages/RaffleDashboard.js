@@ -332,7 +332,7 @@ function RaffleDashboard() {
     const [isPrizeRevealed, setIsPrizeRevealed] = useState(false);
 
     // State for flip duration
-    const [flipDuration, setFlipDuration] = useState(3000); // Default 3 seconds
+    const [flipDuration, setFlipDuration] = useState(5000); // Default 3 seconds
 
     // Function to handle duration change from dropdown
     const handleDurationChange = (event) => {
@@ -1019,6 +1019,24 @@ function RaffleDashboard() {
                             </div>
 
                             <div className="summary-grid-item">
+                                <div className='winner-container'>
+                                    <div className='winner-container-body'>
+                                        <ul>
+                                            {generatedName && (
+                                                Array.isArray(generatedName) ? 
+                                                generatedName.map((name, index) => (
+                                                    <li key={index}>{name}</li> // Display each name as a separate list item
+                                                )) : (
+                                                    <li>{generatedName}</li> // Display a single name if it's not an array
+                                                )
+                                            )}
+                                            
+                                        </ul>
+                                    </div>
+                                    <div className='winner-container-footer'>
+                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">Current Draw Prize: {selectedPrize.RFLITEM}</p>}
+                                    </div>
+                                </div>
                                 <div className='summary-container'>
                                     <div className='summary-container-body'>
                                         <div className='summary-container-header'>
@@ -1067,24 +1085,6 @@ function RaffleDashboard() {
 
                                             </table>
                                         </div>
-                                    </div>
-                                </div>
-                                <div className='winner-container'>
-                                    <div className='winner-container-body'>
-                                        <ul>
-                                            {generatedName && (
-                                                Array.isArray(generatedName) ? 
-                                                generatedName.map((name, index) => (
-                                                    <li key={index}>{name}</li> // Display each name as a separate list item
-                                                )) : (
-                                                    <li>{generatedName}</li> // Display a single name if it's not an array
-                                                )
-                                            )}
-                                            
-                                        </ul>
-                                    </div>
-                                    <div className='winner-container-footer'>
-                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">Current Draw Prize: {selectedPrize.RFLITEM}</p>}
                                     </div>
                                 </div>
                             </div> 

@@ -408,30 +408,38 @@
   height: auto;     /* Maintain the aspect ratio based on width */
   max-height: 100%; /* Ensure the logo doesn’t exceed the container height */
   object-fit: contain; /* Ensure the image scales down if necessary without being distorted */
-  transition: transform 1s ease-in-out; /* Smooth transition for any transformations */
+  transition: transform .5s ease-in-out; /* Smooth transition for any transformations */
 }
 
 .company-logo {
-  max-width: 150px;
-  max-height: 150px;
+  max-width: 130px;
+  max-height: 130px;
 }
 
 .company-logo.rolling {
-  animation: slot-machine-roll .25s infinite;  /* Simple rolling animation */
+  animation: continuous-roll .35s ease-in-out;  /* Single animation for entire duration */
 }
 
-@keyframes slot-machine-roll {
+@keyframes continuous-roll {
+  /* First third: Slower initial speed (0-33%) */
   0% { transform: translateY(0); }
-  10% { transform: translateY(-10%); }
-  20% { transform: translateY(-20%); }
-  30% { transform: translateY(-30%); }
-  40% { transform: translateY(-40%); }
-  50% { transform: translateY(-50%); }
-  60% { transform: translateY(-60%); }
-  70% { transform: translateY(-70%); }
-  80% { transform: translateY(-80%); }
-  90% { transform: translateY(-90%); }
-  100% { transform: translateY(-100%); }
+  8% { transform: translateY(-50%); }
+  16% { transform: translateY(-100%); }
+  24% { transform: translateY(-150%); }
+  33% { transform: translateY(-200%); }
+  
+  /* Middle third: Maintain steady pace (33-66%) */
+  41% { transform: translateY(-250%); }
+  49% { transform: translateY(-300%); }
+  58% { transform: translateY(-350%); }
+  66% { transform: translateY(-400%); }
+  
+  /* Final third: Gradual slow-down (66-100%) */
+  75% { transform: translateY(-450%); }
+  83% { transform: translateY(-480%); }
+  90% { transform: translateY(-500%); }
+  95% { transform: translateY(-520%); }
+  100% { transform: translateY(-550%); }
 }
 
 .winner-card {

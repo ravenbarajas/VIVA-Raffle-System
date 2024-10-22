@@ -36,32 +36,49 @@ function RafflePage() {
 
   const [isRedraw, setIsRedraw] = useState(false);
   
-  const [flipDuration, setFlipDuration] = useState(3000);  // Duration for the rolling animation (modifiable later)
+  const [flipDuration, setFlipDuration] = useState(5000);  // Duration for the rolling animation (modifiable later)
 
    // Function to handle animation and reveal logos
    const triggerLogoFlip = () => {
     setIsRolling(true);
     setRevealedLogos(Array(generatedName.length).fill(false));
+
+    // Cycle through random logos before stopping on the winner's logo
+    const cycleLogosInterval = setInterval(() => {
+        setLogoSrcs(prevLogos => {
+            return prevLogos.map(() => {
+                const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
+                return randomLogo;
+            });
+        });
+    }, 300); // Adjust speed of logo cycling
     
     setTimeout(() => {
-      generatedName.forEach((name, index) => {
-        setTimeout(() => {
-          setLogoSrcs(prevLogos => {
-            const newLogos = [...prevLogos];
-            const companyName = name.split('(')[1]?.replace(')', '').trim();
-            newLogos[index] = getLogoForCompany(companyName);
-            return newLogos;
-          });
-          setRevealedLogos(prev => {
-            setIsRolling(false);
-            const newRevealed = [...prev];
-            newRevealed[index] = true;
-            return newRevealed;
-          });
-        }, index * 500);
-      });
-    }, flipDuration);
-  };
+        clearInterval(cycleLogosInterval); // Stop cycling the logos
+        
+        generatedName.forEach((name, index) => {
+            setTimeout(() => {
+                const companyName = name.split('(')[1]?.replace(')', '').trim();
+
+                // Set the winner's logo
+                setLogoSrcs(prevLogos => {
+                    const newLogos = [...prevLogos];
+                    const winnerLogo = getLogoForCompany(companyName); // Ensure this fetches the correct logo
+                    newLogos[index] = winnerLogo ? winnerLogo : mainlogo; // Use winner logo or fallback to mainlogo if undefined
+                    return newLogos;
+                });
+
+                // Mark as revealed
+                setRevealedLogos(prev => {
+                    const newRevealed = [...prev];
+                    newRevealed[index] = true;
+                    return newRevealed;
+                });
+                setIsRolling(false);
+            }, index * 500);
+            });
+        }, flipDuration);
+    };
   
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [triggerPull, setTriggerPull] = useState(false);
@@ -370,7 +387,7 @@ function RafflePage() {
                                                 const companyName = name.split('(')[1]?.replace(')', '').trim();
                                                 const winnerName = name.split('(')[0].trim();
                                                 // Get the logo for the company or show mainlogo
-                                                const logoSrc = isRolling || !revealedLogos[index] ? mainlogo : logoSrcs[index];
+                                                const logoSrc = isRolling || !revealedLogos[index] ? logoSrcs[index] : logoSrcs[index];
 
                                                 return (
                                                     <div 
@@ -392,9 +409,6 @@ function RafflePage() {
                                                                 <div className='card-back-container'>
                                                                     <p className="winner-name">
                                                                         {winnerName}
-                                                                    </p>
-                                                                    <p className="winner-company">
-                                                                        {companyName}
                                                                     </p>
                                                                 </div>
 
