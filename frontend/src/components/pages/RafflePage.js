@@ -398,11 +398,13 @@ function RafflePage() {
                                                         <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
                                                             <div className="card-face card-front">
                                                                 <div className='card-front-container'>
-                                                                    <img 
+                                                                <div className={`logo-container ${isRolling ? 'rolling' : ''}`}>
+                                                                        <img 
                                                                         src={logoSrc} 
                                                                         alt={`logo-${index}`} 
-                                                                        className={`company-logo ${isRolling ? 'rolling' : ''}`}
-                                                                    />
+                                                                        className={`company-logo`} 
+                                                                        />
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div className="card-face card-back">
