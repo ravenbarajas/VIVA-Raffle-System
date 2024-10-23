@@ -51,10 +51,10 @@ function RafflePage() {
                 return randomLogo;
             });
         });
-    }, 300); // Adjust speed of logo cycling
+    }, 300);
     
-    setTimeout(() => {
-        clearInterval(cycleLogosInterval); // Stop cycling the logos
+    setTimeout(() => { 
+        clearInterval(cycleLogosInterval);
         
         generatedName.forEach((name, index) => {
             setTimeout(() => {
@@ -63,22 +63,21 @@ function RafflePage() {
                 // Set the winner's logo
                 setLogoSrcs(prevLogos => {
                     const newLogos = [...prevLogos];
-                    const winnerLogo = getLogoForCompany(companyName); // Ensure this fetches the correct logo
-                    newLogos[index] = winnerLogo ? winnerLogo : mainlogo; // Use winner logo or fallback to mainlogo if undefined
+                    const winnerLogo = getLogoForCompany(companyName);
+                    newLogos[index] = winnerLogo ? winnerLogo : mainlogo;
                     return newLogos;
                 });
 
-                // Mark as revealed
+                // Mark as revealed and stop rolling for this logo
                 setRevealedLogos(prev => {
                     const newRevealed = [...prev];
                     newRevealed[index] = true;
                     return newRevealed;
                 });
-                setIsRolling(false);
             }, index * 500);
-            });
-        }, flipDuration);
-    };
+        });
+    }, flipDuration);
+};
   
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [triggerPull, setTriggerPull] = useState(false);
@@ -398,11 +397,11 @@ function RafflePage() {
                                                         <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
                                                             <div className="card-face card-front">
                                                                 <div className='card-front-container'>
-                                                                <div className={`logo-container ${isRolling ? 'rolling' : ''}`}>
+                                                                    <div className={`logo-container ${!revealedLogos[index] ? 'rolling' : ''}`}>
                                                                         <img 
-                                                                        src={logoSrc} 
-                                                                        alt={`logo-${index}`} 
-                                                                        className={`company-logo`} 
+                                                                            src={logoSrc} 
+                                                                            alt={`logo-${index}`} 
+                                                                            className="company-logo"
                                                                         />
                                                                     </div>
                                                                 </div>

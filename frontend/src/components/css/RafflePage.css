@@ -409,22 +409,22 @@
   max-height: 100%; /* Ensure the logo doesn’t exceed the container height */
   object-fit: contain; /* Ensure the image scales down if necessary without being distorted */
 }
-
 .company-logo {
   max-width: 130px;
   max-height: 130px;
 }
-
 .logo-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  animation: spin .4s ease-in-out infinite; /* Spin effect */
   overflow: hidden;
   position: absolute;
   width: 100%;
   height: 100%;
+}
+.logo-container.rolling {
+  animation: spin .4s ease-in-out infinite; /* Move animation to rolling class */
 }
 
 @keyframes spin {
