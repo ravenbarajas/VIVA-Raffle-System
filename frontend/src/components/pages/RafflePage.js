@@ -83,6 +83,7 @@ function RafflePage() {
   const [triggerPull, setTriggerPull] = useState(false);
   const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
   const [showResult, setShowResult] = useState(false); // New state for controlling the message display
+  const [showNextDrawPage, setShowNextDrawPage] = useState(false); // State to control visibility
 
   const logos = [
     { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE ENTERTAINMENT, INC.' }, 
@@ -165,6 +166,8 @@ function RafflePage() {
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } // Add the winner to winners table and winner cards
       else if (event.data.type === 'WINNER_ADDED') {
+        setShowNextDrawPage(false);
+
         const { winner, isRedraw, waivedWinnerName, prize, flipDuration: receivedDuration } = event.data;
 
         // Set the redraw state
@@ -300,6 +303,10 @@ function RafflePage() {
                 return newState;
             });
       } 
+      else if (event.data.type === 'SHOW_NEXT_DRAW_PAGE') 
+      {
+        setShowNextDrawPage(true);  // Show the temporary page
+      }   
     };
 
     window.addEventListener('message', handleMessage);
@@ -338,18 +345,18 @@ function RafflePage() {
   const [flippedCards, setFlippedCards] = useState(new Array(generatedName.length).fill(false));
 
    // Reset flipped cards when a new draw starts
-   useEffect(() => {
-    if (Array.isArray(generatedName) && generatedName.length > 0 && !isRedraw) {
-        setFlippedCards(new Array(generatedName.length).fill(false));
-        setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
-        setFlippedLogos(new Array(generatedName.length).fill(false));
-        
-    // Trigger the logo flip animation after a short delay
-    setTimeout(() => {
-        triggerLogoFlip();
-      }, 100); // Short delay to ensure state has updated
-    }
-}, [generatedName, isRedraw]);
+    useEffect(() => {
+        if (Array.isArray(generatedName) && generatedName.length > 0 && !isRedraw) {
+            setFlippedCards(new Array(generatedName.length).fill(false));
+            setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
+            setFlippedLogos(new Array(generatedName.length).fill(false));
+            
+        // Trigger the logo flip animation after a short delay
+        setTimeout(() => {
+            triggerLogoFlip();
+        }, 100); // Short delay to ensure state has updated
+        }
+    }, [generatedName, isRedraw]);
 
   const handleNewWinner = (winner) => {
       setNewWinner(winner);
@@ -367,96 +374,104 @@ function RafflePage() {
   return (
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
-            {welcomeMessage ? (
-                <p className='raffleMsg'>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
+            {showNextDrawPage ? (
+                <div className="next-draw-page">
+                    <p>The next draw will begin soon! Please stay tuned.</p>
+                </div>
             ) : (
                 <>
-                    {!showWinners && (
+                    {welcomeMessage ? (
+                        <p className='raffleMsg'>Welcome to the Raffle Page! Please press "Start Draw" to begin.</p>
+                    ) : (
                         <>
-                            {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
-                                <div className="winners-overlay">
-                                    <div className='winners-body'>
-                                        <div className="congrats-banner">
-                                            <h2>🎉 Congratulations to Our Winners! 🎉</h2>
-                                            {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}
-                                            </p>}
-                                        </div>
-                                        <div className="overlay-cards" >
-                                            {generatedName.map((name, index) => {
-                                                const companyName = name.split('(')[1]?.replace(')', '').trim();
-                                                const winnerName = name.split('(')[0].trim();
-                                                // Get the logo for the company or show mainlogo
-                                                const logoSrc = isRolling || !revealedLogos[index] ? logoSrcs[index] : logoSrcs[index];
+                            {!showWinners && (
+                                <>
+                                    {showResult && Array.isArray(generatedName) && generatedName.length > 0 && (
+                                        <div className="winners-overlay">
+                                            <div className='winners-body'>
+                                                <div className="congrats-banner">
+                                                    <h2>🎉 Congratulations to Our Winners! 🎉</h2>
+                                                    {selectedPrize && <p className="prize-won">You won {selectedPrize.RFLITEM}
+                                                    </p>}
+                                                </div>
+                                                <div className="overlay-cards" >
+                                                    {generatedName.map((name, index) => {
+                                                        const companyName = name.split('(')[1]?.replace(')', '').trim();
+                                                        const winnerName = name.split('(')[0].trim();
+                                                        // Get the logo for the company or show mainlogo
+                                                        const logoSrc = isRolling || !revealedLogos[index] ? logoSrcs[index] : logoSrcs[index];
 
-                                                return (
-                                                    <div 
-                                                        key={index} 
-                                                        className="winner-card"
-                                                        onClick={() => handleCardClick(index)}
-                                                    >
-                                                        <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                            <div className="card-face card-front">
-                                                                <div className='card-front-container'>
-                                                                    <div className={`logo-container ${!revealedLogos[index] ? 'rolling' : ''}`}>
-                                                                        <img 
-                                                                            src={logoSrc} 
-                                                                            alt={`logo-${index}`} 
-                                                                            className="company-logo"
-                                                                        />
+                                                        return (
+                                                            <div 
+                                                                key={index} 
+                                                                className="winner-card"
+                                                                onClick={() => handleCardClick(index)}
+                                                            >
+                                                                <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
+                                                                    <div className="card-face card-front">
+                                                                        <div className='card-front-container'>
+                                                                            <div className={`logo-container ${!revealedLogos[index] ? 'rolling' : ''}`}>
+                                                                                <img 
+                                                                                    src={logoSrc} 
+                                                                                    alt={`logo-${index}`} 
+                                                                                    className="company-logo"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="card-face card-back">
+                                                                        <div className='card-back-container'>
+                                                                            <p className="winner-name">
+                                                                                {winnerName}
+                                                                            </p>
+                                                                        </div>
+
+                                                                            {/* Add a transparent overlay */}
+                                                                        <div className="waive-prize-overlay" 
+                                                                        >
+                                                                            <p>Waive Prize</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="card-face card-back">
-                                                                <div className='card-back-container'>
-                                                                    <p className="winner-name">
-                                                                        {winnerName}
-                                                                    </p>
-                                                                </div>
-
-                                                                    {/* Add a transparent overlay */}
-                                                                <div className="waive-prize-overlay" 
-                                                                >
-                                                                    <p>Waive Prize</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            {showWinners && winners.length > 0 && (
+                                <div style={{ display: "flex", justifyContent: 'center', alignItems: 'center', flexDirection: "column", color: "white", height: "100vh" }}>
+                                    <div className="winners-summary">
+                                        <div className="winner-credits">
+                                            <h1 style={{ display: "flex", width: "100%", textAlign: "center", justifyContent: "center", alignItems: "center", marginBottom: "2rem" }}>
+                                                Congratulations!
+                                            </h1>
+                                
+                                            <table className='enddraw-list'>
+                                                <tbody>
+                                                    {winners.map((winner, index) => {
+                                                        const winnerName = winner.DRWNAME.split('(')[0].trim();
+                                                        const companyName = winner.DRWNAME.split('(')[1]?.replace(')', '').trim();
+                                
+                                                        return (
+                                                            <tr key={index} className="winner-row">
+                                                                <td className="winner-summary-name">{winnerName}</td>
+                                                                <td className="winner-summary-company">{companyName}</td>
+                                                                <td className="winner-summary-prize">{winner.DRWPRICE}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
+                            
                             )}
                         </>
-                    )}
-                    {showWinners && winners.length > 0 && (
-                        <div style={{ display: "flex", justifyContent: 'center', alignItems: 'center', flexDirection: "column", color: "white", height: "100vh" }}>
-                            <div className="winners-summary">
-                                <div className="winner-credits">
-                                    <h1 style={{ display: "flex", width: "100%", textAlign: "center", justifyContent: "center", alignItems: "center", marginBottom: "2rem" }}>
-                                        Congratulations!
-                                    </h1>
-                        
-                                    <table className='enddraw-list'>
-                                        <tbody>
-                                            {winners.map((winner, index) => {
-                                                const winnerName = winner.DRWNAME.split('(')[0].trim();
-                                                const companyName = winner.DRWNAME.split('(')[1]?.replace(')', '').trim();
-                        
-                                                return (
-                                                    <tr key={index} className="winner-row">
-                                                        <td className="winner-summary-name">{winnerName}</td>
-                                                        <td className="winner-summary-company">{companyName}</td>
-                                                        <td className="winner-summary-prize">{winner.DRWPRICE}</td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    
                     )}
                 </>
             )}

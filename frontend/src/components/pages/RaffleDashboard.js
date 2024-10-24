@@ -334,6 +334,11 @@ function RaffleDashboard() {
     // State for flip duration
     const [flipDuration, setFlipDuration] = useState(5000); // Default 3 seconds
 
+    // Function to handle showing the Next Draw Page
+    const triggerNextDrawPage = () => {
+        raffleTabRef.current.postMessage({ type: 'SHOW_NEXT_DRAW_PAGE' }, '*');
+    };
+    
     // Function to handle duration change from dropdown
     const handleDurationChange = (event) => {
         const newDuration = Number(event.target.value);
@@ -495,7 +500,7 @@ function RaffleDashboard() {
         return null; // Fallback in case no participant is selected
     };
 
-     // Function to draw winners
+    // Function to draw winners
     const drawPrize = async () => {
         // Clear previous winners and notify RafflePage
         raffleTabRef.current.postMessage({ type: 'RESET_WINNERS' }, '*');
@@ -952,9 +957,23 @@ function RaffleDashboard() {
                                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                                     <button
                                                         style={{ width: '150px', height: "72px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'24px'}}
-                                                        onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
-                                                        &nbsp;Flip
+                                                        disabled={isEndDrawDisabled}
+                                                        onClick={triggerNextDrawPage}
+                                                        >
+                                                        Next
                                                     </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className='button-wrapper'>
+                                                <div className='button-info-wrapper'>
+                                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <button 
+                                                            style={{ width: '308px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
+                                                            onClick={() => raffleTabRef.current.postMessage({ type: 'FLIP_ALL_CARDS' }, '*')}>
+                                                            Flip
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className='button-wrapper'>
