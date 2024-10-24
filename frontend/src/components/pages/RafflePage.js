@@ -84,6 +84,7 @@ function RafflePage() {
   const [generatedWinnerCompany, setGeneratedWinnerCompany] = useState('');
   const [showResult, setShowResult] = useState(false); // New state for controlling the message display
   const [showNextDrawPage, setShowNextDrawPage] = useState(false); // State to control visibility
+  const [isAnimating, setIsAnimating] = useState(false); // Track animation state
 
   const logos = [
     { src: logo1, company: 'VIVA ARTISTS AGENCY, INC.' }, { src: logo2, company: 'VIVA LIVE, INC.' }, { src: logo3, company: 'ULTIMATE ENTERTAINMENT, INC.' }, 
@@ -166,7 +167,12 @@ function RafflePage() {
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } // Add the winner to winners table and winner cards
       else if (event.data.type === 'WINNER_ADDED') {
-        setShowNextDrawPage(false);
+
+        setIsAnimating(true); // Start the exit animation for the next draw page
+        setTimeout(() => {
+          setShowNextDrawPage(false);  // Hide the page after the animation ends
+          setIsAnimating(false);  // Reset the animation state
+        }, 500); // Adjust to match your CSS animation duration
 
         const { winner, isRedraw, waivedWinnerName, prize, flipDuration: receivedDuration } = event.data;
 
@@ -375,8 +381,10 @@ function RafflePage() {
     <div className="rafflePage-container">
         <div className='rafflePage-body'>
             {showNextDrawPage ? (
-                <div className="next-draw-page">
-                    <p>The next draw will begin soon! Please stay tuned.</p>
+                <div className={`next-draw-transition ${isAnimating ? 'exit-active' : 'enter-active'}`}>
+                    <div className="next-draw-page">
+                        <p>The next draw will begin soon! Please stay tuned.</p>
+                    </div>
                 </div>
             ) : (
                 <>
@@ -469,7 +477,6 @@ function RafflePage() {
                                         </div>
                                     </div>
                                 </div>
-                            
                             )}
                         </>
                     )}

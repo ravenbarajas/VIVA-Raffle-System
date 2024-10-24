@@ -626,6 +626,23 @@
   align-items: center;
   overflow: hidden;
 }
+.next-draw-transition {
+  opacity: 0;
+  transform: scale(0.9); /* Slight shrink effect */
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.enter-active {
+  opacity: 1;
+  transform: scale(1); /* Bring it back to normal size */
+}
+
+.exit-active {
+  opacity: 0;
+  transform: scale(0.9); /* Shrink it when it fades out */
+}
+
+
 
 
 
