@@ -17,6 +17,8 @@ import logo10 from '../assets/logo/logo-10.png';
 import logo11 from '../assets/logo/logo-11.png';
 import logo12 from '../assets/logo/logo-12.png';
 
+import spinSound from '../assets/audio/beat.mp3';
+
 function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
   const [selectedPrize, setSelectedPrize] = useState(null);
@@ -43,6 +45,11 @@ function RafflePage() {
     setIsRolling(true);
     setRevealedLogos(Array(generatedName.length).fill(false));
 
+    // Load the spin sound and set it to loop
+    const sound = new Audio(spinSound);
+    sound.loop = true;
+    sound.play();
+
     // Cycle through random logos before stopping on the winner's logo
     const cycleLogosInterval = setInterval(() => {
         setLogoSrcs(prevLogos => {
@@ -55,6 +62,8 @@ function RafflePage() {
     
     setTimeout(() => { 
         clearInterval(cycleLogosInterval);
+        sound.pause();  // Stop the sound effect when animation ends
+        sound.currentTime = 0; // Reset sound position if replayed
         
         generatedName.forEach((name, index) => {
             setTimeout(() => {
