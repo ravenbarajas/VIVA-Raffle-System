@@ -18,7 +18,7 @@ import logo11 from '../assets/logo/logo-11.png';
 import logo12 from '../assets/logo/logo-12.png';
 
 import spinSound from '../assets/audio/spin.mp3';
-import heartbeatSound from '../assets/audio/beat.mp3';
+import heartbeatSound from '../assets/audio/heartbeat.mp3';
 
 function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
