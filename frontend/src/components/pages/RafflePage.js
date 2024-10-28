@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WAIVE_PRIZE_EVENT } from '../../constants/events.js';
 import '../css/RafflePage.css';
 import LogoSlotMachine from './LogoSlotMachine';
@@ -17,7 +17,8 @@ import logo10 from '../assets/logo/logo-10.png';
 import logo11 from '../assets/logo/logo-11.png';
 import logo12 from '../assets/logo/logo-12.png';
 
-import spinSound from '../assets/audio/beat.mp3';
+import spinSound from '../assets/audio/spin.mp3';
+import heartbeatSound from '../assets/audio/beat.mp3';
 
 function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
@@ -48,6 +49,7 @@ function RafflePage() {
     // Load the spin sound and set it to loop
     const sound = new Audio(spinSound);
     sound.loop = true;
+    sound.playbackRate = 2;
     sound.play();
 
     // Cycle through random logos before stopping on the winner's logo
@@ -86,7 +88,19 @@ function RafflePage() {
             }, index * 500);
         });
     }, flipDuration);
-};
+    };
+
+    const heartbeatAudio = useRef(new Audio(heartbeatSound));
+
+    const handleMouseEnter = () => {
+        heartbeatAudio.current.loop = true; // Loop the sound for continuous heartbeat
+        heartbeatAudio.current.play();
+    };
+
+    const handleMouseLeave = () => {
+        heartbeatAudio.current.pause();
+        heartbeatAudio.current.currentTime = 0; // Reset to start
+    };
   
   const [triggerSpin, setTriggerSpin] = useState(false);
   const [triggerPull, setTriggerPull] = useState(false);
@@ -425,7 +439,9 @@ function RafflePage() {
                                                                 onClick={() => handleCardClick(index)}
                                                             >
                                                                 <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
-                                                                    <div className="card-face card-front">
+                                                                    <div className="card-face card-front"
+                                                                        onMouseEnter={handleMouseEnter} 
+                                                                        onMouseLeave={handleMouseLeave}>
                                                                         <div className='card-front-container'>
                                                                             <div className={`logo-container ${!revealedLogos[index] ? 'rolling' : ''}`}>
                                                                                 <img 
