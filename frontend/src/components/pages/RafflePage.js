@@ -255,13 +255,13 @@ function RafflePage() {
             setFlipDuration(receivedDuration);
         }
 
-         // Skip the animation for redraws
-        if (!isRedraw) {
-            setTimeout(() => {
-                triggerLogoFlip(flipDuration);  // Pass the flipDuration only for normal draws
-            }, 100);  // Small delay to ensure state has updated
-        } else {
-            // Directly reveal logos without animation for redraws
+        // Trigger the logo flip animation regardless of redraws
+        setTimeout(() => {
+            triggerLogoFlip(flipDuration);  // Always trigger logo flip
+        }, 100);  // Small delay to ensure state has updated
+
+        // Directly reveal logos without animation for redraws
+        if (isRedraw && waivedWinnerName) {
             generatedName.forEach((name, index) => {
                 setLogoSrcs(prevLogos => {
                     const newLogos = [...prevLogos];

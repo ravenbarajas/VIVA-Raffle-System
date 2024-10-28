@@ -410,8 +410,8 @@
   object-fit: contain; /* Ensure the image scales down if necessary without being distorted */
 }
 .company-logo {
-  max-width: 130px;
-  max-height: 130px;
+  max-width: 150px;
+  max-height: 150px;
 }
 .logo-container {
   display: flex;
