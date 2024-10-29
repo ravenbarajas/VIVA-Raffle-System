@@ -20,6 +20,8 @@ import logo12 from '../assets/logo/logo-12.png';
 import spinSound from '../assets/audio/spin.mp3';
 import heartbeatSound from '../assets/audio/heartbeat.mp3';
 
+import videoSrc from '../assets/logo/gifbg.mp4';
+
 function RafflePage() {
   const [generatedName, setGeneratedName] = useState('');
   const [selectedPrize, setSelectedPrize] = useState(null);
@@ -380,10 +382,10 @@ function RafflePage() {
             setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
             setFlippedLogos(new Array(generatedName.length).fill(false));
             
-        // Trigger the logo flip animation after a short delay
-        setTimeout(() => {
-            triggerLogoFlip();
-        }, 100); // Short delay to ensure state has updated
+            // Trigger the logo flip animation after a short delay
+            setTimeout(() => {
+                triggerLogoFlip();
+            }, 100); // Short delay to ensure state has updated
         }
     }, [generatedName, isRedraw]);
 
@@ -406,7 +408,10 @@ function RafflePage() {
             {showNextDrawPage ? (
                 <div className={`next-draw-transition ${isAnimating ? 'exit-active' : 'enter-active'}`}>
                     <div className="next-draw-page">
-                        <p>The next draw will begin soon! Please stay tuned.</p>
+                        <video autoPlay loop muted playsInline className="background-video">
+                            <source src={videoSrc} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                 </div>
             ) : (
