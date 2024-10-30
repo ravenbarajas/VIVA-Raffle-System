@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { WAIVE_PRIZE_EVENT } from '../../constants/events.js';
 import '../css/RafflePage.css';
 import LogoSlotMachine from './LogoSlotMachine';
-import mainlogo from  '../assets/logo/mainlogo.png';
+import mainlogo from  '../assets/logo/Viva43rdAnivFINALwbluebg.png';
 import logo1 from '../assets/logo/logo-1.png';
 import logo2 from '../assets/logo/logo-2.png';
 import logo3 from '../assets/logo/logo-3.png';
@@ -32,7 +32,7 @@ function RafflePage() {
   const [welcomeMessage, setWelcomeMessage] = useState(true);
 
   const [logoSrcs, setLogoSrcs] = useState([]);  // To track the logos (mainLogo or company logos)
-  const [isRolling, setIsRolling] = useState(true);  // To track whether the rolling animation is ongoing
+  const [isRolling, setIsRolling] = useState(false);  // To track whether the rolling animation is ongoing
   const [revealedLogos, setRevealedLogos] = useState(Array(generatedName.length).fill(false));
   const [flippedLogos, setFlippedLogos] = useState([]);
 
@@ -43,53 +43,114 @@ function RafflePage() {
   
   const [flipDuration, setFlipDuration] = useState(5000);  // Duration for the rolling animation (modifiable later)
 
-   // Function to handle animation and reveal logos
-   const triggerLogoFlip = () => {
-    setIsRolling(true);
-    setRevealedLogos(Array(generatedName.length).fill(false));
+    // Function to handle animation and reveal logos
+    const triggerLogoFlip = () => {
+        setIsRolling(true); // Start the rolling animation
+        setRevealedLogos(Array(generatedName.length).fill(false));
 
-    // Load the spin sound and set it to loop
-    const sound = new Audio(spinSound);
-    sound.loop = true;
-    sound.playbackRate = 2;
-    sound.play();
+        // Load the spin sound and set it to loop
+        const sound = new Audio(spinSound);
+        sound.loop = true;
+        sound.playbackRate = 2;
+        sound.play();
 
-    // Cycle through random logos before stopping on the winner's logo
-    const cycleLogosInterval = setInterval(() => {
-        setLogoSrcs(prevLogos => {
-            return prevLogos.map(() => {
-                const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
-                return randomLogo;
+        // Cycle through random logos before stopping on the winner's logo
+        const cycleLogosInterval = setInterval(() => {
+            setLogoSrcs(prevLogos => {
+                return prevLogos.map(() => {
+                    const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
+                    return randomLogo;
+                });
             });
-        });
-    }, 300);
-    
-    setTimeout(() => { 
-        clearInterval(cycleLogosInterval);
-        sound.pause();  // Stop the sound effect when animation ends
-        sound.currentTime = 0; // Reset sound position if replayed
+        }, 300);
         
-        generatedName.forEach((name, index) => {
-            setTimeout(() => {
-                const companyName = name.split('(')[1]?.replace(')', '').trim();
+        setTimeout(() => { 
+            // Stop cycling through logos
+            clearInterval(cycleLogosInterval);
+            sound.pause();  // Stop the sound effect when animation ends
+            sound.currentTime = 0; // Reset sound position if replayed
+            
+            // Reveal each generated name and logo sequentially
+            generatedName.forEach((name, index) => {
+                setTimeout(() => {
+                    const companyName = name.split('(')[1]?.replace(')', '').trim();
 
-                // Set the winner's logo
-                setLogoSrcs(prevLogos => {
-                    const newLogos = [...prevLogos];
-                    const winnerLogo = getLogoForCompany(companyName);
-                    newLogos[index] = winnerLogo ? winnerLogo : mainlogo;
-                    return newLogos;
-                });
+                    // Set the winner's logo
+                    setLogoSrcs(prevLogos => {
+                        const newLogos = [...prevLogos];
+                        const winnerLogo = getLogoForCompany(companyName);
+                        newLogos[index] = winnerLogo ? winnerLogo : mainlogo;
+                        return newLogos;
+                    });
 
-                // Mark as revealed and stop rolling for this logo
-                setRevealedLogos(prev => {
-                    const newRevealed = [...prev];
-                    newRevealed[index] = true;
-                    return newRevealed;
-                });
-            }, index * 500);
+                    // Mark as revealed and stop rolling for this logo
+                    setRevealedLogos(prev => {
+                        const newRevealed = [...prev];
+                        newRevealed[index] = true;
+                        return newRevealed;
+                    });
+
+                    // Stop the rolling animation after the last logo is revealed
+                    if (index === generatedName.length - 1) {
+                        setIsRolling(false); // Stop the rolling animation once all logos are revealed
+                    }
+                }, index * 500);
+            });
+        }, flipDuration);
+    };
+
+    // Function to handle animation and reveal logo for a specific card
+    const triggerLogoFlipForCard = (cardIndex) => {
+        setIsRolling(true);
+        
+        // Reset revealed state for this specific card
+        setRevealedLogos(prevRevealed => {
+            const newRevealed = [...prevRevealed];
+            newRevealed[cardIndex] = false;
+            return newRevealed;
         });
-    }, flipDuration);
+
+        // Load the spin sound and set it to loop
+        const sound = new Audio(spinSound);
+        sound.loop = true;
+        sound.playbackRate = 2;
+        sound.play();
+
+        // Cycle through random logos for the specific card only
+        const cycleLogosInterval = setInterval(() => {
+            setLogoSrcs(prevLogos => {
+                const newLogos = [...prevLogos];
+                // Only change the logo for the targeted cardIndex
+                newLogos[cardIndex] = logos[Math.floor(Math.random() * logos.length)].src;
+                return newLogos;
+            });
+        }, 300);
+
+        setTimeout(() => { 
+            // Stop cycling through logos for this card
+            clearInterval(cycleLogosInterval);
+            sound.pause();  // Stop the sound effect when animation ends
+            sound.currentTime = 0; // Reset sound position if replayed
+
+            // Set the winner's logo for this specific card
+            const companyName = generatedName[cardIndex].split('(')[1]?.replace(')', '').trim();
+            setLogoSrcs(prevLogos => {
+                const newLogos = [...prevLogos];
+                // Set only the target card to the winner's logo; other cards remain on mainlogo
+                newLogos[cardIndex] = getLogoForCompany(companyName) || mainlogo;
+                return newLogos;
+            });
+
+            // Mark this specific card as revealed
+            setRevealedLogos(prevRevealed => {
+                const newRevealed = [...prevRevealed];
+                newRevealed[cardIndex] = true;
+                return newRevealed;
+            });
+
+            // Stop the rolling animation for this individual card
+            setIsRolling(false);
+        }, flipDuration);
     };
 
     const heartbeatAudio = useRef(new Audio(heartbeatSound));
@@ -257,11 +318,6 @@ function RafflePage() {
             setFlipDuration(receivedDuration);
         }
 
-        // Trigger the logo flip animation regardless of redraws
-        setTimeout(() => {
-            triggerLogoFlip(flipDuration);  // Always trigger logo flip
-        }, 100);  // Small delay to ensure state has updated
-
         // Directly reveal logos without animation for redraws
         if (isRedraw && waivedWinnerName) {
             generatedName.forEach((name, index) => {
@@ -337,7 +393,11 @@ function RafflePage() {
       else if (event.data.type === 'SHOW_NEXT_DRAW_PAGE') 
       {
         setShowNextDrawPage(true);  // Show the temporary page
-      }   
+      } 
+      else if (event.data.type === 'SPIN_ALL') {
+        triggerLogoFlip(); // Start the logo flip animation when 'Spin All' is triggered
+        }
+
     };
 
     window.addEventListener('message', handleMessage);
@@ -381,11 +441,6 @@ function RafflePage() {
             setFlippedCards(new Array(generatedName.length).fill(false));
             setLogoSrcs(new Array(generatedName.length).fill(mainlogo));  // Initially show the mainLogo
             setFlippedLogos(new Array(generatedName.length).fill(false));
-            
-            // Trigger the logo flip animation after a short delay
-            setTimeout(() => {
-                triggerLogoFlip();
-            }, 100); // Short delay to ensure state has updated
         }
     }, [generatedName, isRedraw]);
 
@@ -393,13 +448,20 @@ function RafflePage() {
       setNewWinner(winner);
   };
 
-  const handleCardClick = (index) => {
-    // Flip the card when clicked
-    setFlippedCards(prevState => {
-        const newState = [...prevState];
-        newState[index] = true; // Flip only the clicked card
-        return newState;
-    });
+  const handleCardClick = (index, event) => {
+    event.preventDefault();
+
+    if (event.type === 'click') {
+        // Left-click: Flip the card
+        setFlippedCards(prevState => {
+            const newState = [...prevState];
+            newState[index] = !newState[index]; // Toggle the flipped state
+            return newState;
+        });
+    } else if (event.type === 'contextmenu') {
+        // Right-click: Trigger logo flip and prevent default context menu
+        triggerLogoFlipForCard(index);
+    }
   };
 
   return (
@@ -441,14 +503,15 @@ function RafflePage() {
                                                             <div 
                                                                 key={index} 
                                                                 className="winner-card"
-                                                                onClick={() => handleCardClick(index)}
+                                                                onClick={(event) => handleCardClick(index, event)}
+                                                                onContextMenu={(event) => handleCardClick(index, event)}
                                                             >
                                                                 <div className={`card ${flippedCards[index] ? 'is-flipped' : ''}`}>
                                                                     <div className="card-face card-front"
                                                                         onMouseEnter={handleMouseEnter} 
                                                                         onMouseLeave={handleMouseLeave}>
                                                                         <div className='card-front-container'>
-                                                                            <div className={`logo-container ${!revealedLogos[index] ? 'rolling' : ''}`}>
+                                                                            <div className={`logo-container ${!revealedLogos[index] && isRolling ? 'rolling' : ''}`}>
                                                                                 <img 
                                                                                     src={logoSrc} 
                                                                                     alt={`logo-${index}`} 

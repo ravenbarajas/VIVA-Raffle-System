@@ -894,6 +894,10 @@ function RaffleDashboard() {
         }
     };    
 
+    const handleSpinAllClick = () => {
+        raffleTabRef.current.postMessage({ type: 'SPIN_ALL' }, '*');
+    };
+
     // Page Rendering
     const [activeTab, setActiveTab] = useState('ctrlGrid');
 
@@ -965,6 +969,17 @@ function RaffleDashboard() {
                                                 </div>
                                             </div>
                                             
+                                            <div className='button-wrapper'>
+                                                <div className='button-info-wrapper'>
+                                                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <button 
+                                                            style={{ width: '308px', height: "40px", display: "flex", justifyContent: 'center', alignItems: 'center', border:'0px', backgroundColor:'#B0C5DB', fontSize:'20px'}}
+                                                            onClick={handleSpinAllClick}>
+                                                            Spin
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className='button-wrapper'>
                                                 <div className='button-info-wrapper'>
                                                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
