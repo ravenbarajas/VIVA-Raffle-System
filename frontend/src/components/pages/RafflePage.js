@@ -43,61 +43,63 @@ function RafflePage() {
   
   const [flipDuration, setFlipDuration] = useState(5000);  // Duration for the rolling animation (modifiable later)
 
-    // Function to handle animation and reveal logos
-    const triggerLogoFlip = () => {
-        setIsRolling(true); // Start the rolling animation
-        setRevealedLogos(Array(generatedName.length).fill(false));
+  // Function to handle animation and reveal logos
+  const triggerLogoFlip = () => {
+    setIsRolling(true); // Start the rolling animation
+    setRevealedLogos(Array(generatedName.length).fill(false));
 
-        // Load the spin sound and set it to loop
-        const sound = new Audio(spinSound);
-        sound.loop = true;
-        sound.playbackRate = 2;
-        sound.play();
+    // Load the spin sound and set it to loop
+    const sound = new Audio(spinSound);
+    sound.loop = true;
+    sound.playbackRate = 2;
+    sound.play();
 
-        // Cycle through random logos before stopping on the winner's logo
-        const cycleLogosInterval = setInterval(() => {
-            setLogoSrcs(prevLogos => {
-                return prevLogos.map(() => {
-                    const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
-                    return randomLogo;
+    // Cycle through random logos before stopping on the winner's logo
+    const cycleLogosInterval = setInterval(() => {
+        setLogoSrcs(prevLogos => {
+            return prevLogos.map(() => {
+                const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
+                return randomLogo;
+            });
+        });
+    }, 500); // Adjust speed of logo cycling
+
+    // Delay to stop the animation and reveal each winner's logo sequentially
+    setTimeout(() => { 
+        clearInterval(cycleLogosInterval); // Stop cycling the logos
+        sound.pause();  // Stop the sound effect when animation ends
+        sound.currentTime = 0; // Reset sound position if replayed
+
+        // Reveal each winner's logo with a delay
+        generatedName.forEach((name, index) => {
+            setTimeout(() => {
+                // Extract the company name and find the logo
+                const companyName = name.split('(')[1]?.replace(')', '').trim();
+                const winnerLogo = getLogoForCompany(companyName) || mainlogo; // Retrieve logo or fallback to mainlogo
+                
+                // Set the winner's logo
+                setLogoSrcs(prevLogos => {
+                    const newLogos = [...prevLogos];
+                    newLogos[index] = winnerLogo;
+                    return newLogos;
                 });
-            });
-        }, 300);
-        
-        setTimeout(() => { 
-            // Stop cycling through logos
-            clearInterval(cycleLogosInterval);
-            sound.pause();  // Stop the sound effect when animation ends
-            sound.currentTime = 0; // Reset sound position if replayed
-            
-            // Reveal each generated name and logo sequentially
-            generatedName.forEach((name, index) => {
-                setTimeout(() => {
-                    const companyName = name.split('(')[1]?.replace(')', '').trim();
 
-                    // Set the winner's logo
-                    setLogoSrcs(prevLogos => {
-                        const newLogos = [...prevLogos];
-                        const winnerLogo = getLogoForCompany(companyName);
-                        newLogos[index] = winnerLogo ? winnerLogo : mainlogo;
-                        return newLogos;
-                    });
+                // Mark as revealed for animation trigger
+                setRevealedLogos(prev => {
+                    const newRevealed = [...prev];
+                    newRevealed[index] = true;
+                    return newRevealed;
+                });
 
-                    // Mark as revealed and stop rolling for this logo
-                    setRevealedLogos(prev => {
-                        const newRevealed = [...prev];
-                        newRevealed[index] = true;
-                        return newRevealed;
-                    });
+                // Ensure rolling stops only after the last logo is revealed
+                if (index === generatedName.length - 1) {
+                    setIsRolling(false);
+                }
+            }, index * 500 + 500); // Adding 500ms delay for each winner reveal
+        });
+    }, flipDuration);
+};
 
-                    // Stop the rolling animation after the last logo is revealed
-                    if (index === generatedName.length - 1) {
-                        setIsRolling(false); // Stop the rolling animation once all logos are revealed
-                    }
-                }, index * 500);
-            });
-        }, flipDuration);
-    };
 
     // Function to handle animation and reveal logo for a specific card
     const triggerLogoFlipForCard = (cardIndex) => {
@@ -253,8 +255,6 @@ function RafflePage() {
           localStorage.setItem('prizes', JSON.stringify(event.data.prizes));
       } // Add the winner to winners table and winner cards
       else if (event.data.type === 'WINNER_ADDED') {
-
-        setIsAnimating(true); // Start the exit animation for the next draw page
         setTimeout(() => {
           setShowNextDrawPage(false);  // Hide the page after the animation ends
           setIsAnimating(false);  // Reset the animation state
@@ -318,7 +318,6 @@ function RafflePage() {
             setFlipDuration(receivedDuration);
         }
 
-        // Directly reveal logos without animation for redraws
         if (isRedraw && waivedWinnerName) {
             generatedName.forEach((name, index) => {
                 setLogoSrcs(prevLogos => {
@@ -374,6 +373,45 @@ function RafflePage() {
                     newState[waivedWinnerIndex] = false; // Reset the flip state for this card
                     return newState;
                 });
+
+                // Start rolling effect
+                setIsRolling(true);
+
+                // Randomize logos before setting the new winner’s logo
+                const cycleLogosInterval = setInterval(() => {
+                    setLogoSrcs(prevLogos => {
+                        return prevLogos.map(() => {
+                            const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
+                            return randomLogo;
+                        });
+                    });
+                }, 500); // Adjust the interval for faster cycling if desired
+
+                // Stop the rolling effect and set the new winner's logo
+                setTimeout((name, index) => {
+                    clearInterval(cycleLogosInterval);
+
+                    // Set the new winner's logo
+                    const companyName = waivedPrize.name.split('(')[1]?.replace(')', '').trim();
+                    const winnerLogo = getLogoForCompany(companyName) || mainlogo;
+
+                    setLogoSrcs(prevLogos => {
+                        const newLogos = [...prevLogos];
+                        newLogos[waivedWinnerIndex] = winnerLogo;
+                        return newLogos;
+                    });
+
+                    // Mark as revealed for animation trigger
+                    setRevealedLogos(prev => {
+                        const newRevealed = [...prev];
+                        newRevealed[index] = true;
+                        return newRevealed;
+                    });
+
+                    // Stop rolling after the logo is set
+                    setIsRolling(false);
+                }, flipDuration); // Duration for rolling effect before setting new logo
+
             }, 300); // Delay the flip action to occur slightly after hover is removed
         } else {
             console.error('Waived winner not found in generatedName array');

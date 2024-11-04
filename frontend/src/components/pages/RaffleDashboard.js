@@ -1054,6 +1054,9 @@ function RaffleDashboard() {
 
                             <div className="summary-grid-item">
                                 <div className='winner-container'>
+                                    <div className='winner-container-footer'>
+                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">Current Draw Prize: {selectedPrize.RFLITEM}</p>}
+                                    </div>
                                     <div className='winner-container-body'>
                                         <ul>
                                             {generatedName && (
@@ -1066,9 +1069,6 @@ function RaffleDashboard() {
                                             )}
                                             
                                         </ul>
-                                    </div>
-                                    <div className='winner-container-footer'>
-                                        {isPrizeRevealed && selectedPrize && <p className="prize-item">Current Draw Prize: {selectedPrize.RFLITEM}</p>}
                                     </div>
                                 </div>
                                 <div className='summary-container'>
