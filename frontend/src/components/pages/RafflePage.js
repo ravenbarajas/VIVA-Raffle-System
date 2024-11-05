@@ -54,15 +54,40 @@ function RafflePage() {
     sound.playbackRate = 2;
     sound.play();
 
-    // Cycle through random logos before stopping on the winner's logo
+    // Start at 500ms and gradually increase duration
+    let animationDuration = 350;
+    const maxDuration = flipDuration; // maxDuration is 80% of flipDuration
+    const durationIncrement = 150;
+
+    // Function to update the logo container with a new duration
     const cycleLogosInterval = setInterval(() => {
-        setLogoSrcs(prevLogos => {
+        // Update the animation duration
+        document.querySelectorAll('.logo-container.rolling').forEach((el) => {
+            el.style.animationDuration = `${animationDuration}ms`;
+            el.classList.remove('rolling'); // Reset animation
+            void el.offsetWidth; // Trigger reflow to restart the animation
+            el.classList.add('rolling'); // Reapply animation
+        });
+
+        // Update logo images
+        setLogoSrcs((prevLogos) => {
             return prevLogos.map(() => {
                 const randomLogo = logos[Math.floor(Math.random() * logos.length)].src;
                 return randomLogo;
             });
         });
-    }, 500); // Adjust speed of logo cycling
+
+        // Increment duration until reaching the max
+        animationDuration = Math.min(animationDuration + durationIncrement, maxDuration);
+
+        // Stop if max duration is reached
+        if (animationDuration >= maxDuration) {
+            clearInterval(cycleLogosInterval);
+            setIsRolling(false);
+            sound.pause();
+            sound.currentTime = 0;
+        }
+    }, animationDuration);
 
     // Delay to stop the animation and reveal each winner's logo sequentially
     setTimeout(() => { 
@@ -75,12 +100,12 @@ function RafflePage() {
             setTimeout(() => {
                 // Extract the company name and find the logo
                 const companyName = name.split('(')[1]?.replace(')', '').trim();
-                const winnerLogo = getLogoForCompany(companyName) || mainlogo; // Retrieve logo or fallback to mainlogo
                 
                 // Set the winner's logo
                 setLogoSrcs(prevLogos => {
                     const newLogos = [...prevLogos];
-                    newLogos[index] = winnerLogo;
+                    const winnerLogo = getLogoForCompany(companyName);
+                    newLogos[index] = winnerLogo ? winnerLogo : mainlogo;
                     return newLogos;
                 });
 
@@ -95,11 +120,10 @@ function RafflePage() {
                 if (index === generatedName.length - 1) {
                     setIsRolling(false);
                 }
-            }, index * 500 + 500); // Adding 500ms delay for each winner reveal
+            }, index * 500); // Adding 500ms delay for each winner reveal
         });
     }, flipDuration);
 };
-
 
     // Function to handle animation and reveal logo for a specific card
     const triggerLogoFlipForCard = (cardIndex) => {

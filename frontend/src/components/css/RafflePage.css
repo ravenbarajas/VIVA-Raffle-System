@@ -424,21 +424,14 @@
   height: 100%;
 }
 .logo-container.rolling {
-  animation: spin .4s ease-in-out infinite; /* Move animation to rolling class */
+  animation: spin .15s ease-in-out infinite; /* Move animation to rolling class */
 }
 
 @keyframes spin {
-  /* First half: Normal speed (0-50%) */
   0% { transform: translateY(0); }
   25% { transform: translateY(-25%); }
   50% { transform: translateY(-50%); }
-  
-  /* Second half: Gradual slow-down (50-100%) */
-  65% { transform: translateY(-65%); }
   75% { transform: translateY(-75%); }
-  85% { transform: translateY(-85%); }
-  92% { transform: translateY(-92%); }
-  96% { transform: translateY(-96%); }
   100% { transform: translateY(-100%); }
 }
 
