@@ -43,8 +43,8 @@ function RafflePage() {
   
   const [flipDuration, setFlipDuration] = useState(5000);  // Duration for the rolling animation (modifiable later)
 
-  // Function to handle animation and reveal logos
-  const triggerLogoFlip = () => {
+   // Function to handle animation and reveal logos
+   const triggerLogoFlip = () => {
     setIsRolling(true); // Start the rolling animation
     setRevealedLogos(Array(generatedName.length).fill(false));
 
@@ -55,9 +55,9 @@ function RafflePage() {
     sound.play();
 
     // Start at 500ms and gradually increase duration
-    let animationDuration = 350;
+    let animationDuration = 250;
     const maxDuration = flipDuration; // maxDuration is 80% of flipDuration
-    const durationIncrement = 150;
+    const durationIncrement = 100;
 
     // Function to update the logo container with a new duration
     const cycleLogosInterval = setInterval(() => {
@@ -76,6 +76,13 @@ function RafflePage() {
                 return randomLogo;
             });
         });
+
+        // Re-add visible class to make logos fade in smoothly
+        setTimeout(() => {
+            document.querySelectorAll('.logo-container img').forEach((img) => {
+                img.classList.add('visible');
+            });
+        }, 30); // Small delay to trigger the fade-in effect
 
         // Increment duration until reaching the max
         animationDuration = Math.min(animationDuration + durationIncrement, maxDuration);
@@ -122,8 +129,8 @@ function RafflePage() {
                 }
             }, index * 500); // Adding 500ms delay for each winner reveal
         });
-    }, flipDuration);
-};
+        }, flipDuration);
+    };
 
     // Function to handle animation and reveal logo for a specific card
     const triggerLogoFlipForCard = (cardIndex) => {
