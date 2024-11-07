@@ -186,7 +186,7 @@ function RafflePage() {
             // Cycle through random logos for the specific card only
             const cycleLogosInterval = setInterval(() => {
                 rollingCard.style.animationDuration = `${animationDuration}ms`;
-                
+
                 // Toggle visibility on the clicked card only
                 rollingCard.classList.remove('rolling');
                 void rollingCard.offsetWidth; // Trigger reflow to restart the animation
@@ -216,8 +216,9 @@ function RafflePage() {
             sound.pause();  // Stop the sound effect when animation ends
             sound.currentTime = 0; // Reset sound position if replayed
 
-            // Set the winner's logo for this specific card
-            const companyName = generatedName[index].split('(')[1]?.replace(')', '').trim();
+            setTimeout(() => {
+                // Set the winner's logo for this specific card
+                const companyName = generatedName[index].split('(')[1]?.replace(')', '').trim();
                 setLogoSrcs(prevLogos => {
                     const newLogos = [...prevLogos];
                     // Set only the target card to the winner's logo; other cards remain on mainlogo
@@ -233,7 +234,8 @@ function RafflePage() {
                 });
 
                 // Remove "rolling" class from the card to end its animation
-            rollingCard.classList.remove('rolling');
+                rollingCard.classList.remove('rolling');
+                }, 500);
             }, flipDuration);
         }, 1000);
     };
